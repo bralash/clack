@@ -58,11 +58,13 @@ Because it's a single static file, you can host it for free:
 
 All progress is stored locally in your browser via `localStorage` — nothing is sent anywhere:
 
-- `bemonkey_v3` — daily activity that drives the heatmap
+- `clack_activity` — daily activity that drives the heatmap
 - `clack_stats` — per-key accuracy, WPM history, personal bests, achievements, modes tried
 - `clack_theme` — light / dark preference
 - `clack_mods` — punctuation / numbers toggles
-- `bm_sound` — sound & haptics on/off
+- `clack_sound` — sound & haptics on/off
+
+Progress is per browser, per device — there are no accounts, so it doesn't sync between devices.
 
 Clearing your browser's site data resets everything.
 

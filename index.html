@@ -215,11 +215,11 @@
   /* ---------- RESULTS ---------- */
   #result{align-items:center;justify-content:center;padding:26px;gap:8px;}
   .res-title{font-family:var(--mono);color:var(--gold);font-size:14px;letter-spacing:1px;margin-bottom:14px;}
-  .res-row{display:flex;gap:34px;margin-bottom:26px;}
+  .res-row{display:flex;align-items:flex-end;gap:40px;margin-bottom:26px;}
   .res-item{text-align:center;}
   .res-num{font-family:var(--mono);font-size:44px;font-weight:700;color:var(--gold);
     line-height:1;font-variant-numeric:tabular-nums;}
-  .res-num.sm{color:var(--text);font-size:30px;}
+  .res-num.sm{color:var(--text);}
   .res-lab{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:8px;}
   .res-sub{display:flex;gap:26px;font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-bottom:34px;}
   .res-sub b{color:var(--text);font-weight:500;}
@@ -473,7 +473,22 @@
 
 <script>
 "use strict";
-const WORDS = ("the be of and a to in he have it that for they i with as not on she at by this we you do but from or which one would all will there say who make when can more if no man out other so what time up go about than into could state only new year some take come these know see use get like then first any work now may such give over think most even find day also after way many must look before great back through long where much should well people down own just because good each those feel seem how high too place little world very still nation hand old life tell write become here show house both between need mean call develop under last right move thing general school never same another begin while number part turn real leave might want point form off child few small since against ask late home interest large person end open public follow during present without again hold govern around possible head consider word program problem however lead system set order eye plan run keep face fact group play stand increase early course change help line warm whisper river silent gentle bright quiet swift").split(" ");
+// ~1000 common English words; duplicates are removed at load so every entry is unique
+const WORDS = [...new Set(`
+the be to of and a in that have i it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is was are been has had were said did made find very where through long down before must great little world still own too here life between both old tell high every last never same another while might under right place again few home big small large end put hand part keep turn start show point school play move live mean more man state such may each those feel seem nation general begin leave form off child since against ask late interest person public during present without hold govern possible head consider program however lead system order run face stand increase early course line
+follow around open seem help talk bring happen write provide sit lose pay meet include continue set learn change understand watch stop create speak read allow add spend grow offer remember love appear buy wait serve die send expect build stay fall cut reach kill remain suggest raise pass sell require report decide pull return explain hope develop carry break receive agree support hit produce eat cover catch draw choose cause listen plan wear drive walk win fight throw fill lie fish rise jump laugh sing cry smile dance swim climb teach touch push visit wish enjoy thank
+number group problem fact eye water room mother father family money story month lot night study book job word business issue side kind house service friend power hour game member law car city name team minute idea kid body information others level office door health art war history party result morning reason research girl guy moment air teacher force education foot boy age policy process music market sense college death experience effect class control care field development role effort rate heart leader light voice wife police mind price decision son view relationship town road arm difference value building action model season society tax director position player record paper space ground event official matter center couple site project activity star table need court oil situation cost industry figure street image phone data picture practice piece land product doctor wall patient worker news test movie north technology step baby computer type attention film tree source organization hair window evidence population truth song island river mountain ocean forest garden desert valley beach bridge train plane boat ship engine wheel kitchen bedroom chair clock mirror bottle glass plate spoon knife fork pencil letter stamp ticket coin card gift box bag basket rope chain lock key
+bright dark warm cold quick slow happy sad strong weak rich poor clean dirty easy hard empty full fresh heavy loud quiet sharp soft sweet bitter wide narrow deep shallow smooth rough simple strange gentle proud brave calm eager fair fancy fierce lazy lucky nice odd plain rare ready safe silent solid tall tiny wild young ancient awful basic careful certain clear common complete correct curious dear direct double eastern entire exact extra famous fine final foreign formal free friendly golden grand green honest huge human ideal inner junior legal likely local lonely lovely loyal main major mental minor modern moral mutual native natural neat nervous normal obvious orange original outer pale perfect personal pink pleasant polite popular positive pretty primary private proper pure purple rapid raw real recent red regular remote round royal rural sacred secret senior serious severe short silver similar single slight social special square stable steady steep sudden super sure tender thick thin tight total tough typical unique upper urban usual valid vast visible vital western white whole wise wooden yellow blue black brown gray swift
+always often sometimes usually already almost enough quite rather really soon today tonight tomorrow yesterday together perhaps maybe instead anyway else ever everywhere forward inside outside nearly once twice later above below behind beside beyond except near toward upon within across along among
+apple bread butter cheese cake cookie honey lemon melon onion pepper potato rice salad salt soup sugar tomato candy coffee juice milk tea wine egg meat chicken bean corn grape peach pear plum berry nut seed leaf root flower grass stone rock sand dust mud clay iron gold steel wood cotton wool silk leather plastic rubber
+cat dog horse cow pig sheep goat bird duck eagle owl crow shark whale frog snake mouse rabbit bear wolf fox deer lion tiger monkey zebra camel spider bee ant fly moth
+spring summer autumn winter rain snow wind storm cloud sun moon sky fire smoke ice wave sea lake pond hill farm village castle tower temple church shop bank hotel museum library hospital station airport harbor
+ride sail dig paint cook bake wash fix repair plant gather hunt trade travel explore discover invent solve measure count divide shape fold wrap tie mark sign vote join share lend borrow owe save waste burn melt freeze boil pour mix stir shake spin roll slide bounce float sink flow drift glide dash rush hurry wander
+wonder dream imagine believe doubt guess notice forget recall realize prefer admire trust fear hate miss whisper warm
+answer question silence shadow corner circle pattern signal message promise chance choice danger courage honor pride shame anger peace freedom justice balance memory future past moment century decade second evening midnight noon dawn dusk
+rocket planet galaxy comet orbit gravity energy motion speed distance height weight volume surface edge border middle bottom top front rear
+ability account address advice amount animal answer apartment area argument army article artist audience author average award bill blood board bottom brain branch breath budget camera campaign cancer capital career cell chapter character church citizen claim coach coast concept concert contract conversation country county crowd culture customer damage debate degree demand design detail device dinner discussion disease document dog dollar driver economy editor election element employee energy entry environment episode error estate exam example exercise expert fashion feature feeling finger flight floor focus friendship fuel function future glass goal government grade guest guitar hall highway holiday hospital husband income injury instance insurance internet invite item journey judge knowledge lady language leadership lesson library limit list loan location machine magazine manager map marriage material meal media meeting menu method mission mixture mobile moment network novel object opinion owner painting passenger path payment penalty performance period permission physics poem poet poetry profile property purpose quality quantity radio reality recipe region resource response restaurant revenue risk safety salary sample scene science screen sector security selection series shopping signature singer skill software soil solution speech strategy student studio subject success supply surgery system teacher tennis theory thought topic tourist trainer transport unit variety version video virus visitor weakness wealth weather wedding winner woman writer youth
+`.trim().split(/\s+/))];
 
 const $=s=>document.querySelector(s);
 const el={home:$("#home"),test:$("#test"),result:$("#result"),
@@ -487,7 +502,15 @@ const ICONS={time:"⏱",words:"⁝",quote:"❝",shoot:"✷"};
 let mode="time", value=60;
 
 /* ---------- storage ---------- */
-const KEY="bemonkey_v3";
+const KEY="clack_activity";
+// one-time migration from the pre-rename storage keys, so existing progress carries over
+try{
+  [["bemonkey_v3",KEY],["bm_sound","clack_sound"]].forEach(([oldK,newK])=>{
+    const v=localStorage.getItem(oldK);
+    if(v!==null&&localStorage.getItem(newK)===null)localStorage.setItem(newK,v);
+    if(v!==null)localStorage.removeItem(oldK);
+  });
+}catch(e){}
 function loadData(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
 function saveData(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
 function dayKey(dt){return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate();}
@@ -594,7 +617,7 @@ el.opts.onclick=e=>{const o=e.target.closest(".opt");if(!o)return;
 
 /* ---------- sound + haptics ---------- */
 let AC=null;
-let soundOn=(function(){try{return localStorage.getItem("bm_sound")!=="off";}catch(e){return true;}})();
+let soundOn=(function(){try{return localStorage.getItem("clack_sound")!=="off";}catch(e){return true;}})();
 function ac(){
   if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}
   if(AC&&AC.state==="suspended"){try{AC.resume();}catch(e){}}
@@ -619,7 +642,7 @@ function haptic(ms){ if(soundOn&&navigator.vibrate){try{navigator.vibrate(ms);}c
 
 function syncSnd(){const b=$("#sndBtn");b.classList.toggle("on",soundOn);b.textContent=soundOn?"♪ sound on":"♪ sound off";}
 $("#sndBtn").onclick=e=>{e.stopPropagation();soundOn=!soundOn;
-  try{localStorage.setItem("bm_sound",soundOn?"on":"off");}catch(_){}
+  try{localStorage.setItem("clack_sound",soundOn?"on":"off");}catch(_){}
   syncSnd();if(soundOn){ac();click();}};
 
 /* ---------- stats store (per-key accuracy, wpm history, personal bests) ---------- */
@@ -726,9 +749,16 @@ function decorate(w){
   if(Math.random()<0.05)w='"'+w+'"';
   return w;
 }
+const RECENT=[];                 // last few picks, kept out of rotation so words don't repeat back-to-back
+function pickWord(){
+  let w,tries=0;
+  do{w=WORDS[Math.floor(Math.random()*WORDS.length)];tries++;}while(RECENT.includes(w)&&tries<25);
+  RECENT.push(w);if(RECENT.length>40)RECENT.shift();
+  return w;
+}
 function makeWord(){
   if(nums && Math.random()<0.14) return ""+(Math.floor(Math.random()*998)+2);
-  const w=WORDS[Math.floor(Math.random()*WORDS.length)];
+  const w=pickWord();
   return punct?decorate(w):w;
 }
 function newSeq(n){const a=[];for(let i=0;i<n;i++)a.push(makeWord());return a;}
