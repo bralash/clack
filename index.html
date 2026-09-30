@@ -78,7 +78,7 @@
   /* ---------- HOME / HEATMAP ---------- */
   #home{overflow:hidden;}
   .scroll{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;
-    padding:clamp(24px,4vh,48px) clamp(20px,5vw,64px) 128px;scrollbar-width:none;}
+    padding:clamp(24px,4vh,48px) clamp(20px,5vw,64px) 184px;scrollbar-width:none;}
   .scroll::-webkit-scrollbar{display:none;}
   .home-inner{margin-block:auto;width:100%;display:flex;flex-direction:column;
     gap:clamp(22px,4.5vh,42px);}
@@ -122,12 +122,25 @@
   /* ---------- CONFIG PILL + SHEET ---------- */
   .pill-bar{position:absolute;left:0;right:0;bottom:0;padding:20px 26px;
     padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
-    display:flex;justify-content:center;
-    background:linear-gradient(to top,var(--bg) 55%,transparent);}
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    background:linear-gradient(to top,var(--bg) 62%,transparent);}
+  /* always-visible mode switcher, so the other modes are discoverable without opening the sheet */
+  .modebar{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;max-width:100%;overflow-x:auto;scrollbar-width:none;}
+  .modebar::-webkit-scrollbar{display:none;}
+  .mchip{font-family:var(--mono);font-size:13px;color:var(--text-dim);background:none;border:0;
+    border-radius:9px;padding:8px 14px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+  .mchip:hover{color:var(--text);background:var(--surface-2);}
+  .mchip.active{color:var(--gold);background:var(--surface-2);}
+  .mchip:focus-visible,.pill .cfg:focus-visible,.pill .start:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
   .pill{display:flex;align-items:center;width:100%;max-width:480px;background:var(--surface-2);
     border:1px solid var(--line);border-radius:14px;padding:15px 22px;cursor:pointer;
     font-family:var(--mono);box-shadow:0 8px 30px rgba(0,0,0,.4);}
-  .pill .cfg{display:flex;align-items:center;gap:8px;color:var(--gold);font-size:14px;flex:1;}
+  .pill .cfg{display:flex;align-items:center;gap:8px;color:var(--gold);font-size:14px;flex:1;
+    border-radius:8px;padding:4px 8px;margin:-4px -8px;}
+  .pill .cfg:hover{background:var(--surface);}
+  .pill .cfg .caret{color:var(--text-dim);font-size:11px;margin-left:2px;}
+  .pill .cfg:hover .caret{color:var(--gold);}
   .pill .sep{color:var(--text-faint);margin:0 4px;}
   .pill .start{color:var(--text);font-size:14px;font-weight:700;letter-spacing:1px;}
   .pill .start:hover{color:var(--gold);}
@@ -253,8 +266,34 @@
   /* ---------- HOME: stats link ---------- */
   .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:16px;}
   .linkbtn{background:none;border:none;color:var(--text-dim);font-family:var(--mono);
-    font-size:12px;cursor:pointer;padding:4px 0 0;letter-spacing:.5px;margin-left:auto;
+    font-size:12px;cursor:pointer;padding:4px 0 0;letter-spacing:.5px;
     white-space:nowrap;}
+  .linkbtn:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px;}
+  .headnav{margin-left:auto;display:flex;align-items:center;gap:10px;padding-top:4px;}
+  .headnav .linkbtn{padding:0;}
+  .dotsep{color:var(--text-faint);font-family:var(--mono);font-size:12px;}
+  .res-help{margin-top:22px;}
+
+  /* ---------- HELP PAGE ---------- */
+  .help p{font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--text-dim);margin:0;max-width:62ch;}
+  .help p b,.help dd b{color:var(--text);font-weight:600;}
+  .help .kv{display:grid;grid-template-columns:max-content 1fr;gap:12px 18px;margin:0;
+    font-family:var(--mono);font-size:13px;align-items:baseline;}
+  .help .kv dt{color:var(--gold);white-space:nowrap;}
+  .help .kv dd{margin:0;color:var(--text-dim);line-height:1.6;}
+  .help .formula{font-family:var(--mono);font-size:13px;color:var(--text);background:var(--surface);
+    border:1px solid var(--line);border-radius:10px;padding:13px 16px;line-height:1.75;}
+  .help .formula span{color:var(--text-dim);font-size:12px;}
+  .help kbd{font-family:var(--mono);font-size:11px;color:var(--text);background:var(--surface-2);
+    border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;}
+  .help .pu{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--c);
+    border:1px solid var(--c);border-radius:999px;padding:2px 10px;background:color-mix(in srgb,var(--c) 12%,transparent);}
+  .help-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 20px;}
+  .hb{display:flex;align-items:center;gap:12px;font-family:var(--mono);}
+  .hb .emblem{width:40px;height:40px;flex:none;}
+  .hb b{display:block;font-size:12px;color:var(--text);font-weight:600;}
+  .hb span{font-size:11px;color:var(--text-dim);}
+  @media (max-width:480px){.help .kv{grid-template-columns:1fr;gap:4px 0;}.help .kv dd{margin-bottom:10px;}}
   .linkbtn:hover{color:var(--gold);}
 
   /* ---------- STATS PAGE ---------- */
@@ -300,12 +339,8 @@
   .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
     gap:20px 14px;max-width:560px;}
   .badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;}
-  .emblem{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
-    background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);}
-  .emblem svg{width:26px;height:26px;display:block;}
-  .badge.earned .emblem{color:#1a1608;border-color:var(--gold);
-    background:radial-gradient(circle at 34% 28%,#f6d566,#d6a015);
-    box-shadow:0 0 20px rgba(226,180,37,.40);}
+  .emblem{width:60px;height:60px;}
+  .emblem svg{width:100%;height:100%;display:block;overflow:visible;}
   .bname{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
   .badge.earned .bname{color:var(--text);}
   .bdesc{font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.4;}
@@ -317,9 +352,8 @@
     padding:12px 20px 12px 12px;box-shadow:0 10px 36px rgba(226,180,37,.35);z-index:30;
     max-width:min(90%,360px);transition:transform .45s cubic-bezier(.2,1.25,.3,1);}
   .toast.show{transform:translateX(-50%) translateY(0);}
-  .toast .tt-emblem{width:42px;height:42px;flex:none;border-radius:50%;display:grid;place-items:center;
-    color:#1a1608;background:radial-gradient(circle at 34% 28%,#f6d566,#d6a015);}
-  .toast .tt-emblem svg{width:21px;height:21px;}
+  .toast .tt-emblem{width:44px;height:44px;flex:none;}
+  .toast .tt-emblem svg{width:100%;height:100%;display:block;overflow:visible;}
   .toast .tt-l{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;
     text-transform:uppercase;color:var(--gold);}
   .toast .tt-n{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-top:3px;}
@@ -351,7 +385,11 @@
       <div class="home-inner">
         <div class="head">
           <div class="brand">cl<b>ack</b><span class="sub">a minimalistic typing test</span></div>
-          <button class="linkbtn" id="statsBtn">detailed stats →</button>
+          <nav class="headnav">
+            <button class="linkbtn" id="helpBtn">how it works</button>
+            <span class="dotsep" aria-hidden="true">·</span>
+            <button class="linkbtn" id="statsBtn">detailed stats →</button>
+          </nav>
         </div>
         <div class="totals">
           <div class="tot"><div class="v gold" id="tStreak">0</div><div class="l">day streak</div></div>
@@ -362,8 +400,14 @@
       </div>
     </div>
     <div class="pill-bar">
+      <div class="modebar" id="modebar" role="tablist" aria-label="mode">
+        <button class="mchip active" data-mode="time" role="tab">⏱ time</button>
+        <button class="mchip" data-mode="words" role="tab">⁝ words</button>
+        <button class="mchip" data-mode="quote" role="tab">❝ quote</button>
+        <button class="mchip" data-mode="shoot" role="tab">✷ shoot</button>
+      </div>
       <div class="pill">
-        <div class="cfg" id="pillCfg" title="change mode"><span id="pillIcon">⏱</span> <span id="pillLabel">60 seconds</span></div>
+        <div class="cfg" id="pillCfg" role="button" tabindex="0" title="change duration & options"><span id="pillIcon">⏱</span> <span id="pillLabel">60 seconds</span><span class="caret">▾</span></div>
         <span class="sep">|</span>
         <div class="start" id="startBtn">START</div>
       </div>
@@ -416,7 +460,7 @@
       <div class="s-mid"><span id="sScore">0</span> <span class="s-x">pts</span></div>
       <div class="s-lives" id="sLives"></div>
     </div>
-    <div class="s-hint" id="sHint">type a word to lock &amp; fire</div>
+    <div class="s-hint" id="sHint">type a word to lock &amp; fire · type a power-up to grab it</div>
   </section>
 
   <!-- STATS -->
@@ -467,6 +511,91 @@
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
       <div class="btn" id="done">done</div>
+    </div>
+    <button class="linkbtn res-help" id="wpmHelp">how is wpm calculated?</button>
+  </section>
+
+  <!-- HELP -->
+  <section id="help" class="view" hidden>
+    <div class="st-scroll">
+      <div class="st-inner help">
+      <div class="st-top">
+        <div class="quit" id="helpBack">← back</div>
+        <div class="st-title">how it works</div>
+        <div style="width:52px"></div>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">the basics</div>
+        <p>Pick a mode above <b>START</b> and just start typing — there's nothing to click into.
+          A word advances the moment you type its last letter, <b>right or wrong</b>, so you never have to press Space.
+          <kbd>Backspace</kbd> fixes a letter before the word ends, <kbd>Space</kbd> skips a word early, and <kbd>Esc</kbd> quits.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">modes</div>
+        <dl class="kv">
+          <dt>⏱ time</dt><dd>Type as many words as you can in 15 to 180 seconds.</dd>
+          <dt>⁝ words</dt><dd>Race to finish a set of 10 to 100 words.</dd>
+          <dt>❝ quote</dt><dd>Type a real quote — short, medium or long. The author is shown when you finish.</dd>
+          <dt>✷ shoot</dt><dd>A typing shooter: blast falling words before they hit your base. See below.</dd>
+        </dl>
+        <p>Click the setting next to START (like <b>60 seconds ▾</b>) to change the length, turn on
+          <b>! punctuation</b> or <b># numbers</b> for time and words runs, and switch sound or the light/dark theme.</p>
+      </div>
+
+      <div class="st-sec" id="help-wpm">
+        <div class="st-h">wpm &amp; accuracy</div>
+        <p>WPM counts <b>characters, not words</b>. Every 5 correct keystrokes — spaces included — count as one "word".
+          It's the standard typing-test measure, so long words and short words score fairly.</p>
+        <div class="formula">wpm = (correct characters ÷ 5) ÷ minutes<br>
+          <span>e.g. 244 correct characters in 60 s → 244 ÷ 5 = 48.8 → <b>49 wpm</b>, even if you typed only 40 actual words</span></div>
+        <p><b>Accuracy</b> is correct characters ÷ all characters typed. The faint number behind the word is your
+          <b>live wpm</b>, and <b>combo ×N</b> counts clean words in a row — one wrong letter resets it.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">the shooter</div>
+        <p>Words fall toward your ship. Type a word's first letter to <b>lock on</b> — you'll target the lowest word
+          starting with that letter — then finish it to destroy it. A wrong letter drops the lock.
+          Every word that reaches your base costs a life; lose them all and it's game over.
+          Each word is worth <b>10 + its length</b> in points. <b>calm</b>, <b>normal</b> and <b>frenzy</b> change speed,
+          spawn rate and lives, and everything speeds up the longer you survive.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">power-ups</div>
+        <p>Power-ups fall as glowing capsules marked "power-up". <b>Type the name to grab it.</b> Missing one never costs a life.</p>
+        <dl class="kv">
+          <dt><span class="pu" style="--c:#7cc8ff">❄ freeze</span></dt><dd>Slows every word — and new ones appearing — to a quarter speed for 5 seconds.</dd>
+          <dt><span class="pu" style="--c:#e2b425">×2 double</span></dt><dd>Double points for 10 seconds. Grabbing freeze or double replaces the one running.</dd>
+          <dt><span class="pu" style="--c:#4ee06e">◈ shield</span></dt><dd>Gives back a lost life. At full health it puts a ring around your ship that blocks the next hit.</dd>
+          <dt><span class="pu" style="--c:#ff8a3d">✹ boom</span></dt><dd>Saves a bomb. Press <kbd>Space</kbd> to clear every word on screen for full points.</dd>
+        </dl>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">progress</div>
+        <p>The heatmap on the home screen shows how much you typed each day, with your day streak and this month's totals.
+          <b>Detailed stats</b> has your personal best for every mode, your wpm over time, and a keyboard that shows which keys you miss most.</p>
+        <p>Everything is saved <b>in this browser, on this device</b>. There are no accounts yet, so your progress doesn't
+          follow you to another device, and clearing this site's data resets it.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">achievements</div>
+        <div class="help-badges" id="helpBadges"></div>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">shortcuts</div>
+        <dl class="kv">
+          <dt><kbd>Esc</kbd></dt><dd>Quit the current run.</dd>
+          <dt><kbd>Space</kbd></dt><dd>Skip a word (typing) · set off a bomb (shooter).</dd>
+          <dt><kbd>Backspace</kbd></dt><dd>Fix the last letter of the current word.</dd>
+        </dl>
+      </div>
+      </div>
     </div>
   </section>
 </div>
@@ -606,12 +735,16 @@ function closeSheet(){el.sheet.classList.remove("open");el.scrim.classList.remov
 
 $("#pillCfg").onclick=openSheet;
 el.scrim.onclick=closeSheet;
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  mode=t.dataset.mode;
-  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t));
-  value=DEFAULTS[mode];
+// one place to switch modes, shared by the home mode bar and the sheet's tabs
+function setMode(m){
+  mode=m;value=DEFAULTS[m];
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.mode===m));
+  document.querySelectorAll(".mchip").forEach(x=>{const on=x.dataset.mode===m;x.classList.toggle("active",on);x.setAttribute("aria-selected",on);});
   renderOpts();syncLabels();updateMods();
-});
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setMode(t.dataset.mode));
+document.querySelectorAll(".mchip").forEach(c=>c.onclick=()=>setMode(c.dataset.mode));
+$("#pillCfg").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openSheet();}});
 el.opts.onclick=e=>{const o=e.target.closest(".opt");if(!o)return;
   const v=o.dataset.v;value=isNaN(+v)?v:+v;renderOpts();syncLabels();};
 
@@ -653,39 +786,71 @@ STATS.keys=STATS.keys||{};STATS.history=STATS.history||[];STATS.pb=STATS.pb||{};
 STATS.badges=STATS.badges||{};STATS.modes=STATS.modes||{};
 
 /* ---------- achievements ---------- */
-// each icon is normalized to a centered ~16px optical box so all badges read at one size
-const ic=(p,t)=>'<svg viewBox="0 0 24 24" fill="currentColor"><g transform="'+t+'"><path d="'+p+'"/></g></svg>';
-const ICON={
-  bolt:  ic("M13 2 4 14h6l-1 8 9-12h-6l1-8z","translate(3.2 2.4) scale(0.8)"),
-  flag:  ic("M5 2h2v20H5zM7 3h11l-3 4 3 4H7z","translate(2.8 2.4) scale(0.8)"),
-  check: ic("M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z","translate(0.9 0.8) scale(0.91)"),
-  flame: ic("M12 2C9 6 6 8 6 13a6 6 0 0012 0c0-3-2-5-3-7-1 2-2 2-2 0 0-2 0-3-1-4z","translate(0.7 2.1) scale(0.94)"),
-  book:  ic("M6 3a2 2 0 00-2 2v13a2 2 0 002 2h6V3H6zm12 0h-4v17h4a2 2 0 002-2V5a2 2 0 00-2-2z","translate(0.7 1.2) scale(0.94)"),
-  chev:  ic("M12 5l6 6-1.4 1.4L12 7.8 7.4 12.4 6 11zM12 11l6 6-1.4 1.4L12 13.8 7.4 18.4 6 17z","translate(-2.3 -1.9) scale(1.19)"),
-  grid:  ic("M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z","translate(1 1) scale(0.83)"),
-  target:ic("M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14zm0 4a3 3 0 100 6 3 3 0 000-6z","translate(2.4 2.4) scale(0.8)")
+// Badge art, drawn as one 64×64 SVG. Speed badges are a metal ladder with the milestone
+// engraved; every other category has its own gold silhouette so no two badges look alike.
+// Glyphs are normalized to a centered ~16px optical box so they read at one size.
+// [path, transform] — each glyph is centered in a ~16px optical box inside a 24-unit square.
+// Glyphs that cut holes (speech lines, nib slit, die pips, quadrant gaps) use even-odd filling.
+const GLYPH={
+  speech:["M5 5h14a2 2 0 012 2v8a2 2 0 01-2 2h-7l-4.5 3.2V17H5a2 2 0 01-2-2V7a2 2 0 012-2zM7 9h10v1.7H7zM7 12.4h6.5v1.7H7z","translate(1.3 0.9) scale(0.89)"],
+  check: ["M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z","translate(0.9 0.8) scale(0.91)"],
+  flame: ["M12 2C9 6 6 8 6 13a6 6 0 0012 0c0-3-2-5-3-7-1 2-2 2-2 0 0-2 0-3-1-4z","translate(0.7 2.1) scale(0.94)"],
+  nib:   ["M12 2 18 8.5 15.2 17H8.8L6 8.5zM11.25 10.5h1.5V16h-1.5zM12 7.4a1.45 1.45 0 100 2.9 1.45 1.45 0 000-2.9zM9 18.3h6V22H9z","translate(2.4 2.4) scale(0.8)"],
+  die:   ["M6.5 4h11A2.5 2.5 0 0120 6.5v11a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5v-11A2.5 2.5 0 016.5 4zM8.6 7a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM15.4 7a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM12 10.4a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM8.6 13.8a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM15.4 13.8a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2z","translate(1.8 1.8) scale(0.85) rotate(-14 12 12)"],
+  orb:   ["M12 4.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15zM9.3 7.4a2 2 0 100 4 2 2 0 000-4zM13.4 7.5a.9.9 0 100 1.8.9.9 0 000-1.8z","translate(-0.8 -0.8) scale(1.07)"],
+  drop:  ["M12 3S6 10 6 14.2a6 6 0 0012 0C18 10 12 3 12 3zM9.6 13.4a1 1 0 00-1 1 3.4 3.4 0 002.4 3.3 1 1 0 00.6-1.9 1.4 1.4 0 01-1-1.4 1 1 0 00-1-1z","translate(0.72 1.19) scale(0.94)"]
 };
+const polar=(n,rf)=>{const p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2-Math.PI/2,r=rf(a);
+  p.push((32+r*Math.cos(a)).toFixed(2)+","+(32+r*Math.sin(a)).toFixed(2));}return p.join(" ");};
+const SHAPE={
+  circle:    '<circle cx="32" cy="32" r="29"/>',
+  rosette:   `<polygon points="${polar(96,a=>27.5+2.6*Math.cos(12*a))}"/>`,           // award ribbon edge
+  shield:    '<path d="M32 3 56 11v19c0 16-11 26-24 31C19 56 8 46 8 30V11z"/>',
+  hex:       '<polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5"/>',
+  tile:      '<rect x="5" y="5" width="54" height="54" rx="15"/>',
+  diamond:   '<rect x="12" y="12" width="40" height="40" rx="7" transform="rotate(45 32 32)"/>',
+  quatrefoil:`<polygon points="${polar(144,a=>25+5*Math.cos(4*a))}"/>`,               // four soft lobes
+  burst:     `<polygon points="${polar(20,a=>Math.round((a+Math.PI/2)/(Math.PI/10))%2?22.5:30)}" stroke-linejoin="round"/>` // impact star
+};
+const METAL={ // [highlight, shade, rim, ink]
+  gold:    ["#f6d566","#d6a015","#f3cf5a","#1a1608"],
+  bronze:  ["#f0b886","#a8612e","#e9a36a","#2a1606"],
+  silver:  ["#f2f4f7","#9ba5b0","#e6eaef","#1b1f24"],
+  plat:    ["#eaf6f9","#79aebb","#c8eaf1","#0f2328"],
+  obsidian:["#3b3160","#120f1e","#e2b425","#f3cf5a"]
+};
+let emblemSeq=0;
+function emblem(b,earned){
+  const m=METAL[b.tier||"gold"],id="em"+(emblemSeq++);
+  const body=earned?`fill:url(#${id});stroke:${m[2]};filter:drop-shadow(0 0 7px ${m[2]}66)`:"fill:var(--surface-2);stroke:var(--line)";
+  const ink=earned?(b.ink||m[3]):"var(--text-dim)";
+  const inner=b.num!=null
+    ? `<text x="32" y="${b.num>99?35.5:36.5}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="${b.num>99?15:18}" style="fill:${ink}">${b.num}</text>
+       <text x="32" y="47.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="600" font-size="6.5" letter-spacing="1" style="fill:${ink};opacity:.75">WPM</text>`
+    : `<g transform="translate(18 18) scale(1.1667)"><g transform="${GLYPH[b.glyph][1]}"><path d="${GLYPH[b.glyph][0]}" fill-rule="evenodd" style="fill:${ink}"/></g></g>`;
+  return `<svg viewBox="0 0 64 64" aria-hidden="true">${earned?`<defs><radialGradient id="${id}" cx="34%" cy="28%" r="80%"><stop offset="0" stop-color="${m[0]}"/><stop offset="1" stop-color="${m[1]}"/></radialGradient></defs>`:""}<g style="${body};stroke-width:2">${SHAPE[b.shape]}</g>${inner}</svg>`;
+}
 function lifetimeWords(){let n=0;for(const k in DATA){if(k==="__seeded")continue;n+=(DATA[k].words||0);}return n;}
 function allModesTried(){return ["time","words","quote","shoot"].every(m=>STATS.modes&&STATS.modes[m]);}
 const BADGES=[
-  {id:"first",  name:"First Words",     desc:"Finish your first test",   icon:ICON.flag,  test:()=>STATS.history.length>=1},
-  {id:"wpm40",  name:"Off the Line",    desc:"Reach 40 WPM",             icon:ICON.bolt,  test:c=>c.wpm>=40},
-  {id:"wpm60",  name:"Cruising",        desc:"Reach 60 WPM",             icon:ICON.bolt,  test:c=>c.wpm>=60},
-  {id:"fast80", name:"Fast Fingers",    desc:"Reach 80 WPM",             icon:ICON.bolt,  test:c=>c.wpm>=80},
-  {id:"wpm100", name:"Blur",            desc:"Reach 100 WPM",            icon:ICON.bolt,  test:c=>c.wpm>=100},
-  {id:"wpm120", name:"Ludicrous Speed", desc:"Reach 120 WPM",            icon:ICON.bolt,  test:c=>c.wpm>=120},
-  {id:"clean",  name:"Clean Sheet",     desc:"100% accuracy in a test",  icon:ICON.check, test:c=>c.mode!=="shoot"&&c.acc>=100&&c.chars>0},
-  {id:"streak7",name:"Week Strong",     desc:"Type 7 days in a row",     icon:ICON.flame, test:()=>currentStreak()>=7},
-  {id:"words1k",name:"Wordsmith",       desc:"Type 1,000 words total",   icon:ICON.book,  test:()=>lifetimeWords()>=1000},
-  {id:"combo10",name:"On a Roll",       desc:"Hit a 10-word combo",      icon:ICON.chev,  test:c=>(c.combo||0)>=10},
-  {id:"modes",  name:"Well Rounded",    desc:"Try every mode",           icon:ICON.grid,  test:()=>allModesTried()},
-  {id:"kill1",  name:"First Blood",     desc:"Destroy your first word",  icon:ICON.target,test:c=>c.mode==="shoot"&&(c.kills||0)>=1}
+  {id:"first",  name:"First Words",     desc:"Finish your first test",  shape:"rosette",glyph:"speech",   test:()=>STATS.history.length>=1},
+  {id:"wpm40",  name:"Off the Line",    desc:"Reach 40 WPM",            shape:"circle", tier:"bronze",  num:40,  test:c=>c.wpm>=40},
+  {id:"wpm60",  name:"Cruising",        desc:"Reach 60 WPM",            shape:"circle", tier:"silver",  num:60,  test:c=>c.wpm>=60},
+  {id:"fast80", name:"Fast Fingers",    desc:"Reach 80 WPM",            shape:"circle", tier:"gold",    num:80,  test:c=>c.wpm>=80},
+  {id:"wpm100", name:"Blur",            desc:"Reach 100 WPM",           shape:"circle", tier:"plat",    num:100, test:c=>c.wpm>=100},
+  {id:"wpm120", name:"Ludicrous Speed", desc:"Reach 120 WPM",           shape:"circle", tier:"obsidian",num:120, test:c=>c.wpm>=120},
+  {id:"clean",  name:"Clean Sheet",     desc:"100% accuracy in a test", shape:"shield", glyph:"check",  test:c=>c.mode!=="shoot"&&c.acc>=100&&c.chars>0},
+  {id:"streak7",name:"Week Strong",     desc:"Type 7 days in a row",    shape:"hex",    glyph:"flame",  test:()=>currentStreak()>=7},
+  {id:"words1k",name:"Wordsmith",       desc:"Type 1,000 words total",  shape:"tile",   glyph:"nib",   test:()=>lifetimeWords()>=1000},
+  {id:"combo10",name:"On a Roll",       desc:"Hit a 10-word combo",     shape:"diamond",glyph:"die",   test:c=>(c.combo||0)>=10},
+  {id:"modes",  name:"Well Rounded",    desc:"Try every mode",          shape:"quatrefoil",glyph:"orb",   test:()=>allModesTried()},
+  {id:"kill1",  name:"First Blood",     desc:"Destroy your first word", shape:"burst",  glyph:"drop", ink:"#9e1b22", test:c=>c.mode==="shoot"&&(c.kills||0)>=1}
 ];
 function renderBadges(){
   const got=STATS.badges||{};
   $("#badges").innerHTML=BADGES.map(b=>`
     <div class="badge ${got[b.id]?"earned":""}">
-      <div class="emblem">${b.icon}</div>
+      <div class="emblem">${emblem(b,!!got[b.id])}</div>
       <div class="bname">${b.name}</div>
       <div class="bdesc">${b.desc}</div>
     </div>`).join("");
@@ -696,7 +861,7 @@ function nextToast(){
   if(!toastQueue.length){toastActive=false;return;}
   toastActive=true;
   const b=toastQueue.shift(),t=$("#toast");
-  $("#ttEmblem").innerHTML=b.icon;$("#ttName").textContent=b.name;
+  $("#ttEmblem").innerHTML=emblem(b,true);$("#ttName").textContent=b.name;
   t.classList.remove("show");void t.offsetWidth;t.classList.add("show");
   fanfare();haptic([0,40,40,40]);
   clearTimeout(toastTimer);
@@ -910,7 +1075,7 @@ function inputCharTest(ch){
   else{renderWord();}
 }
 function typeInput(ch){ if(running)inputCharTest(ch); else if(sRun)shootChar(ch.toLowerCase()); }
-function typeSpace(){ if(running&&typed.length)commitWord(); }
+function typeSpace(){ if(running&&typed.length)commitWord(); else if(sRun)useBomb(); }
 function typeBackspace(){ if(running){typed=typed.slice(0,-1);click();renderWord();} }
 
 function onKey(e){
@@ -958,6 +1123,37 @@ let sRun=false,raf=0,last=0,W=0,H=0,DPR=1;
 let enemies=[],bullets=[],parts=[],target=null;
 let sSpawnT=0,sElapsed=0,sScore=0,sLives=0,sKills=0,sKeysOk=0,sKeysAll=0,sCharsOk=0,diff=null;
 
+/* ---------- power-ups: special falling words; type the power-up's name to collect it ---------- */
+const PU={
+  freeze:{icon:"❄", col:"#7cc8ff",label:"freeze"},   // slow everything to 25% for 5s
+  boom:  {icon:"✹", col:"#ff8a3d",label:"bomb"},     // stored; Space clears the screen
+  shield:{icon:"◈", col:"#4ee06e",label:"shield"},   // heal a life, or block the next hit
+  double:{icon:"×2",col:"#e2b425",label:"double"}    // double points for 10s
+};
+let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0;
+const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
+const ptsMult=()=>pwr&&pwr.type==="double"?2:1;
+function collectPU(en){
+  const t=en.pu,p=PU[t];
+  sScore+=15*ptsMult();
+  boom(en.x,en.y,p.col);boom(en.x,en.y,p.col);
+  if(t==="freeze"){pwr={type:"freeze",t:5,dur:5};tone("sine",900,260,0.16,0.4);}
+  else if(t==="double"){pwr={type:"double",t:10,dur:10};tone("triangle",700,1400,0.12,0.16);setTimeout(()=>tone("triangle",1000,1700,0.12,0.18),110);}
+  else if(t==="shield"){ if(sLives>0){sLives--;renderLives();}else shield=true; tone("triangle",480,1050,0.14,0.32); }
+  else if(t==="boom"){ if(bombs>=1)detonate(); else {bombs=1;tone("square",220,440,0.07,0.2);} }
+  puFlash={type:t,life:1};
+  haptic([0,30,30,30]);
+}
+function detonate(){
+  const hits=enemies.filter(e=>!e.pu),m=ptsMult();
+  for(const e of hits){sScore+=(10+e.word.length)*m;sKills++;boom(e.x,e.y,"#ff8a3d");}
+  enemies=enemies.filter(e=>e.pu);
+  if(target&&!target.pu)target=null;
+  bombs=0;wave={r:0,life:1};
+  tone("sine",130,38,0.35,0.55,380);haptic([0,60,30,60]);
+}
+function useBomb(){ if(sRun&&bombs>0)detonate(); }
+
 function sizeCanvas(){
   DPR=Math.min(window.devicePixelRatio||1,2);
   const r=$("#shoot").getBoundingClientRect();
@@ -972,6 +1168,19 @@ function renderLives(){
 }
 function spawnEnemy(){
   const taken=new Set(enemies.map(e=>e.word[0]));
+  // occasionally drop a power-up instead (never two at once, never in the first seconds)
+  sinceLastPu++;
+  const chance=value==="frenzy"?1/8:1/11;
+  if(sElapsed>6&&sinceLastPu>4&&!enemies.some(e=>e.pu)&&Math.random()<chance){
+    const types=Object.keys(PU).filter(t=>!taken.has(t[0]));
+    if(types.length){
+      const t=types[Math.floor(Math.random()*types.length)],pad=70;
+      sinceLastPu=0;
+      enemies.push({word:t,pu:t,hit:0,x:pad+Math.random()*(W-pad*2),y:-14,
+        vy:diff.speed*0.9+sElapsed*diff.ramp*0.6});
+      return;
+    }
+  }
   let w,tries=0;
   do{ w=WORDS[Math.floor(Math.random()*WORDS.length)]; tries++; }
   while(taken.has(w[0]) && tries<12);
@@ -992,6 +1201,7 @@ function startShooter(){
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
   sSpawnT=0;sElapsed=0;sScore=0;sLives=0;sKills=0;sKeysOk=0;sKeysAll=0;sCharsOk=0;
+  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#shoot").hidden=false;
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
@@ -1029,6 +1239,7 @@ function onShoot(e){
   if(!sRun)return;
   if(e.key==="Escape"){quit();return;}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key===" "){claimKey(e);useBomb();return;}      // Space sets off a stored bomb
   if(e.key.length!==1||!/[a-zA-Z']/.test(e.key))return;
   claimKey(e);
   shootChar(e.key.toLowerCase());
@@ -1047,9 +1258,8 @@ function shootChar(key){
     recordKey(target.word[target.hit],true);
     sKeysOk++;sCharsOk++;target.hit++;fireBullet(target);click();haptic(5);
     if(target.hit>=target.word.length){
-      const bonus=10+target.word.length;
-      sScore+=bonus;sKills++;
-      boom(target.x,target.y,C.gold);goodBlip();
+      if(target.pu){collectPU(target);}
+      else{sScore+=(10+target.word.length)*ptsMult();sKills++;boom(target.x,target.y,C.gold);goodBlip();}
       enemies=enemies.filter(x=>x!==target);target=null;
     }
   }else{
@@ -1061,18 +1271,27 @@ function loop(now){
   if(!sRun)return;
   let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
   sElapsed+=dt;
+  // power-up timers
+  if(pwr){pwr.t-=dt;if(pwr.t<=0)pwr=null;}
+  if(wave){wave.r+=950*dt;wave.life-=dt*1.5;if(wave.life<=0)wave=null;}
+  if(puFlash){puFlash.life-=dt*1.1;if(puFlash.life<=0)puFlash=null;}
+  const slow=pwr&&pwr.type==="freeze"?0.25:1;      // freeze slows falling and spawning
   // spawn
-  sSpawnT+=dt*1000;
+  sSpawnT+=dt*1000*slow;
   const rate=Math.max(420,diff.spawn-sElapsed*6);
   if(sSpawnT>=rate){sSpawnT=0;spawnEnemy();}
   // move enemies
-  for(const en of enemies){en.y+=en.vy*dt;}
+  for(const en of enemies){en.y+=en.vy*dt*slow;}
   // collision with base
   for(let i=enemies.length-1;i>=0;i--){
-    if(enemies[i].y>=H-52){
-      if(enemies[i]===target)target=null;
-      boom(enemies[i].x,H-46,C.red);thud();haptic(26);
-      enemies.splice(i,1);sLives++;renderLives();
+    const en=enemies[i];
+    if(en.y>=H-52){
+      if(en===target)target=null;
+      enemies.splice(i,1);
+      if(en.pu){boom(en.x,H-46,C.dim);continue;}       // a missed power-up just fizzles
+      if(shield){shield=false;boom(en.x,H-46,PU.shield.col);tone("triangle",900,300,0.12,0.25);haptic(15);continue;}
+      boom(en.x,H-46,C.red);thud();haptic(26);
+      sLives++;renderLives();
       if(sLives>=diff.lives){draw();endShoot();return;}
     }
   }
@@ -1089,6 +1308,7 @@ function loop(now){
 }
 function draw(){
   cx.clearRect(0,0,W,H);
+  if(pwr&&pwr.type==="freeze"){cx.fillStyle="rgba(124,200,255,.07)";cx.fillRect(0,0,W,H);}
   // baseline danger line
   cx.strokeStyle="rgba(209,73,91,.18)";cx.lineWidth=1;
   cx.beginPath();cx.moveTo(0,H-52);cx.lineTo(W,H-52);cx.stroke();
@@ -1097,6 +1317,8 @@ function draw(){
   cx.fillStyle=C.gold;
   cx.beginPath();cx.moveTo(sx,sy-13);cx.lineTo(sx-10,sy+8);cx.lineTo(sx+10,sy+8);cx.closePath();cx.fill();
   cx.fillStyle=C.goldDim;cx.fillRect(sx-3,sy+6,6,5);
+  if(shield){cx.strokeStyle=hexA(PU.shield.col,.75);cx.lineWidth=2;cx.beginPath();cx.arc(sx,sy-2,23,0,6.29);cx.stroke();}
+  if(wave){cx.strokeStyle=hexA(PU.boom.col,Math.max(0,wave.life*.8));cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,wave.r,0,6.29);cx.stroke();}
   // bullets
   for(const b of bullets){
     const t=1-b.life;const bx=b.x+(b.tx-b.x)*t,by=b.y+(b.ty-b.y)*t;
@@ -1109,6 +1331,19 @@ function draw(){
     const locked=(en===target);
     const done=en.word.slice(0,en.hit),rest=en.word.slice(en.hit);
     const wDone=cx.measureText(done).width,wRest=cx.measureText(rest).width;
+    if(en.pu){                                       // power-up capsule: icon + name, tinted per type
+      const p=PU[en.pu],iconW=cx.measureText(p.icon+" ").width,tot=iconW+wDone+wRest,x0=en.x-tot/2;
+      cx.fillStyle=hexA(p.col,.14);roundRect(x0-12,en.y-15,tot+24,30,15);cx.fill();
+      cx.strokeStyle=locked?C.gold:p.col;cx.lineWidth=locked?1.6:1;cx.stroke();
+      cx.textAlign="left";
+      cx.fillStyle=p.col;cx.fillText(p.icon+" ",x0,en.y);
+      cx.fillStyle=hexA(p.col,.4);cx.fillText(done,x0+iconW,en.y);
+      cx.fillStyle=p.col;cx.fillText(rest,x0+iconW+wDone,en.y);
+      cx.textAlign="center";cx.font="10px 'JetBrains Mono',monospace";cx.fillStyle=hexA(p.col,.65);
+      cx.fillText("power-up",en.x,en.y+25);
+      cx.font="600 17px 'JetBrains Mono',monospace";
+      continue;
+    }
     const total=wDone+wRest,startX=en.x-total/2;
     if(locked){
       cx.fillStyle="rgba(226,180,37,.10)";
@@ -1126,6 +1361,26 @@ function draw(){
   for(const p of parts){cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.col;
     cx.fillRect(p.x-1.5,p.y-1.5,3,3);}
   cx.globalAlpha=1;
+  // active timed effect: label + draining bar under the score
+  if(pwr){
+    const p=PU[pwr.type],bw=150,bx=W/2-bw/2,by=70;
+    cx.font="600 11px 'JetBrains Mono',monospace";cx.textAlign="center";cx.fillStyle=p.col;
+    cx.fillText(p.icon+" "+p.label.toUpperCase(),W/2,by-10);
+    cx.fillStyle="rgba(255,255,255,.07)";roundRect(bx,by,bw,5,2.5);cx.fill();
+    cx.fillStyle=p.col;roundRect(bx,by,Math.max(5,bw*pwr.t/pwr.dur),5,2.5);cx.fill();
+  }
+  // stored bomb
+  if(bombs>0){
+    cx.font="600 12px 'JetBrains Mono',monospace";cx.textAlign="left";cx.fillStyle=PU.boom.col;
+    cx.fillText("✹ bomb ready · space",22,H-20);cx.textAlign="center";
+  }
+  // pickup announcement
+  if(puFlash){
+    const p=PU[puFlash.type];
+    cx.globalAlpha=Math.max(0,puFlash.life);cx.font="700 30px 'JetBrains Mono',monospace";
+    cx.textAlign="center";cx.fillStyle=p.col;cx.fillText(p.icon+" "+p.label.toUpperCase(),W/2,H*0.42-(1-puFlash.life)*18);
+    cx.globalAlpha=1;
+  }
 }
 function roundRect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);
   cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);
@@ -1202,11 +1457,29 @@ function drawChart(){
   ctx.strokeStyle=C.gold;ctx.lineWidth=2;ctx.lineJoin="round";ctx.stroke();
   ctx.fillStyle=C.gold;ctx.beginPath();ctx.arc(X(n-1),Y(data[n-1]),3.4,0,6.29);ctx.fill();
 }
-function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;
+function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;$("#help").hidden=true;
   $("#stats").hidden=false;renderStats();}
 function closeStats(){$("#stats").hidden=true;el.home.hidden=false;renderMonths();}
 $("#statsBtn").onclick=openStats;
 $("#statsBack").onclick=closeStats;
+
+/* ==================== HELP PAGE ==================== */
+let helpFrom="home";
+function openHelp(section){
+  helpFrom=el.result.hidden?"home":"result";
+  el.home.hidden=true;el.result.hidden=true;$("#stats").hidden=true;$("#help").hidden=false;
+  $("#helpBadges").innerHTML=BADGES.map(b=>`<div class="hb"><div class="emblem">${emblem(b,true)}</div>
+    <div><b>${b.name}</b><span>${b.desc}</span></div></div>`).join("");
+  const sc=$("#help .st-scroll"),target=section&&document.getElementById(section);
+  sc.scrollTop=target?target.offsetTop-24:0;
+}
+function closeHelp(){
+  $("#help").hidden=true;
+  if(helpFrom==="result")el.result.hidden=false;else{el.home.hidden=false;renderMonths();}
+}
+$("#helpBtn").onclick=()=>openHelp();
+$("#wpmHelp").onclick=()=>openHelp("help-wpm");
+$("#helpBack").onclick=closeHelp;
 window.addEventListener("resize",()=>{if(!$("#stats").hidden)drawChart();});
 
 /* ---------- theme + modifiers ---------- */

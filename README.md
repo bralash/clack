@@ -13,6 +13,10 @@ A minimalist typing test — inspired by the Bemonkey iOS app and built as a sin
 - **Words** — 10 / 25 / 50 / 100 word runs.
 - **Quote** — type real quotes (short / medium / long); the result screen credits the author.
 - **Shoot** — a ZType-style typing game: words drift toward your ship, type one to lock on and fire, destroy it before it reaches the base. Difficulties: `calm` / `normal` / `frenzy`.
+  - **Power-ups** fall as glowing capsules — type the name to grab it:
+    `freeze` slows everything down for 5s · `double` doubles points for 10s ·
+    `shield` restores a life or blocks the next hit · `boom` stores a bomb you set off with **Space** to clear the screen.
+    Missing a power-up never costs a life.
 
 Time and words runs support **punctuation** and **numbers** modifiers. Words **auto-advance** the instant you finish them (right *or* wrong), so nothing interrupts your flow.
 
