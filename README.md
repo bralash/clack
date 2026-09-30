@@ -1,14 +1,33 @@
 # Clack
 
-A minimalistic typing test — a web app inspired by the Bemonkey iOS app, built as a single self-contained `index.html` (no build step, no dependencies).
+A minimalist typing test — inspired by the Bemonkey iOS app and built as a single self-contained `index.html` with no build step and no dependencies.
+
+**Live demo:** https://bralash.github.io/clack/ *(enable GitHub Pages to activate — see below)*
 
 ## Features
 
-- **Typing test** — `#time` (15/30/60/120/180s) and `#words` (10/25/50/100) modes. One word at a time, and it **auto-advances** the instant you finish a word (right *or* wrong) so nothing interrupts your flow.
-- **Shooter mode** (`#shoot`) — a ZType-style typing game: words drift toward your ship, type one to lock on and fire, destroy it before it reaches the base. Difficulties: `calm` / `normal` / `frenzy`.
-- **Contribution heatmap** — a GitHub-style year graph of your real daily activity, with day-streak and monthly word/time totals. Fills in as you actually type.
-- **Feel** — a soft mechanical key-click and a dull error thud (Web Audio, toggleable, with haptics), a caret that pulses with your rhythm, a shake on errors and a glow when you nail a word, and a faint live-WPM readout that rises as you type.
-- **Stats page** — a per-key accuracy heatmap (which keys you fumble most), a WPM-over-time chart, and personal bests per mode with a celebration when you beat one.
+### Modes
+- **Time** — 15 / 30 / 60 / 120 / 180 second runs.
+- **Words** — 10 / 25 / 50 / 100 word runs.
+- **Quote** — type real quotes (short / medium / long); the result screen credits the author.
+- **Shoot** — a ZType-style typing game: words drift toward your ship, type one to lock on and fire, destroy it before it reaches the base. Difficulties: `calm` / `normal` / `frenzy`.
+
+Time and words runs support **punctuation** and **numbers** modifiers. Words **auto-advance** the instant you finish them (right *or* wrong), so nothing interrupts your flow.
+
+### Feel
+- Soft mechanical **key-click** and a dull **error thud** (Web Audio, toggleable, with haptics).
+- A **caret that pulses** with your rhythm, a **shake** on errors, and a **glow** when you nail a word.
+- A faint **live-WPM** readout that rises as you type.
+- A **combo multiplier** that grows with each clean word and resets on a mistake.
+
+### Progress & stats
+- A GitHub-style **contribution heatmap** of your real daily activity, with day-streak and monthly totals.
+- A **stats page**: per-key accuracy heatmap (which keys you fumble), a WPM-over-time chart, and personal bests per mode.
+- **Achievements** — 12 badges (speed tiers, accuracy, streaks, volume, combo, variety, shooter) with an unlock celebration.
+
+### Polish
+- **Light and dark** themes.
+- Fully **responsive** — works from desktop down to phones, including on-screen-keyboard support on touch devices.
 
 ## Run it
 
@@ -26,16 +45,31 @@ python -m http.server 8000
 
 then visit `http://localhost:8000`.
 
+## Deploy (GitHub Pages)
+
+Because it's a single static file, you can host it for free:
+
+1. Push to GitHub (already done).
+2. Go to **Settings → Pages**.
+3. Under **Build and deployment**, set **Source: Deploy from a branch**, **Branch: `main`**, **Folder: `/ (root)`**, and Save.
+4. After a minute it's live at `https://<user>.github.io/clack/`.
+
 ## Storage
 
-All progress is stored locally in your browser via `localStorage`:
+All progress is stored locally in your browser via `localStorage` — nothing is sent anywhere:
 
 - `bemonkey_v3` — daily activity that drives the heatmap
-- `clack_stats` — per-key accuracy, WPM history, and personal bests
-- `bm_sound` — sound/haptics on/off
+- `clack_stats` — per-key accuracy, WPM history, personal bests, achievements, modes tried
+- `clack_theme` — light / dark preference
+- `clack_mods` — punctuation / numbers toggles
+- `bm_sound` — sound & haptics on/off
 
-Nothing is sent anywhere; clearing your browser's site data resets it.
+Clearing your browser's site data resets everything.
 
 ## Tech
 
-Vanilla HTML/CSS/JS. Monospace type (JetBrains Mono via Google Fonts), Web Audio for sound, `<canvas>` for the shooter and the WPM chart. Dark, gold-accented theme.
+Vanilla HTML/CSS/JS in one file. Monospace type (JetBrains Mono via Google Fonts), Web Audio for sound, `<canvas>` for the shooter and the WPM chart, `localStorage` for persistence, CSS custom properties for theming.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
