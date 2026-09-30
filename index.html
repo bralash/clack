@@ -1130,7 +1130,7 @@ const PU={
   shield:{icon:"◈", col:"#4ee06e",label:"shield"},   // heal a life, or block the next hit
   double:{icon:"×2",col:"#e2b425",label:"double"}    // double points for 10s
 };
-let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0;
+let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false;
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
 const ptsMult=()=>pwr&&pwr.type==="double"?2:1;
 function collectPU(en){
@@ -1168,14 +1168,17 @@ function renderLives(){
 }
 function spawnEnemy(){
   const taken=new Set(enemies.map(e=>e.word[0]));
-  // occasionally drop a power-up instead (never two at once, never in the first seconds)
+  // occasionally drop a power-up instead (never two at once, never in the first seconds).
+  // Types come from a shuffle bag, so every run of four drops has one of each. If the next
+  // type's first letter is already on screen, it waits for a later spawn rather than being swapped.
   sinceLastPu++;
   const chance=value==="frenzy"?1/8:1/11;
-  if(sElapsed>6&&sinceLastPu>4&&!enemies.some(e=>e.pu)&&Math.random()<chance){
-    const types=Object.keys(PU).filter(t=>!taken.has(t[0]));
-    if(types.length){
-      const t=types[Math.floor(Math.random()*types.length)],pad=70;
-      sinceLastPu=0;
+  if(!puDue&&sElapsed>6&&sinceLastPu>4&&!enemies.some(e=>e.pu)&&Math.random()<chance)puDue=true;
+  if(puDue&&!enemies.some(e=>e.pu)){
+    if(!puBag.length){puBag=Object.keys(PU);for(let i=puBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[puBag[i],puBag[j]]=[puBag[j],puBag[i]];}}
+    const t=puBag[0];
+    if(!taken.has(t[0])){
+      const pad=70;puBag.shift();puDue=false;sinceLastPu=0;
       enemies.push({word:t,pu:t,hit:0,x:pad+Math.random()*(W-pad*2),y:-14,
         vy:diff.speed*0.9+sElapsed*diff.ramp*0.6});
       return;
@@ -1201,7 +1204,7 @@ function startShooter(){
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
   sSpawnT=0;sElapsed=0;sScore=0;sLives=0;sKills=0;sKeysOk=0;sKeysAll=0;sCharsOk=0;
-  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;
+  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#shoot").hidden=false;
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
