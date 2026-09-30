@@ -18,7 +18,11 @@ A minimalist typing test — inspired by the Bemonkey iOS app and built as a sin
     `shield` restores a life or blocks the next hit · `boom` stores a bomb you set off with **Space** to clear the screen.
     Missing a power-up never costs a life.
 
-Time and words runs support **punctuation** and **numbers** modifiers. Words **auto-advance** the instant you finish them (right *or* wrong), so nothing interrupts your flow.
+- **Daily challenge** — the same 30 words for everyone each day, one attempt. Share your result as a Wordle-style
+  grid (🟩 clean word, 🟨 mistake), post it to 𝕏, or save a result-card image. Consecutive days build a daily streak.
+
+Time and words runs support **punctuation**, **numbers** and **weak keys** modifiers. Weak keys fills a run with words
+built from the keys you miss most — also one click away on the stats page. Words **auto-advance** the instant you finish them (right *or* wrong), so nothing interrupts your flow.
 
 ### Feel
 - Soft mechanical **key-click** and a dull **error thud** (Web Audio, toggleable, with haptics).
@@ -29,7 +33,8 @@ Time and words runs support **punctuation** and **numbers** modifiers. Words **a
 ### Progress & stats
 - A GitHub-style **contribution heatmap** of your real daily activity, with day-streak and monthly totals.
 - A **stats page**: per-key accuracy heatmap (which keys you fumble), a WPM-over-time chart, and personal bests per mode.
-- **Achievements** — 12 badges (speed tiers, accuracy, streaks, volume, combo, variety, shooter) with an unlock celebration.
+- **Achievements** — 16 badges (speed tiers, accuracy, streaks, volume, combo, variety and four shooter badges), each with its own emblem and an unlock celebration.
+- **Help page** — "how it works" explains every mode, the WPM maths, the shooter, power-ups and achievements.
 
 ### Polish
 - **Light and dark** themes.

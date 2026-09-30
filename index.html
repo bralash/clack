@@ -163,7 +163,7 @@
     border:1px solid var(--line);color:var(--text-dim);border-radius:10px;
     padding:8px 12px;cursor:pointer;white-space:nowrap;}
   .snd.on{color:var(--gold);border-color:var(--gold-dim);}
-  .mods{display:flex;gap:10px;margin-bottom:18px;}
+  .mods{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
   .chip{font-family:var(--mono);font-size:13px;background:var(--surface-2);
     border:1px solid var(--line);color:var(--text-dim);border-radius:10px;
     padding:9px 14px;cursor:pointer;}
@@ -274,6 +274,45 @@
   .dotsep{color:var(--text-faint);font-family:var(--mono);font-size:12px;}
   .res-help{margin-top:22px;}
 
+  /* ---------- DAILY CARD (home) ---------- */
+  .daily{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px;}
+  .d-eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:2px;
+    text-transform:uppercase;color:var(--gold);}
+  .d-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-top:6px;}
+  .d-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .d-score{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+  .d-score b{color:var(--gold);font-size:16px;}
+  .dgrid{display:grid;grid-template-columns:repeat(10,8px);gap:3px;}
+  .dgrid i{width:8px;height:8px;border-radius:2px;background:var(--green-4);}
+  .dgrid i.x{background:var(--gold);}
+  .daily .btn{padding:9px 16px;font-size:12px;}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* ---------- SHARE DIALOG ---------- */
+  .share-scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:40;}
+  .share{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:41;
+    width:min(560px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px 16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;}
+  .share-top{display:flex;align-items:center;justify-content:space-between;}
+  .share-title{font-family:var(--mono);font-size:13px;letter-spacing:.5px;color:var(--gold);}
+  .share-x{background:none;border:0;color:var(--text-dim);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;}
+  .share-x:hover{color:var(--text);background:var(--surface-2);}
+  .share-img{width:100%;height:auto;aspect-ratio:1200/630;border-radius:10px;border:1px solid var(--line);
+    background:#0f1012;display:block;}
+  .share-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .share-btns .btn{flex:1;min-width:120px;text-align:center;padding:11px 14px;font-size:13px;}
+  .share-note{font-family:var(--mono);font-size:12px;color:var(--gold);min-height:16px;text-align:center;}
+
+  /* ---------- WEAK-KEY CTA (stats) ---------- */
+  .weak-cta{display:flex;align-items:center;justify-content:space-between;gap:12px 18px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;}
+  .wc-text{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.5;}
+  .wc-text b{color:var(--text);letter-spacing:1px;}
+  .weak-cta .btn{padding:9px 16px;font-size:12px;}
+  .weak-cta .btn[disabled]{opacity:.45;cursor:default;}
+
   /* ---------- HELP PAGE ---------- */
   .help p{font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--text-dim);margin:0;max-width:62ch;}
   .help p b,.help dd b{color:var(--text);font-weight:600;}
@@ -371,6 +410,21 @@
 <body>
 
 <div id="app">
+  <!-- daily share dialog -->
+  <div class="share-scrim" id="shareScrim" hidden></div>
+  <div class="share" id="shareBox" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
+    <div class="share-top">
+      <div class="share-title" id="shTitle">share daily #<span id="shNo">1</span></div>
+      <button class="share-x" id="shClose" aria-label="close">✕</button>
+    </div>
+    <img class="share-img" id="shImg" alt="Your Clack daily result card">
+    <div class="share-btns">
+      <button class="btn primary" id="shCopy">copy result</button>
+      <button class="btn" id="shX">post on 𝕏</button>
+      <button class="btn" id="shSave">save image</button>
+    </div>
+    <div class="share-note" id="shNote" aria-live="polite"></div>
+  </div>
   <!-- achievement unlock toast -->
   <div class="toast" id="toast">
     <div class="tt-emblem" id="ttEmblem"></div>
@@ -395,6 +449,13 @@
           <div class="tot"><div class="v gold" id="tStreak">0</div><div class="l">day streak</div></div>
           <div class="tot"><div class="v" id="tWords">0</div><div class="l">words this month</div></div>
           <div class="tot"><div class="v" id="tTime">0m</div><div class="l">time this month</div></div>
+        </div>
+        <div class="daily" id="daily">
+          <div class="d-left">
+            <div class="d-eyebrow" id="dNo">daily</div>
+            <div class="d-sub" id="dSub">30 words · same for everyone today</div>
+          </div>
+          <div class="d-right" id="dRight"></div>
         </div>
         <div id="months"></div>
       </div>
@@ -424,6 +485,7 @@
       <div class="mods" id="mods">
         <button class="chip" id="punctBtn">! punctuation</button>
         <button class="chip" id="numBtn"># numbers</button>
+        <button class="chip" id="weakBtn" title="more words with the keys you miss most">◎ weak keys</button>
       </div>
       <div class="sheet-foot">
         <div class="sheet-cfg"><span id="sheetIcon">⏱</span> <span id="sheetLabel">60 seconds</span></div>
@@ -449,7 +511,7 @@
       <div class="dashes" id="dashes"></div>
       <div class="next"><span class="arrow">↳</span><span id="next"></span></div>
     </div>
-    <div class="hint">just start typing</div>
+    <div class="hint" id="hint">just start typing</div>
   </section>
 
   <!-- SHOOT -->
@@ -484,6 +546,10 @@
         <div class="st-h">key accuracy <span class="st-sub">— redder = more misses</span></div>
         <div class="kbd" id="kbd"></div>
         <div class="kbd-legend">fewer misses <i></i> more</div>
+        <div class="weak-cta">
+          <div class="wc-text" id="wcText"></div>
+          <button class="btn primary" id="wcBtn">practise these keys</button>
+        </div>
       </div>
       <div class="st-sec">
         <div class="st-h">achievements</div>
@@ -510,6 +576,7 @@
     </div>
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
+      <div class="btn primary" id="shareBtn" hidden>share result</div>
       <div class="btn" id="done">done</div>
     </div>
     <button class="linkbtn res-help" id="wpmHelp">how is wpm calculated?</button>
@@ -541,7 +608,23 @@
           <dt>✷ shoot</dt><dd>A typing shooter: blast falling words before they hit your base. See below.</dd>
         </dl>
         <p>Click the setting next to START (like <b>60 seconds ▾</b>) to change the length, turn on
-          <b>! punctuation</b> or <b># numbers</b> for time and words runs, and switch sound or the light/dark theme.</p>
+          <b>! punctuation</b>, <b># numbers</b> or <b>◎ weak keys</b> for time and words runs, and switch sound or the light/dark theme.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">daily challenge</div>
+        <p>Everyone gets the <b>same 30 words</b> each day. You get <b>one official attempt</b> — after that, the daily card
+          on the home screen shows your score and a countdown to the next one, which unlocks at midnight.
+          Play on consecutive days to build your <b>daily streak</b>.</p>
+        <p><b>Share</b> your result as text (one square per word: 🟩 clean, 🟨 had a mistake), post it straight to 𝕏,
+          or save a result card image.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">weak-key practice</div>
+        <p>Clack tracks which keys you miss. Turn on <b>◎ weak keys</b>, or press <b>practise these keys</b> on the stats page,
+          and most of your words will be packed with the letters you fumble most. Once a key has enough data and a miss
+          rate of 5% or more, it counts as weak. These runs don't count toward your personal bests, because the words are harder on purpose.</p>
       </div>
 
       <div class="st-sec" id="help-wpm">
@@ -714,6 +797,7 @@ function renderMonths(){
   $("#tStreak").textContent=currentStreak();
   $("#tWords").textContent=fmtNum(t.words);
   $("#tTime").textContent=fmtTime(t.time);
+  renderDaily();
 }
 
 /* ---------- config sheet ---------- */
@@ -783,7 +867,7 @@ const SKEY="clack_stats";
 function loadStats(){try{return JSON.parse(localStorage.getItem(SKEY))||{}}catch(e){return{}}}
 let STATS=loadStats();
 STATS.keys=STATS.keys||{};STATS.history=STATS.history||[];STATS.pb=STATS.pb||{};
-STATS.badges=STATS.badges||{};STATS.modes=STATS.modes||{};
+STATS.badges=STATS.badges||{};STATS.modes=STATS.modes||{};STATS.daily=STATS.daily||{};STATS.puSeen=STATS.puSeen||{};
 
 /* ---------- achievements ---------- */
 // Badge art, drawn as one 64×64 SVG. Speed badges are a metal ladder with the milestone
@@ -798,7 +882,11 @@ const GLYPH={
   nib:   ["M12 2 18 8.5 15.2 17H8.8L6 8.5zM11.25 10.5h1.5V16h-1.5zM12 7.4a1.45 1.45 0 100 2.9 1.45 1.45 0 000-2.9zM9 18.3h6V22H9z","translate(2.4 2.4) scale(0.8)"],
   die:   ["M6.5 4h11A2.5 2.5 0 0120 6.5v11a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5v-11A2.5 2.5 0 016.5 4zM8.6 7a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM15.4 7a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM12 10.4a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM8.6 13.8a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2zM15.4 13.8a1.6 1.6 0 100 3.2 1.6 1.6 0 000-3.2z","translate(1.8 1.8) scale(0.85) rotate(-14 12 12)"],
   orb:   ["M12 4.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15zM9.3 7.4a2 2 0 100 4 2 2 0 000-4zM13.4 7.5a.9.9 0 100 1.8.9.9 0 000-1.8z","translate(-0.8 -0.8) scale(1.07)"],
-  drop:  ["M12 3S6 10 6 14.2a6 6 0 0012 0C18 10 12 3 12 3zM9.6 13.4a1 1 0 00-1 1 3.4 3.4 0 002.4 3.3 1 1 0 00.6-1.9 1.4 1.4 0 01-1-1.4 1 1 0 00-1-1z","translate(0.72 1.19) scale(0.94)"]
+  drop:  ["M12 3S6 10 6 14.2a6 6 0 0012 0C18 10 12 3 12 3zM9.6 13.4a1 1 0 00-1 1 3.4 3.4 0 002.4 3.3 1 1 0 00.6-1.9 1.4 1.4 0 01-1-1.4 1 1 0 00-1-1z","translate(0.72 1.19) scale(0.94)"],
+  bomb:  ["M10.5 8a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8.3 11.2a1.3 1.3 0 100 2.6 1.3 1.3 0 000-2.6zM14.8 7.2l1.6-1.6 2.2 2.2-1.6 1.6zM19.2 1.8l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z","translate(1.1 1.84) scale(0.865)"],
+  sparkle:["M12 3l1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9zM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z","translate(0.65 1.32) scale(0.89)"],
+  heart: ["M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z","translate(-1.68 -2.82) scale(1.14)"],
+  crown: ["M4 8l4 4 4-6 4 6 4-4-1.5 10h-13zM5.5 19.5h13v1.8h-13z","translate(0 -1.65) scale(1)"]
 };
 const polar=(n,rf)=>{const p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2-Math.PI/2,r=rf(a);
   p.push((32+r*Math.cos(a)).toFixed(2)+","+(32+r*Math.sin(a)).toFixed(2));}return p.join(" ");};
@@ -810,7 +898,12 @@ const SHAPE={
   tile:      '<rect x="5" y="5" width="54" height="54" rx="15"/>',
   diamond:   '<rect x="12" y="12" width="40" height="40" rx="7" transform="rotate(45 32 32)"/>',
   quatrefoil:`<polygon points="${polar(144,a=>25+5*Math.cos(4*a))}"/>`,               // four soft lobes
-  burst:     `<polygon points="${polar(20,a=>Math.round((a+Math.PI/2)/(Math.PI/10))%2?22.5:30)}" stroke-linejoin="round"/>` // impact star
+  burst:     `<polygon points="${polar(20,a=>Math.round((a+Math.PI/2)/(Math.PI/10))%2?22.5:30)}" stroke-linejoin="round"/>`, // impact star
+  // shooter family
+  octa:      '<polygon points="21,3 43,3 61,21 61,43 43,61 21,61 3,43 3,21" stroke-linejoin="round"/>',          // disposal sign
+  capsule:   '<rect x="3" y="13" width="58" height="38" rx="19"/>',                                                // like a power-up capsule
+  pennant:   '<path d="M9 4h46v36L32 61 9 40z" stroke-linejoin="round"/>',                                         // survivor's banner
+  star:      `<polygon points="${polar(10,a=>Math.round((a+Math.PI/2)/(Math.PI/5))%2?17:30)}" stroke-linejoin="round"/>` // master's star
 };
 const METAL={ // [highlight, shade, rim, ink]
   gold:    ["#f6d566","#d6a015","#f3cf5a","#1a1608"],
@@ -844,7 +937,11 @@ const BADGES=[
   {id:"words1k",name:"Wordsmith",       desc:"Type 1,000 words total",  shape:"tile",   glyph:"nib",   test:()=>lifetimeWords()>=1000},
   {id:"combo10",name:"On a Roll",       desc:"Hit a 10-word combo",     shape:"diamond",glyph:"die",   test:c=>(c.combo||0)>=10},
   {id:"modes",  name:"Well Rounded",    desc:"Try every mode",          shape:"quatrefoil",glyph:"orb",   test:()=>allModesTried()},
-  {id:"kill1",  name:"First Blood",     desc:"Destroy your first word", shape:"burst",  glyph:"drop", ink:"#9e1b22", test:c=>c.mode==="shoot"&&(c.kills||0)>=1}
+  {id:"kill1",  name:"First Blood",     desc:"Destroy your first word", shape:"burst",  glyph:"drop", ink:"#9e1b22", test:c=>c.mode==="shoot"&&(c.kills||0)>=1},
+  {id:"bomb5",  name:"Bomb Squad",      desc:"Clear 5 words with one bomb",  shape:"octa",   glyph:"bomb",   test:c=>c.mode==="shoot"&&(c.bombBest||0)>=5},
+  {id:"collect",name:"Collector",       desc:"Grab every kind of power-up",  shape:"capsule",glyph:"sparkle",test:()=>Object.keys(PU).every(t=>STATS.puSeen[t])},
+  {id:"kills50",name:"Survivor",        desc:"Destroy 50 words in one run",  shape:"pennant",glyph:"heart",  test:c=>c.mode==="shoot"&&(c.kills||0)>=50},
+  {id:"frenzy", name:"Frenzy Master",   desc:"Score 250 on frenzy",          shape:"star",   glyph:"crown",  test:c=>c.mode==="shoot"&&c.diff==="frenzy"&&(c.score||0)>=250}
 ];
 function renderBadges(){
   const got=STATS.badges||{};
@@ -884,6 +981,7 @@ function recordKey(expected,ok){
 function finishRun(modeKey,kind,val,wpm){
   STATS.history.push({t:Date.now(),wpm:wpm||0});
   if(STATS.history.length>120)STATS.history=STATS.history.slice(-120);
+  if(!modeKey){saveStats();return false;}           // e.g. the daily: logged, but not a personal-best category
   const prev=STATS.pb[modeKey];let beat=false;
   if(prev===undefined||val>prev.v){beat=(prev!==undefined);STATS.pb[modeKey]={v:val,kind:kind};}
   saveStats();
@@ -923,10 +1021,133 @@ function pickWord(){
 }
 function makeWord(){
   if(nums && Math.random()<0.14) return ""+(Math.floor(Math.random()*998)+2);
-  const w=pickWord();
+  const w=(weakPool&&Math.random()<0.8)?pickWeak():pickWord();
   return punct?decorate(w):w;
 }
 function newSeq(n){const a=[];for(let i=0;i<n;i++)a.push(makeWord());return a;}
+
+/* ==================== WEAK-KEY PRACTICE ==================== */
+// Your weakest keys come from the per-key stats. With "weak keys" on, 80% of words are drawn
+// from a pool weighted toward words containing those letters (more weak letters = more likely).
+let weakFocus=false,weakSet=null,weakPool=null;
+function weakKeys(){
+  const r=Object.entries(STATS.keys).filter(([,s])=>s.a>=10)
+    .map(([k,s])=>({k,rate:(s.e+0.5)/(s.a+1)})).filter(x=>x.rate>=0.05)   // only real problem keys
+    .sort((a,b)=>b.rate-a.rate).slice(0,4).map(x=>x.k);
+  return r.length>=2?r:null;                         // need a couple of real problem keys to be useful
+}
+function buildWeakPool(keys){
+  const pool=[];
+  for(const w of WORDS){const n=[...w].filter(ch=>keys.includes(ch)).length;for(let i=0;i<Math.min(n,3);i++)pool.push(w);}
+  return pool.length>=20?pool:null;
+}
+function pickWeak(){
+  let w,tries=0;
+  do{w=weakPool[Math.floor(Math.random()*weakPool.length)];tries++;}while(RECENT.includes(w)&&tries<25);
+  RECENT.push(w);if(RECENT.length>40)RECENT.shift();
+  return w;
+}
+
+/* ==================== DAILY CHALLENGE ==================== */
+// Everyone gets the same 30 words each day: they're chosen by a random generator seeded with
+// the day number, so no server is needed. One official attempt per day, Wordle-style.
+const DAILY_WORDS=30,DAILY_EPOCH=Date.UTC(2026,8,30),SITE="https://bralash.github.io/clack/";
+function dailyNo(d=new Date()){return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-DAILY_EPOCH)/864e5)+1;}
+function seededRng(seed){return()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);   // mulberry32
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function dailyWords(n){
+  const r=seededRng(n*7919+104729),out=[],used=new Set();
+  while(out.length<DAILY_WORDS){const w=WORDS[Math.floor(r()*WORDS.length)];if(!used.has(w)){used.add(w);out.push(w);}}
+  return out;
+}
+function dailyStreak(){let n=dailyNo(),s=0;if(!STATS.daily[n])n--;while(STATS.daily[n]){s++;n--;}return s;}
+function untilNextDaily(){
+  const d=new Date(),mid=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+  const m=Math.max(1,Math.ceil((mid-d)/60000));return (m>=60?Math.floor(m/60)+"h ":"")+(m%60)+"m";
+}
+function dailyDate(n){const d=new Date(DAILY_EPOCH+(n-1)*864e5);
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"});}
+let dailyGrid=[],prevMode=null;
+function startDaily(){
+  const n=dailyNo();
+  if(STATS.daily[n]){openShare(n);return;}           // already played today: show the result instead
+  prevMode=[mode,value];mode="daily";value=n;lastActivity="test";startTest();
+}
+function restoreMode(){if(prevMode){[mode,value]=prevMode;prevMode=null;renderOpts();syncLabels();updateMods();}}
+function renderDaily(){
+  const n=dailyNo(),r=STATS.daily[n],box=$("#daily");if(!box)return;
+  const streak=dailyStreak();
+  $("#dNo").textContent="daily #"+n;
+  if(!r){
+    $("#dSub").textContent="30 words · same for everyone today"+(streak?` · 🔥 ${streak} day streak`:"");
+    $("#dRight").innerHTML=`<button class="btn primary" id="dPlay">play today's</button>`;
+    $("#dPlay").onclick=startDaily;
+  }else{
+    $("#dSub").textContent=`next daily in ${untilNextDaily()}`+(streak?` · 🔥 ${streak} day streak`:"");
+    $("#dRight").innerHTML=`<div class="d-score"><b>${r.wpm}</b> wpm · ${r.acc}%</div>
+      <div class="dgrid" aria-label="${r.grid.split("").filter(c=>c==="1").length} of ${r.grid.length} words clean">${[...r.grid].map(c=>`<i class="${c==="1"?"":"x"}"></i>`).join("")}</div>
+      <button class="btn" id="dShare">share</button>`;
+    $("#dShare").onclick=()=>openShare(n);
+  }
+}
+setInterval(()=>{if(!el.home.hidden)renderDaily();},30000);   // keep the countdown fresh
+
+/* ---------- share: text, image card, post to X ---------- */
+function shareText(n,r){
+  const rows=[];for(let i=0;i<r.grid.length;i+=10)rows.push([...r.grid.slice(i,i+10)].map(c=>c==="1"?"🟩":"🟨").join(""));
+  return `Clack Daily #${n} ⌨️\n${r.wpm} wpm · ${r.acc}% · ×${r.combo}\n${rows.join("\n")}\n${SITE}`;
+}
+async function drawShareCard(n,r){
+  try{await document.fonts.load("700 180px 'JetBrains Mono'");await document.fonts.load("400 24px 'JetBrains Mono'");}catch(e){}
+  const W2=1200,H2=630,c=document.createElement("canvas");c.width=W2;c.height=H2;const g=c.getContext("2d");
+  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`;
+  g.fillStyle="#0f1012";g.fillRect(0,0,W2,H2);
+  g.strokeStyle="#26292e";g.lineWidth=2;g.strokeRect(1,1,W2-2,H2-2);
+  // wordmark + eyebrow
+  g.textBaseline="alphabetic";g.font=F(700,52);g.fillStyle="#5c6066";g.fillText("cl",72,112);
+  g.fillStyle="#e2b425";g.fillText("ack",72+g.measureText("cl").width,112);
+  g.font=F(600,22);g.fillStyle="#b39024";g.fillText(`DAILY #${n}  ·  ${dailyDate(n).toUpperCase()}`,74,160);
+  // big wpm
+  g.font=F(700,190);g.fillStyle="#e2b425";g.fillText(String(r.wpm),62,392);
+  const nw=g.measureText(String(r.wpm)).width;g.font=F(600,38);g.fillStyle="#5c6066";g.fillText("wpm",78+nw,392);
+  // stats line
+  g.font=F(400,28);let x=74;const bits=[[r.acc+"%"," accuracy"],["×"+r.combo," best combo"],[r.time+"s"," time"]];
+  for(const [v,l] of bits){g.fillStyle="#e7e8ea";g.fillText(v,x,462);x+=g.measureText(v).width;g.fillStyle="#6b7078";g.fillText(l,x,462);x+=g.measureText(l).width+40;}
+  // word grid: one square per word
+  const sz=40,gap=10,cols=10,gx=W2-72-(cols*sz+(cols-1)*gap),gy=210;
+  g.font=F(600,18);g.fillStyle="#6b7078";g.fillText(`${[...r.grid].filter(ch=>ch==="1").length} / ${r.grid.length} clean words`,gx,gy-18);
+  [...r.grid].forEach((ch,i)=>{const cx2=gx+(i%cols)*(sz+gap),cy2=gy+Math.floor(i/cols)*(sz+gap);
+    g.fillStyle=ch==="1"?"#4ee06e":"#e2b425";g.beginPath();g.roundRect?g.roundRect(cx2,cy2,sz,sz,8):g.rect(cx2,cy2,sz,sz);g.fill();});
+  // footer
+  g.font=F(400,24);g.fillStyle="#5c6066";g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
+  g.font=F(600,24);g.fillStyle="#e2b425";const cta="type today's words →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+  return c;
+}
+let shareCanvas=null,shareNo=0;
+async function openShare(n){
+  const r=STATS.daily[n];if(!r)return;shareNo=n;
+  $("#shNo").textContent=n;$("#shNote").textContent="";
+  $("#shareScrim").hidden=false;$("#shareBox").hidden=false;
+  shareCanvas=await drawShareCard(n,r);$("#shImg").src=shareCanvas.toDataURL("image/png");
+  $("#shCopy").focus();
+}
+function closeShare(){$("#shareScrim").hidden=true;$("#shareBox").hidden=true;}
+async function copyShare(){
+  const t=shareText(shareNo,STATS.daily[shareNo]);
+  try{await navigator.clipboard.writeText(t);}
+  catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");}catch(_){}a.remove();}
+  $("#shNote").textContent="copied — paste it anywhere";
+}
+function postShare(){window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(shareText(shareNo,STATS.daily[shareNo])),"_blank","noopener");}
+function saveShare(){
+  if(!shareCanvas)return;
+  shareCanvas.toBlob(async blob=>{
+    const file=new File([blob],`clack-daily-${shareNo}.png`,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:shareText(shareNo,STATS.daily[shareNo])});return;}catch(e){if(e.name==="AbortError")return;}}
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    $("#shNote").textContent="image saved";
+  },"image/png");
+}
 
 const QUOTES=[
   {t:"I think, therefore I am.",by:"Descartes"},
@@ -964,11 +1185,17 @@ function updateCombo(){
 function startTest(){
   closeSheet();ac();          // warm up audio on the START click so the first keystroke isn't delayed
   STATS.modes[mode]=1;saveStats();
-  if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
+  // weak-key focus applies to time and words runs only
+  weakSet=null;weakPool=null;
+  if(weakFocus&&(mode==="time"||mode==="words")){weakSet=weakKeys();weakPool=weakSet&&buildWeakPool(weakSet);if(!weakPool)weakSet=null;}
+  $("#hint").textContent=weakSet?"practising your weak keys: "+weakSet.join(" · "):
+    (weakFocus&&(mode==="time"||mode==="words"))?"not enough key data yet — this run is normal practice":"just start typing";
+  if(mode==="daily"){seq=dailyWords(value);curAuthor="";dailyGrid=[];}
+  else if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
   else{seq=newSeq(mode==="words"?value:120);curAuthor="";}
   idx=0;typed="";correctChars=0;totalChars=0;wordsDone=0;combo=0;maxCombo=0;
   running=true;limitReached=false;startTime=0;
-  el.dur.textContent=mode==="time"?value+"s":mode==="words"?value+" words":seq.length+" words";
+  el.dur.textContent=mode==="time"?value+"s":mode==="words"?value+" words":mode==="daily"?"daily #"+value:seq.length+" words";
   el.timer.textContent="00:00";
   $("#liveWpm").textContent="0";$("#liveWpm").classList.remove("on");$("#pbBadge").hidden=true;
   $("#combo").hidden=true;
@@ -990,10 +1217,15 @@ function endTest(){
   const k=dayKey(new Date());
   const rec=DATA[k]||{words:0,time:0};
   rec.words+=wordsDone;rec.time+=Math.round(elapsed);
-  DATA[k]=rec;saveData(DATA);renderMonths();
-  const beat=finishRun(mode+"·"+value,"wpm",wpm,wpm);
+  DATA[k]=rec;saveData(DATA);
+  const isDaily=mode==="daily";
+  if(isDaily&&!STATS.daily[value])STATS.daily[value]={wpm,acc,combo:maxCombo,time:Math.round(elapsed),grid:dailyGrid.join("")};
+  // the daily and weak-key practice (harder, hand-picked words) are logged but don't set personal bests
+  const beat=finishRun(isDaily||weakSet?null:mode+"·"+value,"wpm",wpm,wpm);
+  renderMonths();
   // show results
-  $("#rTitle").textContent = mode==="quote"&&curAuthor ? "— "+curAuthor : "test complete";
+  $("#rTitle").textContent = isDaily ? "daily #"+value+" complete" : mode==="quote"&&curAuthor ? "— "+curAuthor : "test complete";
+  $("#again").hidden=isDaily;$("#shareBtn").hidden=!isDaily;shareNo=isDaily?value:shareNo;
   $("#rScoreItem").hidden=true;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=false;
   $("#rWpm").textContent=wpm;
   $("#rAcc").textContent=acc+"%";
@@ -1004,10 +1236,11 @@ function endTest(){
   $("#combo").hidden=true;
   showPB(beat);
   checkAchievements({wpm,acc,mode,combo:maxCombo,chars:correctChars});
+  if(isDaily)restoreMode();
   el.test.hidden=true;el.result.hidden=false;
 }
 function quit(){running=false;clearInterval(tick);window.removeEventListener("keydown",onKey);
-  stopShooter();blurKb();
+  stopShooter();blurKb();restoreMode();
   el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;el.home.hidden=false;renderMonths();}
 
 function beginTimer(){
@@ -1047,11 +1280,12 @@ function commitWord(){
   wordsDone++;
   if(clean){flash("good");goodBlip();combo++;if(combo>maxCombo)maxCombo=combo;}
   else{combo=0;}
+  if(mode==="daily")dailyGrid.push(clean?1:0);
   updateCombo();
   idx++;typed="";
   if(mode==="words"&&wordsDone>=value){endTest();return;}
-  if(mode==="quote"&&idx>=seq.length){endTest();return;}
-  if(mode!=="quote"&&idx>=seq.length)seq=seq.concat(newSeq(60));
+  if((mode==="quote"||mode==="daily")&&idx>=seq.length){endTest();return;}
+  if(mode!=="quote"&&mode!=="daily"&&idx>=seq.length)seq=seq.concat(newSeq(60));
   renderWord();
 }
 function flash(cls){el.word.classList.remove(cls);void el.word.offsetWidth;el.word.classList.add(cls);}
@@ -1130,11 +1364,12 @@ const PU={
   shield:{icon:"◈", col:"#4ee06e",label:"shield"},   // heal a life, or block the next hit
   double:{icon:"×2",col:"#e2b425",label:"double"}    // double points for 10s
 };
-let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false;
+let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false,sBombBest=0;
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
 const ptsMult=()=>pwr&&pwr.type==="double"?2:1;
 function collectPU(en){
   const t=en.pu,p=PU[t];
+  STATS.puSeen[t]=1;
   sScore+=15*ptsMult();
   boom(en.x,en.y,p.col);boom(en.x,en.y,p.col);
   if(t==="freeze"){pwr={type:"freeze",t:5,dur:5};tone("sine",900,260,0.16,0.4);}
@@ -1146,6 +1381,7 @@ function collectPU(en){
 }
 function detonate(){
   const hits=enemies.filter(e=>!e.pu),m=ptsMult();
+  sBombBest=Math.max(sBombBest,hits.length);
   for(const e of hits){sScore+=(10+e.word.length)*m;sKills++;boom(e.x,e.y,"#ff8a3d");}
   enemies=enemies.filter(e=>e.pu);
   if(target&&!target.pu)target=null;
@@ -1204,7 +1440,7 @@ function startShooter(){
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
   sSpawnT=0;sElapsed=0;sScore=0;sLives=0;sKills=0;sKeysOk=0;sKeysAll=0;sCharsOk=0;
-  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;
+  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;sBombBest=0;
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#shoot").hidden=false;
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
@@ -1227,7 +1463,7 @@ function endShoot(){
   const k=dayKey(new Date());const rec=DATA[k]||{words:0,time:0};
   rec.words+=sKills;rec.time+=Math.round(elapsed);DATA[k]=rec;saveData(DATA);renderMonths();
   const beat=finishRun("shoot·"+value,"score",sScore,wpm);
-  $("#rTitle").textContent="game over";
+  $("#rTitle").textContent="game over";$("#again").hidden=false;$("#shareBtn").hidden=true;
   $("#rScoreItem").hidden=false;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=true;
   $("#rScore").textContent=sScore;
   $("#rWpm").textContent=wpm;$("#rAcc").textContent=acc+"%";
@@ -1235,7 +1471,7 @@ function endShoot(){
   $("#rTime").textContent=Math.round(elapsed)+"s";
   $("#rChars").textContent=sCharsOk;
   showPB(beat);
-  checkAchievements({wpm,acc,mode:"shoot",score:sScore,kills:sKills});
+  checkAchievements({wpm,acc,mode:"shoot",score:sScore,kills:sKills,diff:value,bombBest:sBombBest});
   $("#shoot").hidden=true;el.result.hidden=false;
 }
 function onShoot(e){
@@ -1408,6 +1644,7 @@ function renderStats(){
   renderKeyboard();
   drawChart();
   renderBadges();
+  renderWeakCta();
 }
 function renderKeyboard(){
   const rows=["qwertyuiop","asdfghjkl","zxcvbnm"];let html="";
@@ -1496,9 +1733,25 @@ function applyTheme(){
 $("#themeBtn").onclick=e=>{e.stopPropagation();theme=(theme==="light"?"dark":"light");
   try{localStorage.setItem("clack_theme",theme);}catch(_){}applyTheme();};
 
-try{const m=JSON.parse(localStorage.getItem("clack_mods"));if(m){punct=!!m.punct;nums=!!m.nums;}}catch(e){}
-function syncMods(){$("#punctBtn").classList.toggle("on",punct);$("#numBtn").classList.toggle("on",nums);}
-function saveMods(){try{localStorage.setItem("clack_mods",JSON.stringify({punct,nums}));}catch(e){}}
+try{const m=JSON.parse(localStorage.getItem("clack_mods"));if(m){punct=!!m.punct;nums=!!m.nums;weakFocus=!!m.weak;}}catch(e){}
+function syncMods(){$("#punctBtn").classList.toggle("on",punct);$("#numBtn").classList.toggle("on",nums);$("#weakBtn").classList.toggle("on",weakFocus);}
+function saveMods(){try{localStorage.setItem("clack_mods",JSON.stringify({punct,nums,weak:weakFocus}));}catch(e){}}
+$("#weakBtn").onclick=e=>{e.stopPropagation();weakFocus=!weakFocus;saveMods();syncMods();};
+
+/* weak-key call to action on the stats page */
+function renderWeakCta(){
+  const keys=weakKeys(),btn=$("#wcBtn");
+  if(keys){$("#wcText").innerHTML=`your weakest keys: <b>${keys.map(k=>k.toUpperCase()).join(" · ")}</b> — practise with words full of them`;btn.disabled=false;}
+  else{$("#wcText").textContent="play a few more tests and your weakest keys will show up here";btn.disabled=true;}
+}
+$("#wcBtn").onclick=()=>{if(!weakKeys())return;weakFocus=true;saveMods();syncMods();setMode("time");value=60;syncLabels();renderOpts();
+  $("#stats").hidden=true;lastActivity="test";startTest();};
+
+/* share dialog wiring */
+$("#shareBtn").onclick=()=>openShare(shareNo);
+$("#shClose").onclick=closeShare;$("#shareScrim").onclick=closeShare;
+$("#shCopy").onclick=copyShare;$("#shX").onclick=postShare;$("#shSave").onclick=saveShare;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#shareBox").hidden){e.preventDefault();closeShare();}});
 function updateMods(){$("#mods").hidden=(mode==="quote"||mode==="shoot");}
 $("#punctBtn").onclick=e=>{e.stopPropagation();punct=!punct;saveMods();syncMods();};
 $("#numBtn").onclick=e=>{e.stopPropagation();nums=!nums;saveMods();syncMods();};
