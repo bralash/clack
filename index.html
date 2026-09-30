@@ -284,6 +284,92 @@
   .dotsep{color:var(--text-faint);font-family:var(--mono);font-size:12px;}
   .res-help{margin-top:22px;}
 
+  /* ---------- CLACK SCHOOL ---------- */
+  .headnav{flex-wrap:wrap;justify-content:flex-end;row-gap:6px;}
+  .sc-prog{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+  .sc-prog b{color:var(--gold);}
+  .sc-note{font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--gold);background:var(--surface);
+    border:1px dashed var(--gold-dim);border-radius:10px;padding:10px 14px;}
+  .sc-nokb{display:flex;flex-direction:column;align-items:flex-start;gap:10px;color:var(--text-dim);}
+  .sc-nokb[hidden]{display:none;}
+  .sc-nokb b{color:var(--gold);}
+  .sc-units{display:flex;flex-direction:column;gap:18px;}
+  .sc-unit{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px 16px;}
+  .sc-uh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-family:var(--mono);margin-bottom:12px;}
+  .sc-un{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);}
+  .sc-uh b{font-size:14px;color:var(--text);}
+  .sc-us{font-size:11px;color:var(--text-dim);}
+  .sc-nodes{display:flex;gap:10px;flex-wrap:wrap;}
+  .sc-node{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:74px;height:64px;
+    font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;cursor:pointer;color:var(--text);}
+  .sc-node:hover:not([disabled]){border-color:var(--gold-dim);}
+  .sc-node:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .sc-nk{font-size:13px;font-weight:600;letter-spacing:.5px;}
+  .sc-ns{font-size:10px;letter-spacing:1px;color:var(--text-faint);}
+  .sc-node.done .sc-ns{color:var(--gold);}
+  .sc-node.current{border-color:var(--gold);box-shadow:0 0 0 3px rgba(226,180,37,.18);}
+  .sc-node.current .sc-nk{color:var(--gold);}
+  .sc-node.locked{cursor:default;opacity:.45;}
+  .sc-play{position:absolute;inset:0;display:flex;flex-direction:column;padding:0 clamp(16px,4vw,40px);}
+  .sc-top{gap:14px;}
+  .sc-title{font-family:var(--mono);font-size:13px;color:var(--gold);text-align:center;}
+  .sc-steps{display:flex;gap:6px;font-family:var(--mono);font-size:11px;}
+  .sc-steps span{color:var(--text-faint);padding:3px 7px;border-radius:6px;}
+  .sc-steps span.on{color:#1a1608;background:var(--gold);}
+  .sc-steps span.done{color:var(--gold);}
+  .sc-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:clamp(12px,2.4vh,22px);
+    padding:10px 0 20px;min-height:0;overflow-y:auto;scrollbar-width:none;}
+  .sc-body::-webkit-scrollbar{display:none;}
+  .sc-lesson{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
+  .sc-instr{font-family:var(--mono);font-size:14px;color:var(--text-dim);text-align:center;min-height:22px;max-width:62ch;line-height:1.5;}
+  .sc-instr b{color:var(--text);}
+  .sc-strip{font-family:var(--mono);font-size:clamp(22px,3.4vw,32px);letter-spacing:2px;white-space:pre;
+    max-width:100%;overflow:hidden;display:flex;justify-content:center;}
+  .sc-strip span{padding:0 1px;border-radius:5px;}
+  .sc-strip .d{color:var(--text-faint);}
+  .sc-strip .t{color:var(--text-dim);}
+  .sc-strip .c{color:#1a1608;background:var(--gold);}
+  .sc-strip .sp{color:var(--text-faint);}
+  .sc-strip .c.sp{color:#1a1608;}
+  .sc-kb{width:min(100%,660px);height:auto;aspect-ratio:590/214;display:block;}
+  .sc-foot{display:flex;align-items:center;justify-content:center;gap:10px 20px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+  .sc-foot b{color:var(--text);}
+  .sc-foot .chip{padding:6px 11px;font-size:11px;}
+  .sc-intro{max-width:620px;width:100%;font-family:var(--mono);color:var(--text-dim);font-size:13px;line-height:1.65;}
+  /* reference picture of the home position; the top of the source is empty, so crop it away */
+  .sc-hands-img{display:block;width:100%;height:auto;aspect-ratio:1672/820;object-fit:cover;object-position:50% 100%;
+    border-radius:14px;border:1px solid var(--line);background:#0b0b0d;}
+  .sc-intro .sc-hands-img{margin:0 0 16px;}
+  .sc-hands{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;padding:20px clamp(16px,4vw,40px);background:color-mix(in srgb,var(--bg) 94%,transparent);
+    font-family:var(--mono);font-size:13px;color:var(--text-dim);text-align:center;}
+  .sc-hands .sc-hands-img{width:min(100%,760px);}
+  .sc-hands b{color:var(--text);}
+  .sc-intro h2{font-size:15px;color:var(--gold);margin:0 0 10px;font-weight:600;letter-spacing:.5px;}
+  .sc-intro ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;}
+  .sc-intro b{color:var(--text);}
+  .sc-ready{margin-top:14px;color:var(--text);}
+  .sc-intro kbd,.sc-ready kbd{font-family:var(--mono);font-size:11px;color:var(--text);background:var(--surface-2);
+    border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;}
+  .sc-done{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--mono);text-align:center;}
+  .sc-stars{display:flex;gap:10px;font-size:42px;}
+  .sc-stars span{color:var(--surface-2);-webkit-text-stroke:1px var(--line);}
+  .sc-stars span.on{color:var(--gold);-webkit-text-stroke:0;text-shadow:0 0 18px rgba(226,180,37,.45);animation:starPop .45s cubic-bezier(.2,1.4,.4,1) both;}
+  @keyframes starPop{0%{transform:scale(0) rotate(-40deg);}100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion:reduce){.sc-stars span.on{animation:none;}}
+  .sc-done-title{font-size:18px;color:var(--text);font-weight:600;}
+  .sc-done-stats{display:flex;gap:34px;margin-top:4px;}
+  .sc-done-stats div{display:flex;flex-direction:column;gap:4px;}
+  .sc-done-stats b{font-size:32px;color:var(--gold);}
+  .sc-done-stats span{font-size:11px;color:var(--text-dim);}
+  .sc-done-how{font-size:12px;color:var(--text-dim);min-height:16px;}
+  .sc-done-ck{font-size:13px;color:var(--gold);min-height:18px;display:flex;align-items:center;gap:6px;}
+  .sc-done .res-btns{margin-top:10px;flex-wrap:wrap;justify-content:center;}
+  .ask{gap:12px;}
+  .ask-title{font-family:var(--mono);font-size:16px;color:var(--text);line-height:1.4;}
+  .ask-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.6;margin:0;}
+
   /* ---------- CLACKS + STORE ---------- */
   .ck{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;display:inline-block;}
   .bal{display:inline-flex;align-items:center;gap:5px;}
@@ -447,6 +533,29 @@
 <body>
 
 <div id="app">
+  <!-- clack school on a phone: it needs a physical keyboard -->
+  <div class="share-scrim" id="kbScrim" hidden></div>
+  <div class="share ask" id="kbBox" role="dialog" aria-modal="true" aria-labelledby="kbTitle" hidden>
+    <img class="sc-hands-img" src="brand/school-hands.webp" width="1672" height="941" alt="" loading="lazy">
+    <div class="ask-title" id="kbTitle">clack school needs a keyboard</div>
+    <p class="ask-sub">It teaches 10-finger typing on a physical keyboard, so it won't work with your phone's on-screen keyboard.
+      Open clack on a computer — or connect a keyboard and press any key.</p>
+    <div class="share-btns">
+      <button class="btn primary" id="kbShare">send me the link</button>
+      <button class="btn" id="kbOk">got it</button>
+    </div>
+  </div>
+
+  <!-- first visit: can you touch type? -->
+  <div class="share-scrim" id="askScrim" hidden></div>
+  <div class="share ask" id="askBox" role="dialog" aria-modal="true" aria-labelledby="askTitle" hidden>
+    <div class="ask-title" id="askTitle">can you type without looking at the keyboard?</div>
+    <p class="ask-sub">If not, Clack School will teach you — one or two keys at a time, a few minutes a day.</p>
+    <div class="share-btns">
+      <button class="btn primary" id="askNo">not yet — teach me</button>
+      <button class="btn" id="askYes">yes, I can</button>
+    </div>
+  </div>
   <!-- daily share dialog -->
   <div class="share-scrim" id="shareScrim" hidden></div>
   <div class="share" id="shareBox" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
@@ -478,6 +587,8 @@
           <div class="brand"><img class="brand-mark" src="brand/favicon.svg" alt="" width="44" height="44">
             <div><span class="brand-word">cl<b>ack</b></span><span class="sub">a minimalistic typing test</span></div></div>
           <nav class="headnav">
+            <button class="linkbtn" id="schoolBtn">clack school</button>
+            <span class="dotsep" aria-hidden="true">·</span>
             <button class="linkbtn bal" id="storeBtn" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span> store</button>
             <span class="dotsep" aria-hidden="true">·</span>
             <button class="linkbtn" id="helpBtn">how it works</button>
@@ -625,6 +736,74 @@
     <button class="linkbtn res-help" id="wpmHelp">how is wpm calculated?</button>
   </section>
 
+  <!-- CLACK SCHOOL -->
+  <section id="school" class="view" hidden>
+    <div class="st-scroll" id="scMap">
+      <div class="st-inner">
+        <div class="st-top">
+          <div class="quit" id="scBack">← back</div>
+          <div class="st-title">clack school</div>
+          <div class="sc-prog" id="scProg"></div>
+        </div>
+        <div class="st-sec">
+          <p class="store-lead">Learn to type without looking, one or two keys at a time. Each lesson takes 2–4 minutes.
+            Accuracy first — speed comes on its own.</p>
+          <div class="sc-note sc-nokb" id="scTouch" hidden>
+            <span><b>⌨ keyboard feature.</b> Clack School teaches 10-finger typing on a physical keyboard, so it won't work
+              with a phone's on-screen keyboard. Open clack on a computer — or connect a keyboard and press any key.</span>
+            <button class="chip" id="scTouchShare">send me the link</button>
+          </div>
+        </div>
+        <div class="sc-units" id="scUnits"></div>
+      </div>
+    </div>
+
+    <div class="sc-play" id="scPlay" hidden>
+      <div class="top sc-top">
+        <div class="quit" id="scExit">✕ exit</div>
+        <div class="sc-title" id="scTitle"></div>
+        <div class="sc-steps" id="scSteps"></div>
+      </div>
+      <div class="sc-body" id="scBody">
+        <div class="sc-intro" id="scIntro" hidden>
+          <h2>put your hands in place</h2>
+          <img class="sc-hands-img" src="brand/school-hands.webp" width="1672" height="941"
+            alt="Two hands resting on a keyboard. Each key is colored by the finger that presses it: pinkies violet, ring fingers blue, middle fingers green, index fingers gold. Thumbs rest on the space bar.">
+          <ol>
+            <li>Sit up, relax your shoulders, and keep your wrists just above the keyboard.</li>
+            <li>Rest your left fingers on <b>A S D F</b> and your right fingers on <b>J K L ;</b> — this is the <b>home row</b>.</li>
+            <li>Feel the little bumps on <b>F</b> and <b>J</b>. Your index fingers live there, so you can find home without looking.</li>
+            <li>Rest your thumbs on the <b>space bar</b>. Keep your eyes on the screen from now on.</li>
+          </ol>
+          <div class="sc-ready">press <kbd>space</kbd> when you're ready</div>
+        </div>
+        <div class="sc-lesson" id="scLesson">
+          <div class="sc-instr" id="scInstr"></div>
+          <div class="sc-strip" id="scStrip" aria-live="off"></div>
+        </div>
+        <canvas class="sc-kb" id="scKb" aria-hidden="true"></canvas>
+        <div class="sc-foot" id="scFoot"></div>
+        <div class="sc-done" id="scDone" hidden>
+          <div class="sc-stars" id="scStars"></div>
+          <div class="sc-done-title" id="scDoneTitle"></div>
+          <div class="sc-done-stats" id="scDoneStats"></div>
+          <div class="sc-done-how" id="scDoneHow"></div>
+          <div class="sc-done-ck" id="scDoneCk"></div>
+          <div class="res-btns">
+            <button class="btn primary" id="scNext">next lesson</button>
+            <button class="btn" id="scRetry">try again</button>
+            <button class="btn" id="scToMap">course map</button>
+          </div>
+        </div>
+      </div>
+      <div class="sc-hands" id="scHands" hidden>
+        <img class="sc-hands-img" src="brand/school-hands.webp" width="1672" height="941" alt="Hands in the home position, keys colored by finger.">
+        <div>fingers on <b>A S D F</b> and <b>J K L ;</b> · thumbs on <b>space</b> · each key matches its finger's color</div>
+        <div>press any key to go back</div>
+      </div>
+    </div>
+  </section>
+
   <!-- STORE -->
   <section id="store" class="view" hidden>
     <div class="st-scroll">
@@ -674,6 +853,19 @@
         </dl>
         <p>Click the setting next to START (like <b>60 seconds ▾</b>) to change the length, turn on
           <b>! punctuation</b>, <b># numbers</b> or <b>◎ weak keys</b> for time and words runs, and switch sound or the light/dark theme.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">clack school</div>
+        <p>New to typing? <b>Clack School</b> teaches you to type without looking, one or two keys at a time. Each lesson has four
+          short steps — <b>meet</b> the keys (glowing fingertip pads on the keyboard show which finger to use and where it reaches), <b>drill</b> the motion,
+          type <b>words</b> made only from keys you know, then a scored <b>check</b>. A wrong key doesn't move you on, and
+          Clack tells you which finger you used by mistake. Forgot where your hands go? Press <b>✋ hand position</b> under
+          the keyboard to see the home position again (the clock pauses while you look).</p>
+        <p>Clack School needs a <b>physical keyboard</b> — on a phone's on-screen keyboard you type with your thumbs, so the lessons
+          don't apply. Connect a keyboard (or open clack on a computer) and the lessons work as normal.</p>
+        <p>Pass a lesson with <b>90% accuracy</b> to unlock the next one; higher accuracy and speed earn up to three stars.
+          The on-screen keyboard fades out while you're typing accurately, so you learn not to look. You can pin it if you'd rather keep it.</p>
       </div>
 
       <div class="st-sec">
@@ -1937,6 +2129,324 @@ function closeHelp(){
   $("#help").hidden=true;
   if(helpFrom==="result")el.result.hidden=false;else{el.home.hidden=false;renderMonths();}
 }
+/* ==================== CLACK SCHOOL ==================== */
+// Teaches touch typing from zero. A lesson introduces 1-2 keys: meet them (see which finger),
+// drill the motion, type real words made only from keys you know, then a scored check.
+// Mistakes don't advance — you press the right key before moving on, so accuracy comes first.
+const FNG={lp:["left pinky","#a78bfa"],lr:["left ring","#60a5fa"],lm:["left middle","#4ade80"],li:["left index","#f5c542"],
+  ri:["right index","#f5c542"],rm:["right middle","#4ade80"],rr:["right ring","#60a5fa"],rp:["right pinky","#a78bfa"],
+  lt:["left thumb","#c9ccd1"],rt:["right thumb","#c9ccd1"]};
+const KU=54,KW=48,KB_W=590,KB_H=214;
+const KB_ROWS=[["qwertyuiop",0,0],["asdfghjkl;",13.5,54],["zxcvbnm,./",40.5,108]];   // real QWERTY stagger
+const KEYF="lp lr lm li li ri ri rm rr rp".split(" ");
+const KP={},FOF={" ":"rt"};
+KB_ROWS.forEach(([keys,x0,y])=>[...keys].forEach((k,i)=>{KP[k]={x:x0+i*KU,y,w:KW,h:KW};FOF[k]=KEYF[i];}));
+KP[" "]={x:112,y:162,w:356,h:KW};
+const HOMEKEY={lp:"a",lr:"s",lm:"d",li:"f",ri:"j",rm:"k",rr:"l",rp:";"};
+const kcen=k=>[KP[k].x+KP[k].w/2,KP[k].y+KW/2];
+
+// Fingertip pads: one glowing pad per finger, resting low on its home key (so the letter stays
+// readable) and the thumbs on the space bar. The finger a key needs glides its pad there and back.
+const PAD_DY=15;                                        // pads sit below the key's label
+const PADS=(()=>{const p={};
+  for(const [f,k] of Object.entries(HOMEKEY)){const [x,y]=kcen(k);p[f]=[x,y+PAD_DY];}
+  const [sx,sy]=kcen(" ");p.lt=[sx-64,sy+PAD_DY-6];p.rt=[sx+64,sy+PAD_DY-6];
+  return p;})();
+
+function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+
+const Guide={cv:null,g:null,raf:0,scale:1,tips:{},
+  st:{target:null,learned:new Set(),fresh:new Set(),wrong:null,wrongT:0,alpha:1,alphaGoal:1},
+  attach(cv){this.cv=cv;this.g=cv.getContext("2d");for(const [id,p] of Object.entries(PADS))this.tips[id]=[...p];},
+  size(){const w=this.cv.clientWidth||KB_W,d=Math.min(window.devicePixelRatio||1,2);
+    this.cv.width=Math.round(w*d);this.cv.height=Math.round(w*KB_H/KB_W*d);this.scale=w/KB_W*d;},
+  start(){this.size();cancelAnimationFrame(this.raf);const loop=t=>{this.draw(t/1000);this.raf=requestAnimationFrame(loop);};this.raf=requestAnimationFrame(loop);},
+  stop(){cancelAnimationFrame(this.raf);this.raf=0;},
+  flash(k){if(KP[k]){this.st.wrong=k;this.st.wrongT=performance.now();}},
+  draw(t){
+    const g=this.g,s=this.st;if(!g)return;
+    g.setTransform(this.scale,0,0,this.scale,0,0);g.clearRect(0,0,KB_W,KB_H);
+    s.alpha+=(s.alphaGoal-s.alpha)*0.08;g.globalAlpha=s.alpha;
+    const now=performance.now();
+    // keys, tinted by the finger that owns them
+    for(const k in KP){
+      const p=KP[k],fid=FOF[k],col=FNG[fid][1],on=s.learned.has(k),tgt=k===s.target,wr=k===s.wrong&&now-s.wrongT<420;
+      rrect(g,p.x,p.y,p.w,p.h,9);
+      g.fillStyle=tgt?col:on?hexA(col,.13):"#15171a";g.fill();
+      g.lineWidth=wr?2.4:s.fresh.has(k)&&!tgt?2:1.2;
+      g.strokeStyle=wr?"#d1495b":tgt?col:on?hexA(col,s.fresh.has(k)?.95:.45):"#26292e";g.stroke();
+      if(tgt){g.save();g.shadowColor=col;g.shadowBlur=18;rrect(g,p.x,p.y,p.w,p.h,9);g.strokeStyle=col;g.stroke();g.restore();}
+      g.fillStyle=tgt?"#15171a":on?"#e7e8ea":"#3d4148";
+      g.textAlign="center";g.textBaseline="middle";
+      if(k===" "){g.font="600 12px 'JetBrains Mono',monospace";g.fillText("space",p.x+p.w/2,p.y+17);}
+      else{g.font="600 16px 'JetBrains Mono',monospace";g.fillText(/[a-z]/.test(k)?k.toUpperCase():k,p.x+p.w/2,p.y+17);}
+      if(k==="f"||k==="j"){g.fillStyle=tgt?"#15171a":on?hexA(col,.9):"#3d4148";g.fillRect(p.x+p.w/2-6,p.y+31,12,2.2);}   // home bumps
+    }
+    // fingertip pads: the needed finger's pad glides to the key, then back home
+    const active=s.target?FOF[s.target]:null;
+    for(const [id,home] of Object.entries(PADS)){
+      let goal=home;
+      if(id===active){const [x,y]=kcen(s.target);goal=s.target===" "?[home[0],home[1]+3]:[x,y+PAD_DY];}
+      const tp=this.tips[id];tp[0]+=(goal[0]-tp[0])*0.2;tp[1]+=(goal[1]-tp[1])*0.2;
+    }
+    for(const [id,home] of Object.entries(PADS)){
+      const tp=this.tips[id],col=FNG[id][1],on=id===active,away=Math.hypot(tp[0]-home[0],tp[1]-home[1]);
+      if(away>4){                                       // a thread back home, and a ghost ring where it returns
+        g.strokeStyle=hexA(col,.4);g.lineWidth=2;g.setLineDash([3,4]);
+        g.beginPath();g.moveTo(home[0],home[1]);g.lineTo(tp[0],tp[1]);g.stroke();g.setLineDash([]);
+        g.strokeStyle=hexA(col,.55);g.lineWidth=1.5;g.beginPath();g.arc(home[0],home[1],6,0,6.29);g.stroke();
+      }
+      const r=on?8.5:6.2;
+      g.save();g.shadowColor=col;g.shadowBlur=on?18:7;
+      g.beginPath();g.arc(tp[0],tp[1],r,0,6.29);
+      if(on){g.fillStyle="#ffffff";g.fill();g.lineWidth=3;g.strokeStyle=col;g.stroke();}   // stands out on its lit key
+      else{g.fillStyle=hexA(col,.9);g.fill();}
+      g.restore();
+      g.fillStyle=on?hexA(col,.35):"rgba(255,255,255,.45)";g.beginPath();g.arc(tp[0]-r*.32,tp[1]-r*.32,r*.3,0,6.29);g.fill();
+      if(on){const pr=r+5+2.5*Math.sin(t*6);g.strokeStyle=hexA(col,.5);g.lineWidth=1.4;g.beginPath();g.arc(tp[0],tp[1],pr,0,6.29);g.stroke();}
+    }
+    g.globalAlpha=1;
+  }
+};
+
+const SCHOOL=[
+  {id:"u0",name:"get set",sub:"where your hands live",wpm:[0,0],lessons:[{keys:"asdfjkl;",title:"home position",intro:true}]},
+  {id:"u1",name:"home row",sub:"the keys your fingers rest on",wpm:[8,14],lessons:["fj","dk","sl","a;","gh","*"]},
+  {id:"u2",name:"top row",sub:"reaching up",wpm:[12,18],lessons:["ei","ru","ty","wo","qp","*"]},
+  {id:"u3",name:"bottom row",sub:"reaching down",wpm:[15,22],lessons:["vm","c,","x.","z/","bn","*"]}
+];
+const LESSONS=[];
+(()=>{let known="";
+  for(const u of SCHOOL){
+    const unitKeys=u.lessons.filter(l=>typeof l==="string"&&l!=="*").join("");
+    u.lessons=u.lessons.map((l,i)=>{
+      const id=u.id+"-"+(i+1);
+      if(typeof l==="object")return {id,unit:u,idx:i,title:l.title,intro:true,fresh:l.keys,learned:l.keys+" "};   // positions only; not "known" yet
+      if(l==="*")return {id,unit:u,idx:i,title:u.name+" review",review:true,fresh:unitKeys,learned:known+" "};
+      known+=l;return {id,unit:u,idx:i,title:[...l].join(" · "),fresh:l,learned:known+" "};
+    });
+    LESSONS.push(...u.lessons);
+  }})();
+STATS.school=STATS.school||{stars:{},asked:false,pin:false};
+
+const LEARN_EXTRA="sad lad fad dad add all ask fall flask salad lass glass has had ash half hall hash dash sash gag hag jag lag flag glad shall alas gall".split(" ");
+function wordPool(l){
+  const ok=new Set([...l.learned].filter(c=>/[a-z]/.test(c)));
+  const pool=[...new Set([...LEARN_EXTRA,...WORDS])].filter(w=>w.length<=7&&[...w].every(c=>ok.has(c)));
+  const fresh=[...l.fresh].filter(c=>/[a-z]/.test(c));
+  return {pool,withFresh:pool.filter(w=>fresh.some(c=>w.includes(c))),letters:[...ok],fresh};
+}
+function lessonWords(l,n){
+  const {pool,withFresh,letters,fresh}=wordPool(l);let out=[];
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  if(pool.length<6){                                  // too few real words yet: short practice "words"
+    for(let i=0;i<n;i++){let w="";const len=2+Math.floor(Math.random()*3);
+      for(let j=0;j<len;j++)w+=pick(fresh.length&&Math.random()<.55?fresh:letters);out.push(w);}
+  }else for(let i=0;i<n;i++)out.push(pick(withFresh.length>=3&&Math.random()<.7?withFresh:pool));
+  const punct=[...l.fresh].filter(c=>c===","||c===".");   // lessons that teach , or . use them
+  if(punct.length)out=out.map((w,i)=>i%3===2?w+punct[i%punct.length]:w);
+  return out.join(" ");
+}
+function drillText(l){
+  const F=[...l.fresh],K=[...new Set(l.learned)].filter(c=>c!==" "),out=[],pick=a=>a[Math.floor(Math.random()*a.length)];
+  for(const k of F.slice(0,4))out.push(k.repeat(3));
+  if(F.length>=2)out.push(F[0]+F[1]+F[0],F[1]+F[0]+F[1],F[0]+F[0]+F[1]+F[1]);
+  while(out.length<14){let s="";const n=3+Math.floor(Math.random()*2);for(let i=0;i<n;i++)s+=pick(Math.random()<.55?F:K);out.push(s);}
+  return out.join(" ");
+}
+function buildSteps(l){
+  const st=[],F=[...l.fresh];
+  if(!l.review)st.push({kind:"meet",text:l.intro?F.join(" "):F.map(k=>k.repeat(3)).join(" ")});
+  st.push({kind:"drill",text:drillText(l)});
+  if(!l.intro){st.push({kind:"words",text:lessonWords(l,12)});st.push({kind:"check",text:lessonWords(l,14)});}
+  return st;
+}
+function starsFor(l,acc,wpm){
+  if(l.intro)return acc>=98?3:acc>=95?2:acc>=90?1:0;
+  const [w2,w3]=l.unit.wpm;return acc>=98&&wpm>=w3?3:acc>=95&&wpm>=w2?2:acc>=90?1:0;
+}
+const lessonStars=id=>STATS.school.stars[id]||0;
+const lessonUnlocked=i=>i===0||lessonStars(LESSONS[i-1].id)>=1;
+const keyName=k=>k===" "?"space":k===";"?"semicolon":k===","?"comma":k==="."?"period":k==="/"?"slash":k.toUpperCase();
+function reachHint(k){
+  const f=FOF[k];if(k===" ")return "Tap the space bar with your right thumb.";
+  const home=HOMEKEY[f];if(home===k)return `It's a home key — your ${FNG[f][0]} rests right there.`;
+  const dir=KP[k].y<54?"up":KP[k].y>54?"down":"sideways";
+  return `Reach ${dir} from ${keyName(home)}, then come back home.`;
+}
+
+let SC=null;                                          // current lesson session
+function renderSchool(){
+  const all=LESSONS.length;let done=0,stars=0;LESSONS.forEach(l=>{const s=lessonStars(l.id);if(s)done++;stars+=s;});
+  $("#scProg").innerHTML=`${done}/${all} lessons · <b>${stars}</b> ★`;
+  const current=LESSONS.findIndex((l,i)=>lessonUnlocked(i)&&!lessonStars(l.id));
+  $("#scUnits").innerHTML=SCHOOL.map(u=>`<div class="sc-unit">
+      <div class="sc-uh"><span class="sc-un">${u.id==="u0"?"unit 0":"unit "+u.id.slice(1)}</span><b>${u.name}</b><span class="sc-us">${u.sub}</span></div>
+      <div class="sc-nodes">${u.lessons.map(l=>{const i=LESSONS.indexOf(l),s=lessonStars(l.id),open=lessonUnlocked(i);
+        const cls=s?"done":i===current?"current":open?"open":"locked";
+        const label=l.intro?"✋":l.review?"review":[...l.fresh].map(keyName).map(x=>x.length>1?x.slice(0,3):x).join(" ");
+        return `<button class="sc-node ${cls}" data-lesson="${i}" ${open?"":"disabled"} aria-label="${l.title}${s?", "+s+" of 3 stars":open?"":", locked"}">
+          <span class="sc-nk">${open?label:"🔒"}</span><span class="sc-ns">${"★".repeat(s)}${"☆".repeat(3-s)}</span></button>`;}).join("")}</div>
+    </div>`).join("");
+  $("#scTouch").hidden=!needsKb();
+}
+// Clack School needs a physical keyboard. Touch-only devices (phones) are told so, unless a real
+// key press shows one is connected (an iPad keyboard case, a Bluetooth keyboard on a phone).
+const touchOnly=()=>matchMedia("(pointer: coarse)").matches&&!matchMedia("(any-pointer: fine)").matches;
+let hwKb=false;
+const needsKb=()=>touchOnly()&&!hwKb;
+window.addEventListener("keydown",e=>{
+  if(hwKb||e.isComposing||e.keyCode===229||!e.key||e.key==="Unidentified")return;
+  if(document.activeElement===kbIn)return;          // soft keyboards type into the hidden field
+  hwKb=true;closeKbNote();
+  if(!$("#school").hidden&&!$("#scMap").hidden)renderSchool();
+},true);
+function showKbNote(){$("#kbScrim").hidden=false;$("#kbBox").hidden=false;$("#kbOk").focus();}
+function closeKbNote(){$("#kbScrim").hidden=true;$("#kbBox").hidden=true;}
+async function shareSchoolLink(btn){
+  const url=location.href.split(/[?#]/)[0];
+  try{if(navigator.share){await navigator.share({title:"Clack School",text:"Learn to touch type with Clack School",url});return;}}
+  catch(e){if(e.name==="AbortError")return;}
+  try{await navigator.clipboard.writeText(url);btn.textContent="link copied";}catch(e){btn.textContent=url;}
+}
+function openSchool(){
+  for(const v of ["#stats","#help","#store"])$(v).hidden=true;el.home.hidden=true;el.result.hidden=true;blurKb();
+  $("#school").hidden=false;$("#scMap").hidden=false;$("#scPlay").hidden=true;renderSchool();
+}
+function closeSchool(){exitLesson(true);$("#school").hidden=true;el.home.hidden=false;renderMonths();}
+
+function startLesson(i){
+  const l=LESSONS[i];if(!l||!lessonUnlocked(i))return;
+  if(needsKb()){showKbNote();return;}
+  SC={l,i,steps:buildSteps(l),step:0,pos:0,err:0,keys:0,streak:0,t0:0,tc0:0,cErr:0,intro:!!l.intro};
+  $("#scMap").hidden=true;$("#scPlay").hidden=false;$("#scDone").hidden=true;$("#scHands").hidden=true;
+  $("#scKb").hidden=SC.intro;$("#scFoot").hidden=SC.intro;   // the intro shows the hands picture; the pads take over once typing starts
+  $("#scTitle").textContent=`${l.unit.name} · ${l.title}`;
+  Guide.st.learned=new Set(l.intro?[...l.fresh," "]:[...l.learned]);Guide.st.fresh=new Set([...l.fresh]);
+  Guide.st.alpha=Guide.st.alphaGoal=1;
+  if(!Guide.cv)Guide.attach($("#scKb"));
+  for(const [id,p] of Object.entries(PADS))Guide.tips[id]=[...p];   // every lesson starts with all pads at home
+  Guide.start();ac();
+  $("#scIntro").hidden=!SC.intro;$("#scLesson").hidden=SC.intro;
+  if(!SC.intro)beginStep();else{Guide.st.target=null;renderSteps();}
+  window.addEventListener("keydown",schoolKey);
+}
+function beginStep(){
+  const st=SC.steps[SC.step];SC.pos=0;SC.streak=0;
+  if(st.kind==="check"){SC.tc0=0;SC.cErr=0;}
+  $("#scIntro").hidden=true;$("#scLesson").hidden=false;$("#scKb").hidden=false;$("#scFoot").hidden=false;
+  renderSteps();renderStrip();
+}
+function renderSteps(){
+  $("#scSteps").innerHTML=SC.steps.map((s,i)=>`<span class="${i<SC.step?"done":i===SC.step&&!SC.intro?"on":""}">${s.kind}</span>`).join("");
+}
+function renderStrip(){
+  const st=SC.steps[SC.step],txt=st.text,p=SC.pos,a=Math.max(0,p-16),b=Math.min(txt.length,p+30);
+  let h="";for(let i=a;i<b;i++){const ch=txt[i],cls=i<p?"d":i===p?"c":"t";h+=`<span class="${cls}${ch===" "?" sp":""}">${ch===" "?"·":ch}</span>`;}
+  $("#scStrip").innerHTML=h;
+  const next=txt[p],f=FOF[next];
+  Guide.st.target=next;
+  const instr={
+    meet:()=>`<b style="color:${FNG[f][1]}">${FNG[f][0]}</b> presses <b>${keyName(next)}</b>. ${reachHint(next)}`,
+    drill:()=>`Drill the motion — <b>eyes on the screen</b>, not your hands.`,
+    words:()=>`Real words, made only from keys you know.`,
+    check:()=>`Final check. <b>Accuracy counts most</b> — then speed.`
+  }[st.kind]();
+  $("#scInstr").innerHTML=instr;
+  const acc=SC.keys?Math.round((SC.keys-SC.err)/SC.keys*100):100;
+  $("#scFoot").innerHTML=`<span>next: <b style="color:${FNG[f][1]}">${FNG[f][0]}</b></span><span>accuracy <b>${acc}%</b></span>
+    <button class="chip ${STATS.school.pin?"on":""}" id="scPin">⌨ ${STATS.school.pin?"keyboard pinned":"auto-hide keyboard"}</button>
+    <button class="chip" id="scHandsBtn">✋ hand position</button>`;
+  $("#scPin").onclick=()=>{STATS.school.pin=!STATS.school.pin;saveStats();updateWheels();renderStrip();};
+  $("#scHandsBtn").onclick=showHands;
+  updateWheels();
+}
+// training wheels: the keyboard fades while you're typing accurately, and comes back on a mistake
+function updateWheels(){Guide.st.alphaGoal=STATS.school.pin?1:SC.streak>=14?0.14:SC.streak>=7?0.45:1;}
+// hand-position refresher: the clock pauses while it's open so looking doesn't cost speed
+function showHands(){if(!SC)return;SC.handsAt=performance.now();$("#scHands").hidden=false;$("#scHandsBtn")?.blur();}
+function hideHands(){
+  if(!SC||$("#scHands").hidden)return;
+  const d=performance.now()-SC.handsAt;if(SC.t0)SC.t0+=d;if(SC.tc0)SC.tc0+=d;
+  $("#scHands").hidden=true;
+}
+$("#scHands").onclick=hideHands;
+function schoolKey(e){
+  if(!SC)return;
+  if(!$("#scHands").hidden){if(!["Shift","Control","Alt","Meta","CapsLock"].includes(e.key)){e.preventDefault();hideHands();}return;}
+  if(e.key==="Escape"){e.preventDefault();exitLesson();return;}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(SC.intro&&!$("#scIntro").hidden){if(e.key===" "||e.key==="Enter"){e.preventDefault();SC.intro=false;beginStep();}return;}
+  if(!$("#scDone").hidden)return;
+  if(e.key.length!==1)return;
+  claimKey(e);
+  const k=e.key.toLowerCase(),st=SC.steps[SC.step],exp=st.text[SC.pos];
+  if(!SC.t0)SC.t0=performance.now();
+  if(st.kind==="check"&&!SC.tc0)SC.tc0=performance.now();
+  SC.keys++;recordKey(exp,k===exp);
+  if(k===exp){
+    SC.pos++;SC.streak++;click();haptic(4);
+    if(SC.pos>=st.text.length){if(SC.step<SC.steps.length-1){SC.step++;beginStep();}else finishLesson();}
+    else renderStrip();
+  }else{
+    SC.err++;SC.streak=0;if(st.kind==="check")SC.cErr++;thud();haptic(14);Guide.flash(k);
+    const fw=FOF[k],fe=FOF[exp];
+    renderStrip();
+    if(fw&&fe&&fw!==fe)$("#scInstr").innerHTML=`That was your <b style="color:${FNG[fw][1]}">${FNG[fw][0]}</b> — <b>${keyName(exp)}</b> is your <b style="color:${FNG[fe][1]}">${FNG[fe][0]}</b>.`;
+    else if(fw&&fe)$("#scInstr").innerHTML=`Right finger, wrong key — <b>${keyName(exp)}</b> is ${reachHint(exp).toLowerCase()}`;
+  }
+}
+function finishLesson(){
+  const l=SC.l,last=SC.steps[SC.steps.length-1];
+  const errs=last.kind==="check"?SC.cErr:SC.err,len=last.text.length;
+  const acc=Math.round(len/(len+errs)*100);
+  const mins=Math.max(0.05,(performance.now()-(last.kind==="check"?SC.tc0:SC.t0))/60000);
+  const wpm=l.intro?0:Math.round((len/5)/mins);
+  const stars=starsFor(l,acc,wpm),prev=lessonStars(l.id);
+  let earnedCk=0;
+  if(stars>prev){earnedCk=(prev===0?10:0)+5*(stars-prev);STATS.school.stars[l.id]=stars;STATS.clacks+=earnedCk;}
+  saveStats();
+  // counts toward the activity heatmap like any other practice
+  const words=SC.steps.reduce((n,s)=>n+s.text.split(" ").length,0),secs=Math.round((performance.now()-SC.t0)/1000);
+  const k=dayKey(new Date()),rec=DATA[k]||{words:0,time:0};rec.words+=words;rec.time+=secs;DATA[k]=rec;saveData(DATA);
+  Guide.st.target=null;
+  $("#scLesson").hidden=true;$("#scKb").hidden=true;$("#scFoot").hidden=true;$("#scDone").hidden=false;
+  $("#scStars").innerHTML=[1,2,3].map(n=>`<span class="${n<=stars?"on":""}" style="animation-delay:${n*120}ms">★</span>`).join("");
+  $("#scDoneTitle").textContent=stars?(stars===3?"perfect!":stars===2?"great work":"lesson passed"):"almost — try again";
+  const [w2,w3]=l.unit.wpm;
+  $("#scDoneStats").innerHTML=`<div><b>${acc}%</b><span>accuracy</span></div>${l.intro?"":`<div><b>${wpm}</b><span>wpm</span></div>`}`;
+  $("#scDoneHow").textContent=stars===3?"":l.intro?"3 stars: 98% accuracy":
+    stars===0?"you need 90% accuracy to pass":`next star: ${stars===1?`95% accuracy and ${w2} wpm`:`98% accuracy and ${w3} wpm`}`;
+  $("#scDoneCk").innerHTML=earnedCk?`${CK} +${earnedCk} clacks`:"";
+  const nextI=SC.i+1,hasNext=nextI<LESSONS.length&&lessonUnlocked(nextI);
+  $("#scNext").hidden=!hasNext;
+  if(stars)fanfare();else thud();
+  updateBalance();
+}
+function exitLesson(silent){
+  window.removeEventListener("keydown",schoolKey);Guide.stop();SC=null;$("#scHands").hidden=true;
+  if(!silent){$("#scPlay").hidden=true;$("#scMap").hidden=false;renderSchool();}
+}
+
+/* first visit: ask whether they can already touch type */
+function maybeAskSchool(){
+  if(STATS.school.asked||STATS.history.length||touchOnly())return;   // phones can't take the course, so don't offer it
+  $("#askScrim").hidden=false;$("#askBox").hidden=false;$("#askNo").focus();
+}
+function answerAsk(learn){STATS.school.asked=true;saveStats();$("#askScrim").hidden=true;$("#askBox").hidden=true;if(learn)openSchool();}
+
+/* school wiring */
+$("#schoolBtn").onclick=openSchool;$("#scBack").onclick=closeSchool;$("#scExit").onclick=()=>exitLesson();
+$("#scUnits").addEventListener("click",e=>{const n=e.target.closest("[data-lesson]");if(n&&!n.disabled)startLesson(+n.dataset.lesson);});
+$("#scNext").onclick=()=>{const i=SC.i+1;exitLesson(true);startLesson(i);};
+$("#scRetry").onclick=()=>{const i=SC.i;exitLesson(true);startLesson(i);};
+$("#scToMap").onclick=()=>exitLesson();
+$("#kbOk").onclick=closeKbNote;$("#kbScrim").onclick=closeKbNote;
+$("#kbShare").onclick=e=>shareSchoolLink(e.currentTarget);$("#scTouchShare").onclick=e=>shareSchoolLink(e.currentTarget);
+$("#askNo").onclick=()=>answerAsk(true);$("#askYes").onclick=()=>answerAsk(false);$("#askScrim").onclick=()=>answerAsk(false);
+window.addEventListener("resize",()=>{if(Guide.raf)Guide.size();});
+
 /* store wiring */
 $("#storeBtn").onclick=openStore;$("#storeBack").onclick=closeStore;
 document.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{storeTab=b.dataset.tab;$("#storeNote").textContent="";renderStore();});
@@ -1983,7 +2493,7 @@ $("#punctBtn").onclick=e=>{e.stopPropagation();punct=!punct;saveMods();syncMods(
 $("#numBtn").onclick=e=>{e.stopPropagation();nums=!nums;saveMods();syncMods();};
 
 /* init */
-renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();
+renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();maybeAskSchool();
 </script>
 </body>
 </html>

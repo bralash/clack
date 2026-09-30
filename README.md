@@ -36,6 +36,19 @@ built from the keys you miss most — also one click away on the stats page. Wor
 - **Achievements** — 16 badges (speed tiers, accuracy, streaks, volume, combo, variety and four shooter badges), each with its own emblem and an unlock celebration.
 - **Help page** — "how it works" explains every mode, the WPM maths, the shooter, power-ups and achievements.
 
+### Clack School
+New to typing? Clack School teaches touch typing from zero across four units — **get set** (hand position),
+**home row**, **top row** and **bottom row** — 19 short lessons in all. Each lesson introduces one or two keys:
+**meet** them (glowing fingertip pads on an on-screen keyboard show which finger reaches where), **drill** the motion, type **words**
+made only from keys you know, then a scored **check**. Wrong keys don't advance and name the finger you used by mistake.
+Lessons unlock at 90% accuracy and earn up to three stars; the on-screen keyboard fades while you type accurately so you
+learn not to look. The **get set** lesson opens with a picture of both hands in the home position, and a **hand position**
+button brings it back during any lesson (the clock pauses while it's open). First-time visitors are asked whether they can already touch type.
+
+Clack School is a **keyboard feature**: it teaches 10-finger typing, which doesn't apply to a phone's on-screen keyboard.
+On phones the course map explains this and offers to share the link so you can open it on a computer. Lessons unlock as soon
+as a physical keyboard is detected (an iPad keyboard case, or a Bluetooth keyboard on a phone).
+
 ### Clacks & the store
 - **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
   1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off
