@@ -1,4 +1,4 @@
-# Clack
+<p align="center"><img src="brand/logo-wordmark.png" alt="Clack" width="330"></p>
 
 A minimalist typing test — inspired by the Bemonkey iOS app and built as a single self-contained `index.html` with no build step and no dependencies.
 

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <title>Clack</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&amp;display=swap');
+      .mono{font-family:'JetBrains Mono','Cascadia Mono','Consolas','Menlo',monospace;}
+      .keyl{font-size:44px;font-weight:500;fill:#3a3e45;}
+    </style>
+
+    <!-- background glow behind the gold key -->
+    <radialGradient id="glow" cx="540" cy="470" r="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e2b425" stop-opacity=".30"/>
+      <stop offset=".45" stop-color="#e2b425" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#e2b425" stop-opacity="0"/>
+    </radialGradient>
+    <!-- fades the keyboard out toward the edges (keeps everything circle-crop safe) -->
+    <radialGradient id="fade" cx="540" cy="500" r="560" gradientUnits="userSpaceOnUse">
+      <stop offset=".30" stop-color="#0f1012" stop-opacity="0"/>
+      <stop offset=".78" stop-color="#0f1012" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#0f1012" stop-opacity="1"/>
+    </radialGradient>
+
+    <!-- gold keycap -->
+    <linearGradient id="capSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b8850c"/><stop offset="1" stop-color="#7d5905"/>
+    </linearGradient>
+    <linearGradient id="capTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7d970"/><stop offset="1" stop-color="#d59f14"/>
+    </linearGradient>
+    <linearGradient id="capFace" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fce592"/><stop offset="1" stop-color="#e6b52a"/>
+    </linearGradient>
+    <filter id="keyGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+
+    <!-- dark keycap, reused for the rest of the keyboard -->
+    <symbol id="key" viewBox="0 0 150 162" overflow="visible">
+      <rect x="0" y="12" width="150" height="150" rx="26" fill="#0a0b0d"/>
+      <rect x="0" y="0" width="150" height="148" rx="26" fill="#1b1e22" stroke="#26292e" stroke-width="2"/>
+      <rect x="12" y="9" width="126" height="118" rx="19" fill="#202328"/>
+    </symbol>
+    <symbol id="space" viewBox="0 0 688 162" overflow="visible">
+      <rect x="0" y="12" width="688" height="150" rx="26" fill="#0a0b0d"/>
+      <rect x="0" y="0" width="688" height="148" rx="26" fill="#1b1e22" stroke="#26292e" stroke-width="2"/>
+      <rect x="12" y="9" width="664" height="118" rx="19" fill="#202328"/>
+    </symbol>
+  </defs>
+
+  <!-- ground -->
+  <rect width="1080" height="1080" fill="#0f1012"/>
+
+  <!-- keyboard: rows staggered like a real QWERTY board, with the c key in the middle -->
+  <g class="mono" text-anchor="middle">
+    <!-- q-row -->
+    <use href="#key" x="-8"  y="51" width="150" height="162"/><text class="keyl" x="67"  y="136">q</text>
+    <use href="#key" x="164" y="51" width="150" height="162"/><text class="keyl" x="239" y="136">w</text>
+    <use href="#key" x="336" y="51" width="150" height="162"/><text class="keyl" x="411" y="136">e</text>
+    <use href="#key" x="508" y="51" width="150" height="162"/><text class="keyl" x="583" y="136">r</text>
+    <use href="#key" x="680" y="51" width="150" height="162"/><text class="keyl" x="755" y="136">t</text>
+    <use href="#key" x="852" y="51" width="150" height="162"/><text class="keyl" x="927" y="136">y</text>
+    <!-- a-row -->
+    <use href="#key" x="35"  y="223" width="150" height="162"/><text class="keyl" x="110" y="308">a</text>
+    <use href="#key" x="207" y="223" width="150" height="162"/><text class="keyl" x="282" y="308">s</text>
+    <use href="#key" x="379" y="223" width="150" height="162"/><text class="keyl" x="454" y="308">d</text>
+    <use href="#key" x="551" y="223" width="150" height="162"/><text class="keyl" x="626" y="308">f</text>
+    <use href="#key" x="723" y="223" width="150" height="162"/><text class="keyl" x="798" y="308">g</text>
+    <use href="#key" x="895" y="223" width="150" height="162"/><text class="keyl" x="970" y="308">h</text>
+    <!-- z-row (c is drawn separately, in gold) -->
+    <use href="#key" x="121" y="395" width="150" height="162"/><text class="keyl" x="196" y="480">z</text>
+    <use href="#key" x="293" y="395" width="150" height="162"/><text class="keyl" x="368" y="480">x</text>
+    <use href="#key" x="637" y="395" width="150" height="162"/><text class="keyl" x="712" y="480">v</text>
+    <use href="#key" x="809" y="395" width="150" height="162"/><text class="keyl" x="884" y="480">b</text>
+    <!-- space bar -->
+    <use href="#space" x="207" y="567" width="688" height="162"/>
+  </g>
+
+  <!-- glow + the gold c key -->
+  <rect width="1080" height="1080" fill="url(#glow)"/>
+  <rect x="465" y="395" width="150" height="150" rx="26" fill="#e2b425" opacity=".55" filter="url(#keyGlow)"/>
+  <g>
+    <rect x="465" y="407" width="150" height="150" rx="26" fill="url(#capSide)"/>
+    <rect x="465" y="395" width="150" height="148" rx="26" fill="url(#capTop)"/>
+    <rect x="477" y="404" width="126" height="118" rx="19" fill="url(#capFace)"/>
+    <!-- a subtle sheen along the top of the face -->
+    <rect x="490" y="411" width="84" height="5" rx="2.5" fill="#fff6cf" opacity=".6"/>
+    <!-- the "c": an arc centered on the key face (540, 463), opening to the right -->
+    <path d="M562.98 443.72A30 30 0 1 0 562.98 482.28" fill="none" stroke="#5b4106" stroke-width="15" stroke-linecap="round"/>
+  </g>
+
+  <!-- fade the keyboard into the dark -->
+  <rect width="1080" height="1080" fill="url(#fade)"/>
+
+  <!-- wordmark -->
+  <text class="mono" x="540" y="878" text-anchor="middle" font-size="124" font-weight="700" letter-spacing="2">
+    <tspan fill="#5c6066">cl</tspan><tspan fill="#e2b425">ack</tspan>
+  </text>
+  <text class="mono" x="540" y="936" text-anchor="middle" font-size="24" font-weight="500" letter-spacing="7" fill="#4a4e55">A MINIMALIST TYPING TEST</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 96" width="330" height="96">
+  <title>Clack</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&amp;display=swap');
+      .w{font-family:'JetBrains Mono','Cascadia Mono','Consolas','Menlo',monospace;font-weight:700;font-size:64px;letter-spacing:1px;}
+    </style>
+    <linearGradient id="top" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7d970"/><stop offset="1" stop-color="#d59f14"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fce592"/><stop offset="1" stop-color="#e6b52a"/>
+    </linearGradient>
+  </defs>
+  <!-- the key mark, same as the favicon, scaled into an 80px box -->
+  <g transform="translate(6 8) scale(1.25)">
+    <rect x="3" y="8" width="58" height="54" rx="13" fill="#7d5905"/>
+    <rect x="3" y="2" width="58" height="54" rx="13" fill="url(#top)"/>
+    <rect x="8.5" y="6.5" width="47" height="42" rx="9.5" fill="url(#face)"/>
+    <path d="M41.58 19.47A12.5 12.5 0 1 0 41.58 35.53" fill="none" stroke="#5b4106" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <text class="w" x="104" y="66"><tspan fill="#6b7078">cl</tspan><tspan fill="#e2b425">ack</tspan></text>
+</svg>
