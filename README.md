@@ -2,7 +2,9 @@
 
 A minimalist typing test — inspired by the Bemonkey iOS app and built as a single self-contained `index.html` with no build step and no dependencies.
 
-**Live demo:** https://bralash.github.io/clack/ *(enable GitHub Pages to activate — see below)*
+**Live demo:** https://bralash.github.io/clack/
+
+![Clack demo: a typing test with combo and live WPM, the results screen, the typing shooter, and the activity heatmap](docs/demo.gif)
 
 ## Features
 

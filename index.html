@@ -797,7 +797,7 @@ function updateCombo(){
 }
 
 function startTest(){
-  closeSheet();
+  closeSheet();ac();          // warm up audio on the START click so the first keystroke isn't delayed
   STATS.modes[mode]=1;saveStats();
   if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
   else{seq=newSeq(mode==="words"?value:120);curAuthor="";}
@@ -891,7 +891,11 @@ function commitWord(){
 }
 function flash(cls){el.word.classList.remove(cls);void el.word.offsetWidth;el.word.classList.add(cls);}
 
-let lastKd=0;   // time of last physical keydown, used to dedupe against beforeinput
+// A keydown we handle is preventDefault()-ed, so the browser never inserts its text and no
+// beforeinput follows. Some soft keyboards can't be cancelled, so kdPending also pairs a handled
+// keydown with the beforeinput it may still produce (same task), instead of guessing by timing.
+let kdPending=false;
+function claimKey(e){ e.preventDefault(); kdPending=true; setTimeout(()=>{kdPending=false;},0); }
 
 /* one input pipeline for both desktop keydown and the mobile soft keyboard */
 function inputCharTest(ch){
@@ -913,20 +917,19 @@ function onKey(e){
   if(!running)return;
   if(e.key==="Escape"){quit();return;}
   if(e.ctrlKey||e.metaKey||e.altKey)return;    // leave browser shortcuts alone
-  if(e.key===" "){e.preventDefault();lastKd=performance.now();typeSpace();return;}
-  if(e.key==="Backspace"){lastKd=performance.now();typeBackspace();return;}
-  if(e.key.length===1){lastKd=performance.now();inputCharTest(e.key);return;}
+  if(e.key===" "){claimKey(e);typeSpace();return;}
+  if(e.key==="Backspace"){claimKey(e);typeBackspace();return;}
+  if(e.key.length===1){claimKey(e);inputCharTest(e.key);return;}
 }
 
 /* hidden input keeps the on-screen keyboard up on touch devices; beforeinput is the
-   reliable signal across soft keyboards. It also fires on desktop when the input is
-   focused, so we dedupe: if a physical keydown just handled the char, skip it here. */
+   reliable signal across soft keyboards (which often send keydown as "Unidentified"). */
 const kbIn=$("#kbInput");
 function focusKb(){ try{kbIn.value="";kbIn.focus({preventScroll:true});}catch(e){try{kbIn.focus();}catch(_){}} }
 function blurKb(){ try{kbIn.blur();}catch(e){} }
 kbIn.addEventListener("beforeinput",e=>{
   e.preventDefault();                              // keep the hidden field empty
-  if(performance.now()-lastKd<60)return;           // a physical keydown already handled this
+  if(kdPending){kdPending=false;return;}           // its keydown already handled this keystroke
   const t=e.inputType;
   if(t==="insertText"||t==="insertCompositionText"){
     if(e.data)for(const ch of e.data){ ch===" "?typeSpace():typeInput(ch); }
@@ -984,7 +987,7 @@ function boom(x,y,col){
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,col});}
 }
 function startShooter(){
-  closeSheet();
+  closeSheet();ac();
   diff=DIFF[value]||DIFF.normal;
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
@@ -1025,8 +1028,9 @@ function endShoot(){
 function onShoot(e){
   if(!sRun)return;
   if(e.key==="Escape"){quit();return;}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
   if(e.key.length!==1||!/[a-zA-Z']/.test(e.key))return;
-  lastKd=performance.now();
+  claimKey(e);
   shootChar(e.key.toLowerCase());
 }
 function shootChar(key){
