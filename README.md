@@ -36,6 +36,14 @@ built from the keys you miss most — also one click away on the stats page. Wor
 - **Achievements** — 16 badges (speed tiers, accuracy, streaks, volume, combo, variety and four shooter badges), each with its own emblem and an unlock celebration.
 - **Help page** — "how it works" explains every mode, the WPM maths, the shooter, power-ups and achievements.
 
+### Clacks & the store
+- **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
+  1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off
+  reward for every badge.
+- The **store** sells shooter **ships** (Dart, Stealth Wing, Saucer, Pixel, Comet, Obsidian) and bullet **trails**
+  (Dotted, Laser, Plasma, Ember, Rainbow), each with a live animated preview. Some also need a badge.
+  Everything is cosmetic — nothing changes your score.
+
 ### Polish
 - **Light and dark** themes.
 - Fully **responsive** — works from desktop down to phones, including on-screen-keyboard support on touch devices.
@@ -70,7 +78,7 @@ Because it's a single static file, you can host it for free:
 All progress is stored locally in your browser via `localStorage` — nothing is sent anywhere:
 
 - `clack_activity` — daily activity that drives the heatmap
-- `clack_stats` — per-key accuracy, WPM history, personal bests, achievements, modes tried
+- `clack_stats` — per-key accuracy, WPM history, personal bests, achievements, modes tried, daily results, clacks and store items
 - `clack_theme` — light / dark preference
 - `clack_mods` — punctuation / numbers toggles
 - `clack_sound` — sound & haptics on/off

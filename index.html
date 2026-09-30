@@ -274,6 +274,33 @@
   .dotsep{color:var(--text-faint);font-family:var(--mono);font-size:12px;}
   .res-help{margin-top:22px;}
 
+  /* ---------- CLACKS + STORE ---------- */
+  .ck{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;display:inline-block;}
+  .bal{display:inline-flex;align-items:center;gap:5px;}
+  .bal .balN{color:var(--gold);font-weight:600;}
+  .res-clacks{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin:-8px 0 24px;
+    font-family:var(--mono);font-size:14px;color:var(--text);}
+  .res-clacks b{color:var(--gold);}
+  .res-clacks .ck{width:17px;height:17px;}
+  .ck-why{flex-basis:100%;text-align:center;font-size:11px;color:var(--text-dim);}
+  .store-bal{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gold);}
+  .store-bal .ck{width:18px;height:18px;}
+  .store-lead{font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--text-dim);margin:0;}
+  .store-tabs{align-self:flex-start;}
+  .store-note{font-family:var(--mono);font-size:12px;color:var(--gold);min-height:16px;margin:-6px 0 -6px;}
+  .store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;}
+  .item{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:12px;}
+  .item.equipped{border-color:var(--gold-dim);box-shadow:0 0 0 1px var(--gold-dim) inset;}
+  .it-prev{width:100%;height:auto;aspect-ratio:5/3;border-radius:9px;background:#0a0b0d;display:block;}
+  .item.locked .it-prev{opacity:.45;}
+  .it-name{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);margin-top:4px;}
+  .it-desc{font-family:var(--mono);font-size:11px;line-height:1.45;color:var(--text-dim);flex:1;}
+  .it-act{margin-top:6px;padding:9px 10px;font-size:12px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:5px;}
+  .it-act[disabled]{cursor:default;opacity:.7;}
+  .it-act[disabled]:hover{border-color:var(--line);color:var(--text);}
+  .item.equipped .it-act{color:var(--gold);}
+
   /* ---------- DAILY CARD (home) ---------- */
   .daily{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap;
     background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px;}
@@ -440,6 +467,8 @@
         <div class="head">
           <div class="brand">cl<b>ack</b><span class="sub">a minimalistic typing test</span></div>
           <nav class="headnav">
+            <button class="linkbtn bal" id="storeBtn" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span> store</button>
+            <span class="dotsep" aria-hidden="true">·</span>
             <button class="linkbtn" id="helpBtn">how it works</button>
             <span class="dotsep" aria-hidden="true">·</span>
             <button class="linkbtn" id="statsBtn">detailed stats →</button>
@@ -574,12 +603,37 @@
       <div>chars <b id="rChars">0</b></div>
       <div id="rComboWrap">combo <b id="rCombo">x0</b></div>
     </div>
+    <div class="res-clacks" id="rClacks" hidden>
+      <span class="ck-slot"></span><span>+<b id="rClacksN">0</b> clacks</span><span class="ck-why" id="rClacksWhy"></span>
+    </div>
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
       <div class="btn primary" id="shareBtn" hidden>share result</div>
       <div class="btn" id="done">done</div>
     </div>
     <button class="linkbtn res-help" id="wpmHelp">how is wpm calculated?</button>
+  </section>
+
+  <!-- STORE -->
+  <section id="store" class="view" hidden>
+    <div class="st-scroll">
+      <div class="st-inner">
+        <div class="st-top">
+          <div class="quit" id="storeBack">← back</div>
+          <div class="st-title">store</div>
+          <div class="store-bal"><span class="ck-slot"></span><span class="balN">0</span></div>
+        </div>
+        <div class="st-sec">
+          <p class="store-lead">Spend the clacks you earn by playing. Everything here is cosmetic — it changes how the shooter looks, never your score.</p>
+          <div class="modebar store-tabs" role="tablist" aria-label="store sections">
+            <button class="mchip stab" data-tab="ship" role="tab">▲ ships</button>
+            <button class="mchip stab" data-tab="trail" role="tab">⋯ trails</button>
+          </div>
+          <div class="store-note" id="storeNote" aria-live="polite"></div>
+          <div class="store-grid" id="storeGrid"></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- HELP -->
@@ -663,6 +717,15 @@
           <b>Detailed stats</b> has your personal best for every mode, your wpm over time, and a keyboard that shows which keys you miss most.</p>
         <p>Everything is saved <b>in this browser, on this device</b>. There are no accounts yet, so your progress doesn't
           follow you to another device, and clearing this site's data resets it.</p>
+      </div>
+
+      <div class="st-sec">
+        <div class="st-h">clacks &amp; the store</div>
+        <p><b>Clacks</b> are Clack's currency. You earn them by playing: about 1 for every 25 correct characters in a typing run
+          (runs need at least 15 seconds or 10 words), 1 per 20 shooter points, <b>+20</b> for the daily with a bonus for your
+          daily streak, <b>+15</b> for a new personal best, and a one-off reward for every badge.</p>
+        <p>Spend them in the <b>store</b> on new shooter <b>ships</b> and bullet <b>trails</b>. A few items also need a badge
+          before you can buy them. Everything is cosmetic — nothing you buy changes your score.</p>
       </div>
 
       <div class="st-sec">
@@ -797,7 +860,7 @@ function renderMonths(){
   $("#tStreak").textContent=currentStreak();
   $("#tWords").textContent=fmtNum(t.words);
   $("#tTime").textContent=fmtTime(t.time);
-  renderDaily();
+  renderDaily();updateBalance();
 }
 
 /* ---------- config sheet ---------- */
@@ -965,12 +1028,152 @@ function nextToast(){
   toastTimer=setTimeout(()=>{t.classList.remove("show");setTimeout(nextToast,450);},2600);
 }
 function checkAchievements(ctx){
-  STATS.badges=STATS.badges||{};let changed=false;
+  STATS.badges=STATS.badges||{};const got=[];
   for(const b of BADGES){
-    if(!STATS.badges[b.id] && b.test(ctx)){STATS.badges[b.id]=Date.now();changed=true;showAchievement(b);}
+    if(!STATS.badges[b.id] && b.test(ctx)){STATS.badges[b.id]=Date.now();got.push(b);showAchievement(b);}
   }
-  if(changed)saveStats();
+  if(got.length)saveStats();
+  return got;
 }
+
+/* ==================== CLACKS + STORE ==================== */
+// Clacks are earned by playing and spent on cosmetics only — nothing in the store changes scores.
+const CK='<svg class="ck" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="14" height="12.5" rx="3.2" fill="#a8780f"/>'+
+  '<rect x="2.4" y="1.4" width="11.2" height="10.2" rx="2.6" fill="#f3cf5a"/><path d="M9.9 4.7a2.7 2.7 0 100 3.9" stroke="#6b4c06" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+const BADGE_REWARD={first:25,wpm40:25,wpm60:40,fast80:60,wpm100:100,wpm120:150,clean:40,streak7:80,words1k:60,
+  combo10:40,modes:40,kill1:25,bomb5:60,collect:60,kills50:80,frenzy:120};
+STATS.clacks=STATS.clacks||0;
+STATS.owned=STATS.owned||{ship:{arrow:1},trail:{tracer:1}};
+STATS.equip=STATS.equip||{ship:"arrow",trail:"tracer"};
+const fmtCk=n=>n.toLocaleString("en-US");
+function updateBalance(){document.querySelectorAll(".balN").forEach(e=>e.textContent=fmtCk(STATS.clacks));}
+function awardClacks(parts){
+  const list=parts.filter(p=>p[1]>0),total=list.reduce((s,p)=>s+p[1],0),box=$("#rClacks");
+  if(!total){box.hidden=true;return 0;}
+  STATS.clacks+=total;saveStats();updateBalance();
+  box.hidden=false;$("#rClacksWhy").textContent=list.map(([l,n])=>`${l} +${n}`).join(" · ");
+  const n=$("#rClacksN"),t0=performance.now();                    // quick count-up
+  const step=t=>{const p=Math.min(1,(t-t0)/700);n.textContent=Math.round(total*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);};
+  n.textContent="0";requestAnimationFrame(step);
+  setTimeout(()=>{n.textContent=total;},760);          // animation frames pause in background tabs; always land on the total
+  return total;
+}
+
+/* ships: draw(ctx, x, y, t) with the ship's nose pointing up, centered around (x, y) */
+const SHIPS={
+  arrow:{name:"Arrow",price:0,desc:"The original.",draw(g,x,y){
+    g.fillStyle="#e2b425";g.beginPath();g.moveTo(x,y-13);g.lineTo(x-10,y+8);g.lineTo(x+10,y+8);g.closePath();g.fill();
+    g.fillStyle="#8a7220";g.fillRect(x-3,y+6,6,5);}},
+  dart:{name:"Dart",price:150,desc:"Long, lean and fast-looking.",draw(g,x,y){
+    g.fillStyle="#cfd6de";g.beginPath();g.moveTo(x,y-19);g.lineTo(x-5,y+6);g.lineTo(x,y+3);g.lineTo(x+5,y+6);g.closePath();g.fill();
+    g.fillStyle="#8e99a5";g.beginPath();g.moveTo(x-5,y+1);g.lineTo(x-11,y+9);g.lineTo(x-4,y+7);g.closePath();g.fill();
+    g.beginPath();g.moveTo(x+5,y+1);g.lineTo(x+11,y+9);g.lineTo(x+4,y+7);g.closePath();g.fill();
+    g.fillStyle="#e2b425";g.beginPath();g.moveTo(x,y-19);g.lineTo(x-2,y-11);g.lineTo(x+2,y-11);g.closePath();g.fill();}},
+  stealth:{name:"Stealth Wing",price:300,desc:"A flying wing with a gold edge.",draw(g,x,y){
+    g.fillStyle="#24272d";g.strokeStyle="#e2b425";g.lineWidth=1.4;g.lineJoin="round";
+    g.beginPath();g.moveTo(x,y-11);g.lineTo(x-19,y+8);g.lineTo(x-6,y+4);g.lineTo(x,y+8);g.lineTo(x+6,y+4);g.lineTo(x+19,y+8);g.closePath();g.fill();g.stroke();
+    g.fillStyle="#e2b425";g.fillRect(x-1,y-4,2,5);}},
+  saucer:{name:"Saucer",price:450,desc:"Visitors, but friendly.",draw(g,x,y,t){
+    g.fillStyle="rgba(124,200,255,.55)";g.beginPath();g.ellipse(x,y-2,7.5,7,0,Math.PI,0);g.fill();
+    g.fillStyle="#9ba5b0";g.beginPath();g.ellipse(x,y+2,18,5.5,0,0,Math.PI*2);g.fill();
+    for(let i=-2;i<=2;i++){g.fillStyle=(Math.floor((t||0)*4)+i)%2?"#4ee06e":"#e2b425";g.beginPath();g.arc(x+i*6.5,y+3,1.4,0,6.29);g.fill();}}},
+  pixel:{name:"Pixel",price:600,desc:"Straight out of an old arcade cabinet.",draw(g,x,y){
+    const px=["...##...","...##...","..####..",".######.","##.##.##","########","#.#..#.#"];const s=3;
+    g.fillStyle="#4ee06e";px.forEach((row,r)=>[...row].forEach((c,i)=>{if(c==="#")g.fillRect(x-12+i*s,y-12+r*s,s,s);}));}},
+  comet:{name:"Comet",price:900,req:"fast80",desc:"Burns hot. Unlocks with Fast Fingers.",draw(g,x,y,t){
+    const f=6+Math.sin((t||0)*18)*2;g.fillStyle="rgba(255,138,61,.75)";
+    g.beginPath();g.moveTo(x-5,y+7);g.lineTo(x,y+7+f+4);g.lineTo(x+5,y+7);g.closePath();g.fill();
+    const gr=g.createLinearGradient(x,y-15,x,y+8);gr.addColorStop(0,"#fff4c2");gr.addColorStop(1,"#ff8a3d");
+    g.fillStyle=gr;g.beginPath();g.moveTo(x,y-15);g.quadraticCurveTo(x+11,y+2,x+8,y+8);g.lineTo(x-8,y+8);g.quadraticCurveTo(x-11,y+2,x,y-15);g.fill();}},
+  obsidian:{name:"Obsidian",price:1500,req:"wpm120",desc:"For the fastest hands. Unlocks with Ludicrous Speed.",draw(g,x,y){
+    g.save();g.shadowColor="rgba(179,156,255,.8)";g.shadowBlur=10;g.fillStyle="#1a1528";g.strokeStyle="#e2b425";g.lineWidth=1.5;g.lineJoin="round";
+    g.beginPath();g.moveTo(x,y-16);g.lineTo(x-12,y+8);g.lineTo(x,y+3);g.lineTo(x+12,y+8);g.closePath();g.fill();g.stroke();g.restore();
+    g.fillStyle="#b39cff";g.beginPath();g.moveTo(x,y-9);g.lineTo(x-3,y);g.lineTo(x+3,y);g.closePath();g.fill();}}
+};
+/* trails: draw(ctx, bullet, t). bullet: from (x,y) to (tx,ty); life runs 1 → 0 */
+const bpos=(b,p)=>[b.x+(b.tx-b.x)*p,b.y+(b.ty-b.y)*p];
+const TRAILS={
+  tracer:{name:"Tracer",price:0,desc:"Classic gold tracer.",draw(g,b){
+    const p=1-b.life,[x,y]=bpos(b,p),[x0,y0]=bpos(b,Math.max(0,p-.06));
+    g.strokeStyle="#e2b425";g.lineWidth=2;g.globalAlpha=Math.min(1,b.life+.3);g.beginPath();g.moveTo(x0,y0);g.lineTo(x,y);g.stroke();g.globalAlpha=1;}},
+  dotted:{name:"Dotted",price:120,desc:"A neat stream of dots.",draw(g,b){
+    const p=1-b.life;g.fillStyle="#f3cf5a";
+    for(let i=0;i<5;i++){const q=p-i*.035;if(q<0)break;const [x,y]=bpos(b,q);g.globalAlpha=1-i*.18;g.beginPath();g.arc(x,y,1.9,0,6.29);g.fill();}g.globalAlpha=1;}},
+  laser:{name:"Laser",price:200,desc:"A beam, straight from ship to word.",draw(g,b){
+    const p=1-b.life,[x,y]=bpos(b,p);
+    g.strokeStyle=`rgba(124,200,255,${.25*b.life})`;g.lineWidth=6;g.beginPath();g.moveTo(b.x,b.y);g.lineTo(x,y);g.stroke();
+    g.strokeStyle=`rgba(210,240,255,${b.life})`;g.lineWidth=1.6;g.beginPath();g.moveTo(b.x,b.y);g.lineTo(x,y);g.stroke();}},
+  plasma:{name:"Plasma",price:320,desc:"Glowing orbs.",draw(g,b){
+    const [x,y]=bpos(b,1-b.life);g.save();g.shadowColor="#b39cff";g.shadowBlur=12;g.fillStyle="#e8dcff";
+    g.beginPath();g.arc(x,y,3.6,0,6.29);g.fill();g.restore();}},
+  ember:{name:"Ember",price:450,desc:"Leaves sparks behind it.",draw(g,b){
+    const p=1-b.life,[x,y]=bpos(b,p),[x0,y0]=bpos(b,Math.max(0,p-.07));
+    g.strokeStyle="#ff8a3d";g.lineWidth=2.2;g.beginPath();g.moveTo(x0,y0);g.lineTo(x,y);g.stroke();
+    for(let i=1;i<=3;i++){const [sx2,sy2]=bpos(b,Math.max(0,p-i*.05));const j=((b.seed*97+i*31)%1)*8-4;
+      g.fillStyle=`rgba(255,${120+i*30},61,${.8-i*.2})`;g.fillRect(sx2+j,sy2+Math.abs(j)*.5,2,2);}}},
+  rainbow:{name:"Rainbow",price:700,req:"combo10",desc:"Every color at once. Unlocks with On a Roll.",draw(g,b,t){
+    const p=1-b.life,[x,y]=bpos(b,p),[x0,y0]=bpos(b,Math.max(0,p-.08));
+    g.strokeStyle=`hsl(${((t||0)*240+b.seed*360)%360},90%,65%)`;g.lineWidth=3;g.lineCap="round";
+    g.beginPath();g.moveTo(x0,y0);g.lineTo(x,y);g.stroke();g.lineCap="butt";}}
+};
+const CATALOG={ship:SHIPS,trail:TRAILS};
+
+let storeTab="ship",storeRaf=0;
+function itemState(kind,id){
+  const it=CATALOG[kind][id];
+  if(STATS.equip[kind]===id)return "equipped";
+  if(STATS.owned[kind][id])return "owned";
+  if(it.req&&!STATS.badges[it.req])return "locked";
+  return STATS.clacks>=it.price?"buyable":"short";
+}
+function renderStore(){
+  updateBalance();
+  document.querySelectorAll(".stab").forEach(b=>{const on=b.dataset.tab===storeTab;b.classList.toggle("active",on);b.setAttribute("aria-selected",on);});
+  const items=CATALOG[storeTab];
+  $("#storeGrid").innerHTML=Object.entries(items).map(([id,it])=>{
+    const s=itemState(storeTab,id);
+    const need=it.req&&BADGES.find(b=>b.id===it.req);
+    const act = s==="equipped"?`<button class="btn it-act" disabled>equipped ✓</button>`
+      : s==="owned"?`<button class="btn it-act" data-act="equip" data-id="${id}">equip</button>`
+      : s==="locked"?`<button class="btn it-act" disabled>🔒 earn ${need?need.name:"a badge"}</button>`
+      : s==="buyable"?`<button class="btn primary it-act" data-act="buy" data-id="${id}">buy · ${CK}${fmtCk(it.price)}</button>`
+      : `<button class="btn it-act" disabled>${CK}${fmtCk(it.price)} · need ${fmtCk(it.price-STATS.clacks)}</button>`;
+    return `<div class="item ${s}"><canvas class="it-prev" data-id="${id}" width="300" height="180" aria-hidden="true"></canvas>
+      <div class="it-name">${it.name}</div><div class="it-desc">${it.desc}</div>${act}</div>`;
+  }).join("");
+  cancelAnimationFrame(storeRaf);
+  const cvs=[...document.querySelectorAll("#storeGrid .it-prev")];
+  const loopPrev=now=>{                               // animated previews, only while the store is open
+    if($("#store").hidden)return;
+    const t=now/1000;
+    for(const c of cvs){
+      const g=c.getContext("2d");g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,150,90);
+      const id=c.dataset.id;
+      if(storeTab==="ship"){g.translate(75,47);g.scale(1.9,1.9);SHIPS[id].draw(g,0,0,t);}   // shown ~2x so details read
+      else{
+        g.font="600 12px 'JetBrains Mono',monospace";g.textAlign="center";g.fillStyle="#e7e8ea";g.fillText("clack",75,16);
+        g.save();g.translate(75,72);g.scale(1.2,1.2);(SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(g,0,0,t);g.restore();
+        for(let k=0;k<3;k++){const life=1-(((t*1.6)+k/3)%1);TRAILS[id].draw(g,{x:75,y:60,tx:75,ty:22,life,seed:k*.37},t);}
+      }
+    }
+    storeRaf=requestAnimationFrame(loopPrev);
+  };
+  storeRaf=requestAnimationFrame(loopPrev);
+}
+function storeAction(act,id){
+  const it=CATALOG[storeTab][id];
+  if(act==="buy"){
+    if(itemState(storeTab,id)!=="buyable")return;
+    STATS.clacks-=it.price;STATS.owned[storeTab][id]=1;STATS.equip[storeTab]=id;saveStats();
+    $("#storeNote").textContent=`${it.name} is yours — equipped`;fanfare();haptic([0,30,30,30]);
+  }else if(act==="equip"){STATS.equip[storeTab]=id;saveStats();$("#storeNote").textContent=`${it.name} equipped`;click();}
+  renderStore();
+}
+function openStore(){
+  el.home.hidden=true;el.result.hidden=true;$("#stats").hidden=true;$("#help").hidden=true;$("#store").hidden=false;
+  $("#storeNote").textContent="";renderStore();
+}
+function closeStore(){$("#store").hidden=true;cancelAnimationFrame(storeRaf);el.home.hidden=false;renderMonths();}
 function saveStats(){try{localStorage.setItem(SKEY,JSON.stringify(STATS))}catch(e){}}
 function recordKey(expected,ok){
   if(!expected||!/[a-z]/i.test(expected))return;
@@ -1235,7 +1438,14 @@ function endTest(){
   $("#rCombo").textContent="x"+maxCombo;
   $("#combo").hidden=true;
   showPB(beat);
-  checkAchievements({wpm,acc,mode,combo:maxCombo,chars:correctChars});
+  const newBadges=checkAchievements({wpm,acc,mode,combo:maxCombo,chars:correctChars});
+  // clacks: runs need 15s or 10 words so tiny runs can't be farmed
+  const earned=[];
+  if(elapsed>=15||wordsDone>=10)earned.push(["run",Math.floor(correctChars/25)]);
+  if(isDaily){earned.push(["daily",20]);const st=dailyStreak();if(st>1)earned.push(["streak",5*Math.min(st-1,5)]);}
+  if(beat)earned.push(["new best",15]);
+  if(newBadges.length)earned.push(["badges",newBadges.reduce((s,b)=>s+(BADGE_REWARD[b.id]||40),0)]);
+  awardClacks(earned);
   if(isDaily)restoreMode();
   el.test.hidden=true;el.result.hidden=false;
 }
@@ -1428,7 +1638,7 @@ function spawnEnemy(){
     vy:diff.speed*(0.85+Math.random()*0.3)+sElapsed*diff.ramp});
 }
 function fireBullet(e){
-  bullets.push({x:W/2,y:H-42,tx:e.x,ty:e.y,e:e,life:1});
+  bullets.push({x:W/2,y:H-42,tx:e.x,ty:e.y,e:e,life:1,seed:Math.random()});
 }
 function boom(x,y,col){
   for(let i=0;i<14;i++){const a=Math.random()*6.28,s=40+Math.random()*120;
@@ -1471,7 +1681,11 @@ function endShoot(){
   $("#rTime").textContent=Math.round(elapsed)+"s";
   $("#rChars").textContent=sCharsOk;
   showPB(beat);
-  checkAchievements({wpm,acc,mode:"shoot",score:sScore,kills:sKills,diff:value,bombBest:sBombBest});
+  const newBadges=checkAchievements({wpm,acc,mode:"shoot",score:sScore,kills:sKills,diff:value,bombBest:sBombBest});
+  const earned=[["score",Math.floor(sScore/20)]];
+  if(beat)earned.push(["new best",15]);
+  if(newBadges.length)earned.push(["badges",newBadges.reduce((s,b)=>s+(BADGE_REWARD[b.id]||40),0)]);
+  awardClacks(earned);
   $("#shoot").hidden=true;el.result.hidden=false;
 }
 function onShoot(e){
@@ -1551,19 +1765,14 @@ function draw(){
   // baseline danger line
   cx.strokeStyle="rgba(209,73,91,.18)";cx.lineWidth=1;
   cx.beginPath();cx.moveTo(0,H-52);cx.lineTo(W,H-52);cx.stroke();
-  // ship
-  const sx=W/2,sy=H-40;
-  cx.fillStyle=C.gold;
-  cx.beginPath();cx.moveTo(sx,sy-13);cx.lineTo(sx-10,sy+8);cx.lineTo(sx+10,sy+8);cx.closePath();cx.fill();
-  cx.fillStyle=C.goldDim;cx.fillRect(sx-3,sy+6,6,5);
+  // ship (whichever one is equipped in the store)
+  const sx=W/2,sy=H-40,tNow=performance.now()/1000;
+  (SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(cx,sx,sy,tNow);
   if(shield){cx.strokeStyle=hexA(PU.shield.col,.75);cx.lineWidth=2;cx.beginPath();cx.arc(sx,sy-2,23,0,6.29);cx.stroke();}
   if(wave){cx.strokeStyle=hexA(PU.boom.col,Math.max(0,wave.life*.8));cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,wave.r,0,6.29);cx.stroke();}
-  // bullets
-  for(const b of bullets){
-    const t=1-b.life;const bx=b.x+(b.tx-b.x)*t,by=b.y+(b.ty-b.y)*t;
-    cx.strokeStyle=C.gold;cx.lineWidth=2;cx.globalAlpha=Math.min(1,b.life+.3);
-    cx.beginPath();cx.moveTo(bx,by+10);cx.lineTo(bx,by);cx.stroke();cx.globalAlpha=1;
-  }
+  // bullets (equipped trail)
+  const trail=TRAILS[STATS.equip.trail]||TRAILS.tracer;
+  for(const b of bullets)trail.draw(cx,b,tNow);
   // enemies
   cx.font="600 17px 'JetBrains Mono',monospace";
   for(const en of enemies){
@@ -1697,7 +1906,7 @@ function drawChart(){
   ctx.strokeStyle=C.gold;ctx.lineWidth=2;ctx.lineJoin="round";ctx.stroke();
   ctx.fillStyle=C.gold;ctx.beginPath();ctx.arc(X(n-1),Y(data[n-1]),3.4,0,6.29);ctx.fill();
 }
-function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;$("#help").hidden=true;
+function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;$("#help").hidden=true;$("#store").hidden=true;
   $("#stats").hidden=false;renderStats();}
 function closeStats(){$("#stats").hidden=true;el.home.hidden=false;renderMonths();}
 $("#statsBtn").onclick=openStats;
@@ -1707,7 +1916,7 @@ $("#statsBack").onclick=closeStats;
 let helpFrom="home";
 function openHelp(section){
   helpFrom=el.result.hidden?"home":"result";
-  el.home.hidden=true;el.result.hidden=true;$("#stats").hidden=true;$("#help").hidden=false;
+  el.home.hidden=true;el.result.hidden=true;$("#stats").hidden=true;$("#store").hidden=true;$("#help").hidden=false;
   $("#helpBadges").innerHTML=BADGES.map(b=>`<div class="hb"><div class="emblem">${emblem(b,true)}</div>
     <div><b>${b.name}</b><span>${b.desc}</span></div></div>`).join("");
   const sc=$("#help .st-scroll"),target=section&&document.getElementById(section);
@@ -1717,6 +1926,12 @@ function closeHelp(){
   $("#help").hidden=true;
   if(helpFrom==="result")el.result.hidden=false;else{el.home.hidden=false;renderMonths();}
 }
+/* store wiring */
+$("#storeBtn").onclick=openStore;$("#storeBack").onclick=closeStore;
+document.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{storeTab=b.dataset.tab;$("#storeNote").textContent="";renderStore();});
+$("#storeGrid").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b)storeAction(b.dataset.act,b.dataset.id);});
+document.querySelectorAll(".ck-slot").forEach(s=>s.innerHTML=CK);
+
 $("#helpBtn").onclick=()=>openHelp();
 $("#wpmHelp").onclick=()=>openHelp("help-wpm");
 $("#helpBack").onclick=closeHelp;
