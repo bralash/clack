@@ -78,6 +78,18 @@ test("scores: verified runs rank, cheats are refused, the daily counts once", op
   for (const u of [a, b]) await call("/api/me", { method: "DELETE", code: u.code });
 });
 
+test("admin can give an account a reserved name; players can't take it", opts, async () => {
+  const u = (await call("/api/register", { method: "POST", body: { name: "owner_" + tag } })).body;
+  assert.equal((await call("/api/me", { method: "PATCH", code: u.code, body: { name: "bra_lash" } })).status, 400);   // reserved
+  assert.equal((await call("/api/admin/set-name", { method: "POST", body: { from: "owner_" + tag, to: "bra_lash" }, admin: "wrong" })).status, 403);
+  const r = await call("/api/admin/set-name", { method: "POST", body: { from: "owner_" + tag, to: "bra_lash" }, admin: "local-admin-key" });
+  assert.equal(r.status, 200); assert.equal(r.body.name, "bra_lash");
+  const me = await call("/api/me", { code: u.code });
+  assert.equal(me.body.name, "bra_lash"); assert.equal(me.body.renameIn, 0, "doesn't use up the 60-day rename");
+  assert.equal((await call("/api/register", { method: "POST", body: { name: "Bra_Lash" } })).status, 400);
+  await call("/api/me", { method: "DELETE", code: u.code });
+});
+
 test("sync: two devices add up instead of overwriting", opts, async () => {
   const u = (await call("/api/register", { method: "POST", body: { name: "sync_" + tag } })).body;
   const laptop = await call("/api/sync", { method: "POST", code: u.code, body: {

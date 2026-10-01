@@ -244,6 +244,17 @@ async function admin(req, env, action) {
     const r = await env.DB.prepare("UPDATE users SET banned = ? WHERE name = ?").bind(b.ban === false ? 0 : 1, b.name).run();
     return json({ updated: r.meta.changes });
   }
+  if (action === "set-name") {
+    // Give an account any name, including a reserved one (e.g. the owner's own handle). The account
+    // keeps its scores, stats and recovery code, and this doesn't count toward the 60-day rename limit.
+    const to = String(b.to || "").trim();
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(to)) fail(400, "use 3–16 letters, numbers or _");
+    const u = await env.DB.prepare("SELECT id FROM users WHERE name = ?").bind(b.from).first();
+    if (!u) fail(404, "no account has that name");
+    if (!(await nameFree(env, to, u.id))) fail(409, "that name is taken");
+    await env.DB.prepare("UPDATE users SET name = ? WHERE id = ?").bind(to, u.id).run();
+    return json({ name: to });
+  }
   if (action === "release-name") {
     const r = await env.DB.prepare("UPDATE users SET name = NULL WHERE name = ?").bind(b.name).run();
     return json({ updated: r.meta.changes });

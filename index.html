@@ -2104,7 +2104,7 @@ function claimKey(e){ e.preventDefault(); kdPending=true; setTimeout(()=>{kdPend
 /* one input pipeline for both desktop keydown and the mobile soft keyboard */
 function inputCharTest(ch){
   if(ch.length!==1||ch===" ")return;          // accept letters, digits, punctuation
-  logKey(ch);
+  noteDevice();logKey(ch);
   if(!startTime)beginTimer();
   const w=seq[idx]||"";
   const wrong=(ch!==w[typed.length]);
@@ -2356,6 +2356,7 @@ function onShoot(e){
 function shootChar(key){
   if(sPaused){resumeShooter();return;}              // any key picks the game back up
   if(!sRun||!/[a-z']/.test(key))return;
+  noteDevice();
   $("#sHint").style.opacity="0";
   sKeysAll++;
   if(!target){
@@ -3353,11 +3354,13 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 // the part still visible: the app takes its height, follows it as the keyboard opens and closes,
 // and undoes the scroll iOS adds to "reveal" the focused field.
 const VV=window.visualViewport;
-let appH=0;
+let appH=0,fullH=0,fullW=0;
 function fitViewport(){
   const zoomed=VV&&VV.scale>1.05;                        // pinch-zoomed: leave the layout alone
   const h=Math.round(VV&&!zoomed?VV.height:window.innerHeight),app=$("#app");
   if(h<200)return;                                       // hidden or minimised: not a real size, keep the last one
+  // the tallest the screen has been at this width: anything well short of it means a keyboard is covering it
+  if(window.innerWidth!==fullW){fullW=window.innerWidth;fullH=h;}else if(h>fullH)fullH=h;
   if(h!==appH){
     appH=h;app.style.setProperty("--app-h",h+"px");app.classList.toggle("short",h<560);
     if(sRun){sizeCanvas(true);kbWatch(h);}
@@ -3365,6 +3368,13 @@ function fitViewport(){
   if(window.scrollY)window.scrollTo(0,0);
   app.style.transform=VV&&!zoomed&&VV.offsetTop>0?`translateY(${Math.round(VV.offsetTop)}px)`:"";
 }
+// Phone or keyboard? A run counts as a phone run if its keys arrive while an on-screen keyboard covers
+// part of the screen. (iOS and some Android keyboards send ordinary key presses, so how a key arrives
+// can't tell them apart from a physical keyboard; the shrunken screen can.) A tablet with a keyboard
+// case shows no on-screen keyboard, so its runs stay "keyboard".
+// Only on devices driven by touch: a desktop window made shorter (dev tools, resizing) isn't a keyboard.
+function softKbUp(){return matchMedia("(pointer: coarse)").matches&&fullH-appH>120;}
+function noteDevice(){if(!runTouch&&(running||sRun)&&softKbUp())runTouch=true;}
 if(VV){VV.addEventListener("resize",fitViewport);VV.addEventListener("scroll",fitViewport);}
 window.addEventListener("resize",fitViewport);
 fitViewport();

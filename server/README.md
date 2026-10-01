@@ -16,8 +16,9 @@ Cloudflare Worker with a D1 (SQLite) database.
   the best run per player, top 50, plus your own rank.
 - **Sync:** `POST /api/sync` adds counter deltas (key accuracy, activity, clacks) and merges everything else
   (`src/merge.js`), so devices add up instead of overwriting each other.
-- **Moderation:** `POST /api/admin/remove-score {id}`, `/api/admin/ban {name, ban}`, `/api/admin/release-name {name}`
-  with an `X-Admin-Key` header.
+- **Moderation:** `POST /api/admin/remove-score {id}`, `/api/admin/ban {name, ban}`, `/api/admin/release-name {name}`,
+  and `/api/admin/set-name {from, to}` (gives an account any name, including a reserved one such as the owner's
+  own handle, without using up its 60-day rename), all with an `X-Admin-Key` header.
 
 ## Run it locally
 
