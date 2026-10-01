@@ -1,0 +1,17 @@
+name = "clack-api"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Run `npx wrangler d1 create clack` once and paste the database_id it prints here.
+# Local development (`npm run dev`) works with the placeholder.
+[[d1_databases]]
+binding = "DB"                 # the code uses env.DB — keep this name
+database_name = "clack"
+database_id = "214657b3-2fe8-4f75-8b7c-d796092cb40b"
+migrations_dir = "migrations"
+
+[vars]
+# Pages allowed to call the API (CORS).
+ALLOWED_ORIGINS = "https://bralash.github.io,http://localhost:5173,http://127.0.0.1:5173"
+
+# ADMIN_KEY is a secret: set it with `npx wrangler secret put ADMIN_KEY` (and in .dev.vars for local use).

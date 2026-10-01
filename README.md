@@ -49,6 +49,17 @@ Clack School is a **keyboard feature**: it teaches 10-finger typing, which doesn
 On phones the course map explains this and offers to share the link so you can open it on a computer. Lessons unlock as soon
 as a physical keyboard is detected (an iPad keyboard case, or a Bluetooth keyboard on a phone).
 
+### Leaderboard & sync
+- Three boards — **daily**, **30s** and **60s** — each with separate **keyboard** and **phone** lists, and
+  today / this week / all time views for the timed boards.
+- **No accounts.** Pick a name and Clack gives you a **recovery code** (`clack-XXXXX-XXXXX-XXXXX-XXXXX`) — the key to that
+  name. Enter it on another device to sign in there; stats, clacks, badges and store items **sync** between devices.
+  Names can change once every 60 days; names unused for six months are released.
+- **Verified scores:** runs are sent as keystroke logs and the server replays them to compute wpm and accuracy itself,
+  rejecting runs that don't match the words, overrun the clock, exceed 250 wpm or have machine-regular timing.
+- Fully optional: nothing leaves the device until you pick a name, and you can delete your name and scores any time.
+- The stats page can split **keyboard vs phone** runs, so you can compare your speed on each.
+
 ### Clacks & the store
 - **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
   1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off
@@ -88,17 +99,23 @@ Because it's a single static file, you can host it for free:
 
 ## Storage
 
-All progress is stored locally in your browser via `localStorage` — nothing is sent anywhere:
+All progress is stored locally in your browser via `localStorage`. Nothing is sent anywhere unless you join the leaderboard:
 
 - `clack_activity` — daily activity that drives the heatmap
-- `clack_stats` — per-key accuracy, WPM history, personal bests, achievements, modes tried, daily results, clacks and store items
+- `clack_stats` — per-key accuracy, WPM history (tagged keyboard or phone), personal bests, achievements, modes tried, daily results, clacks and store items
 - `clack_theme` — light / dark preference
 - `clack_mods` — punctuation / numbers toggles
 - `clack_sound` — sound & haptics on/off
+- `clack_online` — your name, recovery code, sync state and any runs waiting to be posted (only after you join)
 
-Progress is per browser, per device — there are no accounts, so it doesn't sync between devices.
+Without a name, progress is per browser, per device. With one, it syncs through the API to every device you sign in on.
+Clearing your browser's site data resets this device; keep your recovery code to get your name back.
 
-Clearing your browser's site data resets everything.
+## Leaderboard API
+
+The leaderboard, names and sync run on a small [Cloudflare Worker](server/) with a D1 (SQLite) database —
+free at Clack's scale. See [server/README.md](server/README.md) for running it locally and deploying.
+`API_PROD` in `index.html` points at the deployed Worker; set it to `""` to switch the leaderboard off.
 
 ## Tech
 

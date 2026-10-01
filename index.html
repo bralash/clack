@@ -528,6 +528,60 @@
   .pb-badge.pop{animation:pbPop .5s cubic-bezier(.2,1.3,.4,1);}
   @keyframes pbPop{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
   @media (prefers-reduced-motion:reduce){.pb-badge.pop{animation:none;}}
+
+  /* ---------- LEADERBOARD ---------- */
+  .lb-who{font-family:var(--mono);font-size:12px;color:var(--text-dim);max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-who b{color:var(--gold);font-weight:600;}
+  .lb-tabs,.st-dev{align-self:flex-start;}
+  .lb-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;}
+  .lb-bar .mchip{font-size:12px;padding:6px 11px;}
+  .lb-day{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:13px;color:var(--text);}
+  .lb-day button{background:none;border:0;color:var(--text-dim);font-family:var(--mono);font-size:15px;cursor:pointer;
+    padding:4px 9px;border-radius:7px;}
+  .lb-day button:hover:not([disabled]){color:var(--gold);background:var(--surface-2);}
+  .lb-day button[disabled]{opacity:.3;cursor:default;}
+  .lb-list{display:flex;flex-direction:column;gap:2px;min-height:60px;}
+  .lb-list .empty{color:var(--text-dim);}
+  .st-cap{color:var(--text-dim);font-size:11px;}
+  .lb-row{display:grid;grid-template-columns:40px 1fr auto 46px;gap:12px;align-items:center;font-family:var(--mono);font-size:14px;
+    padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--line);}
+  .lb-row .r{color:var(--text-dim);font-variant-numeric:tabular-nums;}
+  .lb-row .n{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-row .n small{color:var(--text-dim);font-size:11px;margin-left:8px;}
+  .lb-row .w{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+  .lb-row .w span{color:var(--text-dim);font-weight:400;font-size:11px;margin-left:4px;}
+  .lb-row .a{color:var(--text-dim);font-size:12px;text-align:right;font-variant-numeric:tabular-nums;}
+  .lb-row.p1 .r{color:var(--gold);font-weight:700;}
+  .lb-row.p2 .r{color:#b8bec7;font-weight:700;}
+  .lb-row.p3 .r{color:#c98a4b;font-weight:700;}
+  [data-theme="light"] .lb-row.p2 .r{color:#6f7680;}
+  [data-theme="light"] .lb-row.p3 .r{color:#9a5a22;}
+  .lb-row.me{border-color:var(--gold-dim);box-shadow:0 0 0 1px var(--gold-dim) inset;}
+  .lb-gap{text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px;letter-spacing:3px;}
+  .lb-foot{font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.6;}
+  .lb-card{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:18px;font-family:var(--mono);}
+  .lb-card p{margin:0;font-size:12px;line-height:1.65;color:var(--text-dim);}
+  .lb-card p b{color:var(--text);font-weight:600;}
+  .lb-card .st-h b{color:var(--gold);}
+  .lb-form{display:flex;gap:8px;flex-wrap:wrap;}
+  .lb-form .btn{padding:10px 16px;}
+  .lb-input{flex:1;min-width:170px;font-family:var(--mono);font-size:14px;color:var(--text);background:var(--surface-2);
+    border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none;}
+  .lb-input:focus{border-color:var(--gold-dim);}
+  .lb-msg{font-size:12px;min-height:16px;color:var(--text-dim);}
+  .lb-msg.bad{color:var(--red);}
+  .lb-msg.ok{color:#3fbf63;}
+  .lb-code{font-size:15px;letter-spacing:1px;color:var(--gold);background:var(--surface-2);border:1px dashed var(--gold-dim);
+    border-radius:9px;padding:11px 13px;user-select:all;-webkit-user-select:all;word-break:break-all;}
+  .lb-acts{display:flex;flex-wrap:wrap;gap:8px 16px;}
+  .lb-acts .linkbtn{padding:0;font-size:12px;}
+  .lb-acts .linkbtn.danger:hover{color:var(--red);}
+  .res-board{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:-10px 0 22px;
+    font-family:var(--mono);font-size:13px;color:var(--text-dim);min-height:18px;}
+  .res-board b{color:var(--gold);}
+  .res-board .linkbtn{padding:0;font-size:13px;}
+  .res-board .bad{color:var(--red);}
 </style>
 </head>
 <body>
@@ -587,6 +641,8 @@
           <div class="brand"><img class="brand-mark" src="brand/favicon.svg" alt="" width="44" height="44">
             <div><span class="brand-word">cl<b>ack</b></span><span class="sub">a minimalistic typing test</span></div></div>
           <nav class="headnav">
+            <button class="linkbtn" id="boardBtn" hidden>leaderboard</button>
+            <span class="dotsep" id="boardSep" aria-hidden="true" hidden>·</span>
             <button class="linkbtn" id="schoolBtn">clack school</button>
             <span class="dotsep" aria-hidden="true">·</span>
             <button class="linkbtn bal" id="storeBtn" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span> store</button>
@@ -685,12 +741,17 @@
         <div class="st-title">stats</div>
         <div style="width:52px"></div>
       </div>
+      <div class="modebar st-dev" id="stDev" role="tablist" aria-label="which device" hidden>
+        <button class="mchip" data-dev="all" role="tab">all</button>
+        <button class="mchip" data-dev="k" role="tab">⌨ keyboard</button>
+        <button class="mchip" data-dev="t" role="tab">📱 phone</button>
+      </div>
       <div class="st-sec">
         <div class="st-h">personal bests</div>
         <div class="pb-list" id="pbList"></div>
       </div>
       <div class="st-sec">
-        <div class="st-h">wpm over time</div>
+        <div class="st-h">wpm over time <span class="st-cap" id="chartCap"></span></div>
         <canvas class="chart" id="wpmChart"></canvas>
       </div>
       <div class="st-sec">
@@ -728,6 +789,7 @@
     <div class="res-clacks" id="rClacks" hidden>
       <span class="ck-slot"></span><span>+<b id="rClacksN">0</b> clacks</span><span class="ck-why" id="rClacksWhy"></span>
     </div>
+    <div class="res-board" id="rBoard" aria-live="polite" hidden></div>
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
       <div class="btn primary" id="shareBtn" hidden>share result</div>
@@ -804,6 +866,36 @@
     </div>
   </section>
 
+  <!-- LEADERBOARD -->
+  <section id="board" class="view" hidden>
+    <div class="st-scroll">
+      <div class="st-inner">
+        <div class="st-top">
+          <div class="quit" id="lbBack">← back</div>
+          <div class="st-title">leaderboard</div>
+          <div class="lb-who" id="lbWho"></div>
+        </div>
+        <div class="st-sec">
+          <div class="modebar lb-tabs" id="lbTabs" role="tablist" aria-label="leaderboard">
+            <button class="mchip" data-b="daily" role="tab">◆ daily</button>
+            <button class="mchip" data-b="time30" role="tab">⏱ 30s</button>
+            <button class="mchip" data-b="time60" role="tab">⏱ 60s</button>
+          </div>
+          <div class="lb-bar">
+            <div id="lbWhen"></div>
+            <div class="modebar" id="lbDev" role="tablist" aria-label="device">
+              <button class="mchip" data-dev="k" role="tab">⌨ keyboard</button>
+              <button class="mchip" data-dev="t" role="tab">📱 phone</button>
+            </div>
+          </div>
+          <div class="lb-list" id="lbList" aria-live="polite"></div>
+          <div class="lb-foot" id="lbFoot"></div>
+        </div>
+        <div class="st-sec" id="lbAccount"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- STORE -->
   <section id="store" class="view" hidden>
     <div class="st-scroll">
@@ -875,6 +967,20 @@
           Play on consecutive days to build your <b>daily streak</b>.</p>
         <p><b>Share</b> your result as text (one square per word: 🟩 clean, 🟨 had a mistake), post it straight to 𝕏,
           or save a result card image.</p>
+      </div>
+
+      <div class="st-sec" id="help-board">
+        <div class="st-h">leaderboard &amp; your name</div>
+        <p>There are three boards: the <b>daily</b>, <b>30s</b> and <b>60s</b> (time runs without punctuation, numbers or
+          weak keys). Each shows every player's best run, with separate <b>keyboard</b> and <b>phone</b> lists so thumbs
+          never race ten fingers. The 30s and 60s boards can show today, this week or all time.</p>
+        <p>To join, pick a name — <b>no email, no password</b>. Clack gives you a <b>recovery code</b> instead: it's the key
+          to your name, so save it somewhere safe. Enter it on another device to sign in there, and your stats, clacks,
+          badges and store items sync between them. You can change your name once every 60 days, and a name that's
+          unused for six months is freed for someone else.</p>
+        <p>Scores aren't taken on trust: your keystrokes and their timing are sent, and the server replays the run to
+          work out the wpm itself. Nothing leaves your device until you pick a name, and you can delete your name and
+          scores at any time.</p>
       </div>
 
       <div class="st-sec">
@@ -990,7 +1096,7 @@ try{
   });
 }catch(e){}
 function loadData(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
-function saveData(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+function saveData(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}queueSync();}
 function dayKey(dt){return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate();}
 
 // real activity only — every cell comes from an actual test/shooter run,
@@ -1089,11 +1195,11 @@ el.scrim.onclick=closeSheet;
 function setMode(m){
   mode=m;value=DEFAULTS[m];
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.mode===m));
-  document.querySelectorAll(".mchip").forEach(x=>{const on=x.dataset.mode===m;x.classList.toggle("active",on);x.setAttribute("aria-selected",on);});
+  document.querySelectorAll("#modebar .mchip").forEach(x=>{const on=x.dataset.mode===m;x.classList.toggle("active",on);x.setAttribute("aria-selected",on);});
   renderOpts();syncLabels();updateMods();
 }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setMode(t.dataset.mode));
-document.querySelectorAll(".mchip").forEach(c=>c.onclick=()=>setMode(c.dataset.mode));
+document.querySelectorAll("#modebar .mchip").forEach(c=>c.onclick=()=>setMode(c.dataset.mode));
 $("#pillCfg").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openSheet();}});
 el.opts.onclick=e=>{const o=e.target.closest(".opt");if(!o)return;
   const v=o.dataset.v;value=isNaN(+v)?v:+v;renderOpts();syncLabels();};
@@ -1134,6 +1240,9 @@ function loadStats(){try{return JSON.parse(localStorage.getItem(SKEY))||{}}catch
 let STATS=loadStats();
 STATS.keys=STATS.keys||{};STATS.history=STATS.history||[];STATS.pb=STATS.pb||{};
 STATS.badges=STATS.badges||{};STATS.modes=STATS.modes||{};STATS.daily=STATS.daily||{};STATS.puSeen=STATS.puSeen||{};
+// personal bests per device (k = physical keyboard, t = touch). Runs from before devices were
+// tracked were almost all on a keyboard, so the old bests seed the keyboard list.
+STATS.pbDev=STATS.pbDev||{k:JSON.parse(JSON.stringify(STATS.pb)),t:{}};
 
 /* ---------- achievements ---------- */
 // Badge art, drawn as one 64×64 SVG. Speed badges are a metal ladder with the milestone
@@ -1377,19 +1486,22 @@ function openStore(){
   $("#storeNote").textContent="";renderStore();
 }
 function closeStore(){$("#store").hidden=true;cancelAnimationFrame(storeRaf);el.home.hidden=false;renderMonths();}
-function saveStats(){try{localStorage.setItem(SKEY,JSON.stringify(STATS))}catch(e){}}
+function saveStats(){try{localStorage.setItem(SKEY,JSON.stringify(STATS))}catch(e){}queueSync();}
 function recordKey(expected,ok){
   if(!expected||!/[a-z]/i.test(expected))return;
   const k=expected.toLowerCase(),e=STATS.keys[k]||(STATS.keys[k]={a:0,e:0});
   e.a++;if(!ok)e.e++;
 }
 // logs the run, updates PB; returns true only when an existing record was beaten
-function finishRun(modeKey,kind,val,wpm){
-  STATS.history.push({t:Date.now(),wpm:wpm||0});
+// dev: "k" for a physical keyboard, "t" for a touch keyboard
+function finishRun(modeKey,kind,val,wpm,dev){
+  STATS.history.push({t:Date.now(),wpm:wpm||0,dev});
   if(STATS.history.length>120)STATS.history=STATS.history.slice(-120);
   if(!modeKey){saveStats();return false;}           // e.g. the daily: logged, but not a personal-best category
   const prev=STATS.pb[modeKey];let beat=false;
   if(prev===undefined||val>prev.v){beat=(prev!==undefined);STATS.pb[modeKey]={v:val,kind:kind};}
+  const pd=STATS.pbDev[dev]||(STATS.pbDev[dev]={});
+  if(!pd[modeKey]||val>pd[modeKey].v)pd[modeKey]={v:val,kind:kind};
   saveStats();
   return beat;
 }
@@ -1426,11 +1538,32 @@ function pickWord(){
   return w;
 }
 function makeWord(){
+  if(runGen)return runGen();                // leaderboard run: seeded so the server can rebuild the words
   if(nums && Math.random()<0.14) return ""+(Math.floor(Math.random()*998)+2);
   const w=(weakPool&&Math.random()<0.8)?pickWeak():pickWord();
   return punct?decorate(w):w;
 }
 function newSeq(n){const a=[];for(let i=0;i<n;i++)a.push(makeWord());return a;}
+
+/* ---------- leaderboard runs ---------- */
+// The daily and plain 30s / 60s runs can go on the leaderboard. Their words come from a seeded
+// generator, and every keystroke is logged with its timing, so the server can replay the run and
+// score it itself (server/src/engine.js mirrors wordGen and the engine below; keep them in step).
+let runBoard=null,runSeed=0,runGen=null,runKeys="",runGaps=[],runT0=0,runPrev=0,runTouch=false;
+function wordGen(seed){
+  const r=seededRng(seed>>>0),recent=[];
+  return()=>{let w,tries=0;
+    do{w=WORDS[Math.floor(r()*WORDS.length)];tries++;}while(recent.includes(w)&&tries<25);
+    recent.push(w);if(recent.length>40)recent.shift();return w;};
+}
+function logKey(ch){
+  if(!runBoard)return;
+  const now=performance.now();
+  if(!runKeys){if(ch===" "||ch==="\b")return;runT0=now;runPrev=0;}   // the log starts at the first letter, like the timer
+  const t=Math.round(now-runT0),c=ch.charCodeAt(0);
+  runKeys+=(ch==="\b"||(c>=32&&c<=126))?ch:"~";                     // anything outside plain ASCII is just a wrong key
+  runGaps.push(t-runPrev);runPrev=t;
+}
 
 /* ==================== WEAK-KEY PRACTICE ==================== */
 // Your weakest keys come from the per-key stats. With "weak keys" on, 80% of words are drawn
@@ -1596,6 +1729,9 @@ function startTest(){
   if(weakFocus&&(mode==="time"||mode==="words")){weakSet=weakKeys();weakPool=weakSet&&buildWeakPool(weakSet);if(!weakPool)weakSet=null;}
   $("#hint").textContent=weakSet?"practising your weak keys: "+weakSet.join(" · "):
     (weakFocus&&(mode==="time"||mode==="words"))?"not enough key data yet — this run is normal practice":"just start typing";
+  runTouch=false;runKeys="";runGaps=[];runGen=null;
+  runBoard=!API?null:mode==="daily"?"daily":(mode==="time"&&(value===30||value===60)&&!punct&&!nums&&!weakSet)?"time"+value:null;
+  if(runBoard&&runBoard!=="daily"){runSeed=crypto.getRandomValues(new Uint32Array(1))[0];runGen=wordGen(runSeed);}
   if(mode==="daily"){seq=dailyWords(value);curAuthor="";dailyGrid=[];}
   else if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
   else{seq=newSeq(mode==="words"?value:120);curAuthor="";}
@@ -1627,7 +1763,11 @@ function endTest(){
   const isDaily=mode==="daily";
   if(isDaily&&!STATS.daily[value])STATS.daily[value]={wpm,acc,combo:maxCombo,time:Math.round(elapsed),grid:dailyGrid.join("")};
   // the daily and weak-key practice (harder, hand-picked words) are logged but don't set personal bests
-  const beat=finishRun(isDaily||weakSet?null:mode+"·"+value,"wpm",wpm,wpm);
+  const dev=runTouch?"t":"k";
+  const beat=finishRun(isDaily||weakSet?null:mode+"·"+value,"wpm",wpm,wpm,dev);
+  if(runBoard&&runKeys)postRun({board:runBoard,day:isDaily?value:undefined,seed:runGen?runSeed:undefined,dev,keys:runKeys,gaps:runGaps.slice()});
+  else showResBoard("");
+  runBoard=null;runGen=null;
   renderMonths();
   // show results
   $("#rTitle").textContent = isDaily ? "daily #"+value+" complete" : mode==="quote"&&curAuthor ? "— "+curAuthor : "test complete";
@@ -1712,6 +1852,7 @@ function claimKey(e){ e.preventDefault(); kdPending=true; setTimeout(()=>{kdPend
 /* one input pipeline for both desktop keydown and the mobile soft keyboard */
 function inputCharTest(ch){
   if(ch.length!==1||ch===" ")return;          // accept letters, digits, punctuation
+  logKey(ch);
   if(!startTime)beginTimer();
   const w=seq[idx]||"";
   const wrong=(ch!==w[typed.length]);
@@ -1722,8 +1863,8 @@ function inputCharTest(ch){
   else{renderWord();}
 }
 function typeInput(ch){ if(running)inputCharTest(ch); else if(sRun)shootChar(ch.toLowerCase()); }
-function typeSpace(){ if(running&&typed.length)commitWord(); else if(sRun)useBomb(); }
-function typeBackspace(){ if(running){typed=typed.slice(0,-1);click();renderWord();} }
+function typeSpace(){ if(running)logKey(" "); if(running&&typed.length)commitWord(); else if(sRun)useBomb(); }
+function typeBackspace(){ if(running){logKey("\b");typed=typed.slice(0,-1);click();renderWord();} }
 
 function onKey(e){
   if(!running)return;
@@ -1742,6 +1883,7 @@ function blurKb(){ try{kbIn.blur();}catch(e){} }
 kbIn.addEventListener("beforeinput",e=>{
   e.preventDefault();                              // keep the hidden field empty
   if(kdPending){kdPending=false;return;}           // its keydown already handled this keystroke
+  if(running||sRun)runTouch=true;                  // typed on a touch keyboard: this run goes in the phone lists
   const t=e.inputType;
   if(t==="insertText"||t==="insertCompositionText"){
     if(e.data)for(const ch of e.data){ ch===" "?typeSpace():typeInput(ch); }
@@ -1848,7 +1990,7 @@ function boom(x,y,col){
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,col});}
 }
 function startShooter(){
-  closeSheet();ac();
+  closeSheet();ac();runTouch=false;
   diff=DIFF[value]||DIFF.normal;
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
@@ -1875,7 +2017,8 @@ function endShoot(){
   const acc=sKeysAll?Math.round(sKeysOk/sKeysAll*100):100;
   const k=dayKey(new Date());const rec=DATA[k]||{words:0,time:0};
   rec.words+=sKills;rec.time+=Math.round(elapsed);DATA[k]=rec;saveData(DATA);renderMonths();
-  const beat=finishRun("shoot·"+value,"score",sScore,wpm);
+  const beat=finishRun("shoot·"+value,"score",sScore,wpm,runTouch?"t":"k");
+  showResBoard("");
   $("#rTitle").textContent="game over";$("#again").hidden=false;$("#shareBtn").hidden=true;
   $("#rScoreItem").hidden=false;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=true;
   $("#rScore").textContent=sScore;
@@ -2046,13 +2189,24 @@ function modeLabel(key){
   if(m==="quote")return v+" quote";
   return v+" words";
 }
+// which device the stats page shows: all runs, keyboard only ("k") or touch only ("t")
+let statsDev="all";
+const histFor=dv=>STATS.history.filter(h=>dv==="all"||(h.dev||"k")===dv);
 function renderStats(){
+  // the device switch appears once there's something to compare (or on a touch device)
+  const hasTouch=STATS.history.some(h=>h.dev==="t")||Object.keys(STATS.pbDev.t||{}).length;
+  $("#stDev").hidden=!(hasTouch||touchOnly());
+  document.querySelectorAll("#stDev .mchip").forEach(b=>{const on=b.dataset.dev===statsDev;b.classList.toggle("active",on);b.setAttribute("aria-selected",on);});
   // personal bests
-  const keys=Object.keys(STATS.pb).sort();
+  const pbs=statsDev==="all"?STATS.pb:(STATS.pbDev[statsDev]||{});
+  const keys=Object.keys(pbs).sort();
   $("#pbList").innerHTML = keys.length
-    ? keys.map(k=>{const r=STATS.pb[k];const val=r.kind==="score"?(fmtNum(r.v)+" pts"):(r.v+" wpm");
+    ? keys.map(k=>{const r=pbs[k];const val=r.kind==="score"?(fmtNum(r.v)+" pts"):(r.v+" wpm");
         return `<div class="pb-row"><span>${modeLabel(k)}</span><b>${val}</b></div>`;}).join("")
-    : `<div class="empty">no records yet — finish a run to set one</div>`;
+    : `<div class="empty">${statsDev==="t"?"no phone runs yet — finish a run on your phone to set one":"no records yet — finish a run to set one"}</div>`;
+  const last=histFor(statsDev).filter(h=>h.wpm>0).slice(-10);
+  const avg=last.length?Math.round(last.reduce((s,h)=>s+h.wpm,0)/last.length):0;
+  $("#chartCap").textContent=!last.length?"":last.length===1?`— last run ${avg} wpm`:`— last ${last.length} runs average ${avg} wpm`;
   renderKeyboard();
   drawChart();
   renderBadges();
@@ -2088,7 +2242,7 @@ function drawChart(){
   if(!w||!h)return;
   cv.width=w*dpr;cv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,w,h);
-  const data=STATS.history.map(x=>x.wpm);
+  const data=histFor(statsDev).map(x=>x.wpm);
   if(!data.length){ctx.fillStyle=C.dim;ctx.font="13px 'JetBrains Mono',monospace";
     ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("no runs yet",w/2,h/2);return;}
   const pad={l:36,r:14,t:16,b:24},n=data.length;
@@ -2113,6 +2267,7 @@ function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=tr
   $("#stats").hidden=false;renderStats();}
 function closeStats(){$("#stats").hidden=true;el.home.hidden=false;renderMonths();}
 $("#statsBtn").onclick=openStats;
+document.querySelectorAll("#stDev .mchip").forEach(b=>b.onclick=()=>{statsDev=b.dataset.dev;renderStats();});
 $("#statsBack").onclick=closeStats;
 
 /* ==================== HELP PAGE ==================== */
@@ -2491,6 +2646,323 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#shareBox").hid
 function updateMods(){$("#mods").hidden=(mode==="quote"||mode==="shoot");}
 $("#punctBtn").onclick=e=>{e.stopPropagation();punct=!punct;saveMods();syncMods();};
 $("#numBtn").onclick=e=>{e.stopPropagation();nums=!nums;saveMods();syncMods();};
+
+/* ==================== ONLINE: names, leaderboards, sync ==================== */
+// All optional: nothing leaves the device until the player picks a name. After that, leaderboard
+// runs are posted as keystroke logs (the server re-scores them), and stats, clacks and store items
+// sync across devices. There are no accounts: the server hands out a recovery code that acts as
+// the key to the name. The API lives in server/ (a Cloudflare Worker).
+const API_PROD="https://clack-api.design-critic.workers.dev";   // the deployed Worker (server/)
+const API=(()=>{try{const o=localStorage.getItem("clack_api");if(o)return o.replace(/\/+$/,"");}catch(e){}
+  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?"http://127.0.0.1:8787":API_PROD;})();
+const OKEY="clack_online";
+let ON=(()=>{try{return JSON.parse(localStorage.getItem(OKEY))||{};}catch(e){return{};}})();
+ON.pending=ON.pending||[];
+function saveOn(){try{localStorage.setItem(OKEY,JSON.stringify(ON));}catch(e){}}
+const joined=()=>!!(API&&ON.code&&ON.name);
+const BOARD_NAME={daily:"daily",time30:"30s",time60:"60s"};
+const escHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function api(path,{method="GET",body,code=ON.code}={}){
+  if(!API)throw Object.assign(new Error("the leaderboard isn't available"),{status:0});
+  const headers={};if(body)headers["Content-Type"]="application/json";if(code)headers.Authorization="Bearer "+code;
+  let r;
+  try{r=await fetch(API+path,{method,headers,body:body&&JSON.stringify(body)});}
+  catch(e){throw Object.assign(new Error("can't reach the leaderboard right now"),{status:0});}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error(j.error||"something went wrong"),{status:r.status});
+  return j;
+}
+
+/* ---------- posting runs ---------- */
+function showResBoard(html){const b=$("#rBoard");b.hidden=!html;b.innerHTML=html||"";
+  const j=$("#rJoin");if(j)j.onclick=()=>openBoard($("#rJoin").dataset.b);
+  const v=$("#rView");if(v)v.onclick=()=>openBoard($("#rView").dataset.b);}
+const rankLine=(run,r)=>{
+  const where=run.board==="daily"?`daily #${run.day}`:`today's ${BOARD_NAME[run.board]}`;
+  return r.rank?`🏆 <b>#${r.rank}</b> of ${r.total} on ${where}${run.dev==="t"?" (phone)":""}`:`posted to ${where}`;
+};
+async function submitRun(run){return api("/api/scores",{method:"POST",body:run});}
+function postRun(run){
+  run.at=Date.now();
+  if(!joined()){
+    // keep it for a day: if they pick a name now, this run still counts
+    ON.pending=ON.pending.filter(p=>Date.now()-p.at<20*3600e3&&!(run.board==="daily"&&p.board==="daily")).slice(-4);
+    ON.pending.push(run);saveOn();
+    showResBoard(`<button class="linkbtn" id="rJoin" data-b="${run.board}">post this run to the leaderboard →</button>`);
+    return;
+  }
+  showResBoard("posting to the leaderboard…");
+  submitRun(run).then(r=>{
+    showResBoard(`${rankLine(run,r)} <button class="linkbtn" id="rView" data-b="${run.board}">see the board →</button>`);
+  }).catch(e=>{
+    if(!e.status){ON.pending.push(run);saveOn();showResBoard("offline — this run will be posted next time");}
+    else showResBoard(`<span class="bad">not posted: ${escHtml(e.message)}</span>`);
+  });
+}
+async function flushPending(){
+  if(!joined()||!ON.pending.length)return;
+  const list=ON.pending.filter(p=>Date.now()-p.at<36*3600e3);ON.pending=[];saveOn();
+  for(const run of list){try{await submitRun(run);}catch(e){if(!e.status){ON.pending.push(run);}}}
+  saveOn();
+}
+
+/* ---------- sync ---------- */
+// Counters (per-key accuracy, activity, clacks) are sent as "what changed since the last sync",
+// so two devices add up instead of overwriting each other. Everything else is merged.
+var ONLINE_READY;                       // var: queueSync can run before this block has loaded
+let syncTimer=0,syncing=false;
+function queueSync(ms=4000){if(!ONLINE_READY||!joined())return;clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,ms);}
+function counters(){
+  const keys={},data={};
+  for(const [k,v] of Object.entries(STATS.keys))if(k.length===1)keys[k]={a:v.a||0,e:v.e||0};
+  for(const [k,v] of Object.entries(DATA))if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(k)&&v)data[k]={words:v.words||0,time:v.time||0};
+  return {keys,data,clacks:STATS.clacks||0};
+}
+function minus(a,b){                    // counters a - b
+  const d={keys:{},data:{},clacks:a.clacks-(b.clacks||0)};
+  for(const [k,v] of Object.entries(a.keys)){const o=(b.keys||{})[k]||{a:0,e:0};if(v.a-o.a||v.e-o.e)d.keys[k]={a:v.a-o.a,e:v.e-o.e};}
+  for(const [k,v] of Object.entries(a.data)){const o=(b.data||{})[k]||{words:0,time:0};if(v.words-o.words||v.time-o.time)d.data[k]={words:v.words-o.words,time:v.time-o.time};}
+  return d;
+}
+// Same rules as server/src/merge.js mergeSets: union, higher best, earliest badge, first daily result.
+function mergeSets(into,from){
+  const isObj=v=>v&&typeof v==="object"&&!Array.isArray(v);
+  if(!isObj(from))return into;
+  const hist=new Map();
+  for(const h of [...(into.history||[]),...(from.history||[])])if(isObj(h)&&Number.isFinite(h.t))hist.set(h.t+":"+h.wpm,h);
+  into.history=[...hist.values()].sort((a,b)=>a.t-b.t).slice(-120);
+  const best=(a,b)=>{a=isObj(a)?a:{};if(isObj(b))for(const [k,v] of Object.entries(b))if(isObj(v)&&(!a[k]||v.v>a[k].v))a[k]={v:v.v,kind:v.kind};return a;};
+  into.pb=best(into.pb,from.pb);
+  into.pbDev=isObj(into.pbDev)?into.pbDev:{};
+  for(const dv of ["k","t"])into.pbDev[dv]=best(into.pbDev[dv],isObj(from.pbDev)?from.pbDev[dv]:null);
+  into.badges=into.badges||{};
+  if(isObj(from.badges))for(const [k,v] of Object.entries(from.badges))if(!into.badges[k]||v<into.badges[k])into.badges[k]=v;
+  for(const f of ["modes","puSeen"]){into[f]=into[f]||{};if(isObj(from[f]))for(const k of Object.keys(from[f]))into[f][k]=1;}
+  into.daily=into.daily||{};
+  if(isObj(from.daily))for(const [k,v] of Object.entries(from.daily))if(!into.daily[k])into.daily[k]=v;
+  into.owned=into.owned||{ship:{},trail:{}};
+  if(isObj(from.owned))for(const kind of ["ship","trail"]){into.owned[kind]=into.owned[kind]||{};
+    if(isObj(from.owned[kind]))for(const id of Object.keys(from.owned[kind]))into.owned[kind][id]=1;}
+  if(isObj(from.school)){into.school.stars=into.school.stars||{};
+    if(isObj(from.school.stars))for(const [k,v] of Object.entries(from.school.stars))into.school.stars[k]=Math.max(into.school.stars[k]||0,v);
+    into.school.asked=!!(into.school.asked||from.school.asked);}
+  return into;
+}
+async function syncNow(){
+  if(!joined()||syncing)return;
+  if(running||sRun||SC){queueSync(8000);return;}          // never in the middle of a run
+  syncing=true;
+  const sent=counters(),delta=minus(sent,ON.base||{});
+  const sets={history:STATS.history,pb:STATS.pb,pbDev:STATS.pbDev,badges:STATS.badges,modes:STATS.modes,daily:STATS.daily,
+    puSeen:STATS.puSeen,owned:STATS.owned,school:{stars:STATS.school.stars,asked:STATS.school.asked}};
+  try{
+    const {blob}=await api("/api/sync",{method:"POST",body:{delta,sets}});
+    const extra=minus(counters(),sent);                    // anything that changed while the request was out
+    STATS.keys={};for(const [k,v] of Object.entries(blob.keys||{}))STATS.keys[k]={a:v.a,e:v.e};
+    for(const [k,v] of Object.entries(extra.keys)){const e=STATS.keys[k]||(STATS.keys[k]={a:0,e:0});e.a+=v.a;e.e+=v.e;}
+    for(const k of Object.keys(DATA))if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(k))delete DATA[k];
+    for(const [k,v] of Object.entries(blob.data||{}))DATA[k]={words:v.words,time:v.time};
+    for(const [k,v] of Object.entries(extra.data)){const r=DATA[k]||(DATA[k]={words:0,time:0});r.words+=v.words;r.time+=v.time;}
+    STATS.clacks=(blob.clacks||0)+extra.clacks;
+    mergeSets(STATS,blob);
+    ON.base={keys:blob.keys||{},data:blob.data||{},clacks:blob.clacks||0};ON.syncedAt=Date.now();
+    try{localStorage.setItem(SKEY,JSON.stringify(STATS));localStorage.setItem(KEY,JSON.stringify(DATA));}catch(e){}
+    saveOn();updateBalance();
+    if(!el.home.hidden){renderMonths();}
+    if(!$("#board").hidden)renderAccount();
+  }catch(e){if(e.status===401)signedOut("this device's recovery code no longer works");}
+  finally{syncing=false;}
+}
+function signedOut(why){
+  ON={pending:ON.pending||[],past:ON.code?{code:ON.code,base:ON.base}:ON.past};saveOn();
+  if(!$("#board").hidden){renderAccount(why);loadBoard();}
+}
+// Recovery codes in one canonical form, however they were pasted (case, spaces, dashes, prefix).
+function normCode(c){
+  const s=String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/^CLACK/,"");
+  return s.length===20?"clack-"+s.match(/.{5}/g).join("-"):String(c||"").trim();
+}
+// Signing in (new name or recovery code). Coming back to a code this device already synced with
+// reuses the old baseline, so its stats aren't added to the account twice.
+async function signIn(code,name,renameIn){
+  code=normCode(code);
+  const past=ON.past&&normCode(ON.past.code)===code?ON.past.base:null;
+  ON={code,name,renameIn:renameIn||0,base:past||{},pending:ON.pending||[]};saveOn();
+  await flushPending();await syncNow();
+}
+
+/* ---------- leaderboard screen ---------- */
+const LB={b:"daily",dev:null,range:"today",day:0,req:0,showCode:false,confirm:null,fresh:null};
+let lbFrom="home";
+function openBoard(b){
+  lbFrom=el.result.hidden?"home":"result";
+  for(const v of ["#stats","#help","#store","#school"])$(v).hidden=true;el.home.hidden=true;el.result.hidden=true;
+  $("#board").hidden=false;
+  if(b)LB.b=b;if(!LB.day)LB.day=dailyNo();if(!LB.dev)LB.dev=touchOnly()?"t":"k";
+  LB.confirm=null;
+  loadBoard();renderAccount();
+  if(joined())api("/api/me").then(m=>{ON.name=m.name;ON.renameIn=m.renameIn;saveOn();renderAccount();})
+    .catch(e=>{if(e.status===401)signedOut("this device's recovery code no longer works");});
+}
+function closeBoard(){$("#board").hidden=true;if(lbFrom==="result")el.result.hidden=false;else{el.home.hidden=false;renderMonths();}}
+function ago(ms){const s=(Date.now()-ms)/1000;
+  return s<90?"just now":s<3600?Math.round(s/60)+"m ago":s<86400?Math.round(s/3600)+"h ago":Math.round(s/86400)+"d ago";}
+function renderBoardBar(){
+  document.querySelectorAll("#lbTabs .mchip").forEach(x=>{const on=x.dataset.b===LB.b;x.classList.toggle("active",on);x.setAttribute("aria-selected",on);});
+  document.querySelectorAll("#lbDev .mchip").forEach(x=>{const on=x.dataset.dev===LB.dev;x.classList.toggle("active",on);x.setAttribute("aria-selected",on);});
+  const w=$("#lbWhen");
+  if(LB.b==="daily"){
+    const today=dailyNo();
+    w.className="lb-day";
+    w.innerHTML=`<button id="lbPrev" aria-label="previous daily" ${LB.day<=1?"disabled":""}>‹</button>
+      <span>daily #${LB.day}${LB.day===today?" · today":""}</span>
+      <button id="lbNext" aria-label="next daily" ${LB.day>=today?"disabled":""}>›</button>`;
+    $("#lbPrev").onclick=()=>{LB.day=Math.max(1,LB.day-1);loadBoard();};
+    $("#lbNext").onclick=()=>{LB.day=Math.min(dailyNo(),LB.day+1);loadBoard();};
+  }else{
+    w.className="modebar";
+    w.innerHTML=[["today","today"],["week","this week"],["all","all time"]].map(([k,l])=>
+      `<button class="mchip ${LB.range===k?"active":""}" data-range="${k}" role="tab" aria-selected="${LB.range===k}">${l}</button>`).join("");
+    w.querySelectorAll("[data-range]").forEach(x=>x.onclick=()=>{LB.range=x.dataset.range;loadBoard();});
+  }
+  $("#lbWho").innerHTML=joined()?`<b>${escHtml(ON.name)}</b>`:needsName()?"pick a name":"not on the board";
+}
+async function loadBoard(){
+  renderBoardBar();
+  const list=$("#lbList"),my=++LB.req;
+  if(!API){list.innerHTML=`<div class="empty">the leaderboard isn't switched on yet</div>`;$("#lbFoot").textContent="";return;}
+  list.innerHTML=`<div class="empty">loading…</div>`;
+  const q=LB.b==="daily"?`b=daily&day=${LB.day}`:`b=${LB.b}&range=${LB.range}`;
+  try{
+    const r=await api(`/api/board?${q}&dev=${LB.dev}`);
+    if(my!==LB.req)return;                                  // a newer request is on its way
+    const row=x=>`<div class="lb-row ${x.rank<=3?"p"+x.rank:""} ${x.me?"me":""}">
+      <span class="r">${x.rank}</span><span class="n">${escHtml(x.name)}${x.me?"<small>you</small>":""}${LB.b!=="daily"&&LB.range!=="today"?`<small>${ago(x.at)}</small>`:""}</span>
+      <span class="w">${x.wpm}<span>wpm</span></span><span class="a">${x.acc}%</span></div>`;
+    let h=r.rows.map(row).join("");
+    if(r.me&&!r.rows.some(x=>x.me))h+=`<div class="lb-gap">···</div>`+row({...r.me,me:true});
+    const where=LB.b==="daily"?`daily #${LB.day}`:"this board";
+    list.innerHTML=h||`<div class="empty">no one is on ${where} yet${LB.dev==="t"?" for phones":""} — ${LB.b==="daily"?"play the daily from the home screen":"finish a "+BOARD_NAME[LB.b]+" run"} to be first</div>`;
+    $("#lbFoot").textContent=r.total?`${r.total} ${r.total===1?"player":"players"} · each player's best run · every run is re-checked from its keystrokes`:"";
+  }catch(e){
+    if(my!==LB.req)return;
+    list.innerHTML=`<div class="empty">${escHtml(e.message)}</div>`;$("#lbFoot").textContent="";
+  }
+}
+document.querySelectorAll("#lbTabs .mchip").forEach(x=>x.onclick=()=>{LB.b=x.dataset.b;loadBoard();});
+document.querySelectorAll("#lbDev .mchip").forEach(x=>x.onclick=()=>{LB.dev=x.dataset.dev;loadBoard();});
+$("#lbBack").onclick=closeBoard;
+$("#boardBtn").onclick=()=>openBoard();
+
+/* ---------- your name: claim, restore, rename, recovery code ---------- */
+const NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
+function renderAccount(note){
+  const box=$("#lbAccount");
+  if(!API){box.innerHTML="";return;}
+  if(needsName()){
+    box.innerHTML=`<div class="lb-card">
+      <div class="st-h">pick a new name</div>
+      <p>Your old name was released after six months away. Your stats and clacks are safe — pick a name to get back on the board.</p>
+      <div class="lb-form"><input class="lb-input" id="lbNew" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="name">
+        <button class="btn primary" id="lbRename">save name</button></div>
+      <div class="lb-msg" id="lbNMsg">3–16 letters, numbers or _</div></div>`;
+    const save=async()=>{const v=$("#lbNew").value.trim(),m=$("#lbNMsg");
+      if(!NAME_RE.test(v)){m.className="lb-msg bad";m.textContent="use 3–16 letters, numbers or _";return;}
+      try{const r=await api("/api/me",{method:"PATCH",body:{name:v}});ON.name=r.name;ON.renameIn=r.renameIn;saveOn();
+        await flushPending();await syncNow();renderAccount();loadBoard();}
+      catch(e){m.className="lb-msg bad";m.textContent=e.message;}};
+    $("#lbRename").onclick=save;$("#lbNew").onkeydown=e=>{if(e.key==="Enter")save();};
+    return;
+  }
+  if(!joined()){
+    const pend=ON.pending.length;
+    box.innerHTML=`<div class="lb-card">
+      <div class="st-h">join the leaderboard</div>
+      <p>Pick a name — <b>no email, no password</b>. Your daily, 30s and 60s runs are posted under it, and your stats,
+        clacks and store items sync to any device you sign in on.${pend?` <b>Your last ${pend===1?"run":pend+" runs"} will be posted too.</b>`:""}</p>
+      ${note?`<div class="lb-msg bad">${escHtml(note)}</div>`:""}
+      <div class="lb-form"><input class="lb-input" id="lbName" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="name">
+        <button class="btn primary" id="lbClaim">claim name</button></div>
+      <div class="lb-msg" id="lbMsg">3–16 letters, numbers or _</div>
+      <div class="lb-acts"><button class="linkbtn" id="lbHaveCode">already have a name? use your recovery code</button></div>
+      <div id="lbRestore" hidden>
+        <div class="lb-form"><input class="lb-input" id="lbCode" placeholder="clack-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" aria-label="recovery code">
+          <button class="btn" id="lbRestoreBtn">sign in</button></div>
+        <div class="lb-msg" id="lbRMsg"></div>
+      </div></div>`;
+    let t=0;
+    $("#lbName").oninput=()=>{
+      const v=$("#lbName").value.trim(),m=$("#lbMsg");clearTimeout(t);
+      if(!v){m.className="lb-msg";m.textContent="3–16 letters, numbers or _";return;}
+      if(!NAME_RE.test(v)){m.className="lb-msg bad";m.textContent="use 3–16 letters, numbers or _";return;}
+      m.className="lb-msg";m.textContent="checking…";
+      t=setTimeout(()=>api("/api/name?n="+encodeURIComponent(v),{code:null}).then(r=>{
+        if($("#lbName")?.value.trim()!==v)return;
+        m.className="lb-msg "+(r.available?"ok":"bad");m.textContent=r.available?"✓ available":r.reason;}).catch(e=>{m.className="lb-msg bad";m.textContent=e.message;}),350);
+    };
+    const claim=async()=>{
+      const v=$("#lbName").value.trim(),m=$("#lbMsg");
+      if(!NAME_RE.test(v)){m.className="lb-msg bad";m.textContent="use 3–16 letters, numbers or _";return;}
+      $("#lbClaim").disabled=true;m.className="lb-msg";m.textContent="claiming…";
+      try{const r=await api("/api/register",{method:"POST",body:{name:v},code:null});
+        LB.fresh=r.code;LB.showCode=true;await signIn(r.code,r.name,r.renameIn);renderAccount();loadBoard();}
+      catch(e){m.className="lb-msg bad";m.textContent=e.message;$("#lbClaim").disabled=false;}
+    };
+    $("#lbClaim").onclick=claim;$("#lbName").onkeydown=e=>{if(e.key==="Enter")claim();};
+    $("#lbHaveCode").onclick=()=>{$("#lbRestore").hidden=false;$("#lbCode").focus();};
+    const restore=async()=>{
+      const code=normCode($("#lbCode").value),m=$("#lbRMsg");
+      m.className="lb-msg";m.textContent="signing in…";
+      try{const r=await api("/api/me",{code});
+        await signIn(code,r.name||"",r.renameIn);renderAccount();loadBoard();}
+      catch(e){m.className="lb-msg bad";m.textContent=e.status===401?"that recovery code doesn't match any name":e.message;}
+    };
+    $("#lbRestoreBtn").onclick=restore;$("#lbCode").onkeydown=e=>{if(e.key==="Enter")restore();};
+    return;
+  }
+  const code=ON.code,fresh=LB.fresh===code;
+  box.innerHTML=`<div class="lb-card">
+    <div class="st-h">you're <b>${escHtml(ON.name)}</b></div>
+    ${fresh?`<p><b>Save your recovery code now.</b> It's the only key to your name — there's no email to reset it.
+      Use it to sign in on your phone or another computer.</p>`:""}
+    ${LB.showCode?`<div class="lb-code" id="lbCodeBox">${escHtml(code)}</div>
+      <div class="lb-acts"><button class="linkbtn" id="lbCopy">copy code</button><button class="linkbtn" id="lbHide">hide</button></div>
+      <p>Anyone with this code can post as you, so keep it private.</p>`:""}
+    <p>${ON.syncedAt?`Stats, clacks and store items synced ${ago(ON.syncedAt)}.`:"Stats, clacks and store items sync to every device you sign in on."}</p>
+    <div class="lb-form"><input class="lb-input" id="lbNew" maxlength="16" placeholder="new name" autocomplete="off" spellcheck="false" aria-label="new name" ${ON.renameIn?"disabled":""}>
+      <button class="btn" id="lbRename" ${ON.renameIn?"disabled":""}>change name</button></div>
+    <div class="lb-msg" id="lbNMsg">${ON.renameIn?`you can change your name again in ${ON.renameIn} ${ON.renameIn===1?"day":"days"}`:"you can change your name once every 60 days"}</div>
+    <div class="lb-acts">
+      ${LB.showCode?"":`<button class="linkbtn" id="lbShow">show my recovery code</button>`}
+      <button class="linkbtn" id="lbOut">${LB.confirm==="out"?"sign out — tap again to confirm":"sign out on this device"}</button>
+      <button class="linkbtn danger" id="lbDel">${LB.confirm==="del"?"delete my name and all my scores — tap again":"delete my name & scores"}</button>
+    </div></div>`;
+  $("#lbShow")&&($("#lbShow").onclick=()=>{LB.showCode=true;renderAccount();});
+  $("#lbHide")&&($("#lbHide").onclick=()=>{LB.showCode=false;LB.fresh=null;renderAccount();});
+  $("#lbCopy")&&($("#lbCopy").onclick=async e=>{try{await navigator.clipboard.writeText(code);e.target.textContent="copied ✓";}
+    catch(_){const r=document.createRange();r.selectNodeContents($("#lbCodeBox"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="selected — copy it";}});
+  const rename=async()=>{
+    const v=$("#lbNew").value.trim(),m=$("#lbNMsg");
+    if(!NAME_RE.test(v)){m.className="lb-msg bad";m.textContent="use 3–16 letters, numbers or _";return;}
+    try{const r=await api("/api/me",{method:"PATCH",body:{name:v}});ON.name=r.name;ON.renameIn=r.renameIn;saveOn();renderAccount();loadBoard();}
+    catch(e){m.className="lb-msg bad";m.textContent=e.message;}
+  };
+  $("#lbRename").onclick=rename;$("#lbNew").onkeydown=e=>{if(e.key==="Enter")rename();};
+  $("#lbOut").onclick=()=>{if(LB.confirm!=="out"){LB.confirm="out";renderAccount();return;}
+    LB.confirm=null;LB.showCode=false;signedOut();renderAccount();loadBoard();};
+  $("#lbDel").onclick=async()=>{if(LB.confirm!=="del"){LB.confirm="del";renderAccount();return;}
+    LB.confirm=null;
+    try{await api("/api/me",{method:"DELETE"});ON={pending:[]};saveOn();LB.showCode=false;renderAccount();loadBoard();}
+    catch(e){$("#lbNMsg").className="lb-msg bad";$("#lbNMsg").textContent=e.message;}};
+}
+// A name released after months away: signed in, but nameless until a new one is picked.
+const needsName=()=>API&&ON.code&&!ON.name;
+
+ONLINE_READY=true;
+if(API){$("#boardBtn").hidden=false;$("#boardSep").hidden=false;}
+if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")queueSync(1000);});
 
 /* init */
 renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();maybeAskSchool();

@@ -13,3 +13,8 @@ dist/
 
 # Local tooling
 .claude/
+
+# Clack API (server/)
+.wrangler/
+.dev.vars
+server/src/words.js
