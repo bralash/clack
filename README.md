@@ -124,6 +124,8 @@ Clearing your browser's site data resets this device; keep your recovery code to
 The leaderboard, names and sync run on a small [Cloudflare Worker](server/) with a D1 (SQLite) database —
 free at Clack's scale. See [server/README.md](server/README.md) for running it locally and deploying.
 `API_PROD` in `index.html` points at the deployed Worker; set it to `""` to switch the leaderboard off.
+[`admin.html`](admin.html) is a private admin page (stats, players, runs, moderation and an activity log) that
+needs the Worker's admin key.
 
 ## Tech
 

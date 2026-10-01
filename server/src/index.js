@@ -50,7 +50,7 @@ async function route(req, env) {
   if (p === "/api/scores" && m === "POST") return submit(req, env, await auth(req, env));
   if (p === "/api/board" && m === "GET") return board(env, url, await auth(req, env, false));
   if (p === "/api/sync" && m === "POST") return sync(req, env, await auth(req, env));
-  if (p.startsWith("/api/admin/") && m === "POST") return admin(req, env, p.slice(11));
+  if (p.startsWith("/api/admin/")) return admin(req, env, p.slice(11));
   fail(404, "not found");
 }
 
@@ -232,32 +232,152 @@ async function sync(req, env, u) {
   fail(409, "sync conflict — try again");
 }
 
-/* ---------- moderation ---------- */
+/* ---------- admin (admin.html) ---------- */
+// Every admin request carries the X-Admin-Key header. Wrong keys are counted per IP and locked out
+// after ADMIN_TRIES an hour, so the key can't be guessed. Every change is written to admin_log.
+const ADMIN_TRIES = 10;
+const FAST = { k: 150, t: 110 };                 // runs at or above these wpm are flagged for a look
+async function adminAuth(req, env) {
+  const hour = Math.floor(Date.now() / 3600e3), key = "adminfail:" + ip(req);
+  const tries = await env.DB.prepare("SELECT n FROM rate WHERE k = ? AND hour = ?").bind(key, hour).first();
+  if (tries && tries.n >= (+env.ADMIN_TRIES || ADMIN_TRIES)) fail(429, "too many wrong keys — try again in an hour");
+  const given = (req.headers.get("X-Admin-Key") || "").trim(), real = (env.ADMIN_KEY || "").trim();
+  // compare hashes so the check takes the same time whatever the key
+  if (!real || (await sha256(given)) !== (await sha256(real))) {
+    await limit(env, key, 1e9);                  // just counts the failure
+    fail(403, "wrong admin key");
+  }
+}
+async function logAction(env, req, action, target, detail) {
+  await env.DB.prepare("INSERT INTO admin_log (at, action, target, detail, ip) VALUES (?, ?, ?, ?, ?)")
+    .bind(Date.now(), action, target == null ? null : String(target), detail == null ? null : JSON.stringify(detail), ip(req)).run();
+}
+/** The account an action is about: by id (preferred) or by name. */
+async function findUser(env, b) {
+  const u = b.id != null
+    ? await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(+b.id).first()
+    : await env.DB.prepare("SELECT * FROM users WHERE name = ?").bind(String(b.name ?? b.from ?? "")).first();
+  if (!u) fail(404, "no such account");
+  return u;
+}
+const who = u => u.name || `#${u.id}`;
+
 async function admin(req, env, action) {
-  if (!env.ADMIN_KEY || req.headers.get("X-Admin-Key") !== env.ADMIN_KEY) fail(403, "forbidden");
+  await adminAuth(req, env);
+  if (req.method === "GET") {
+    const q = new URL(req.url).searchParams;
+    if (action === "overview") return adminOverview(env);
+    if (action === "players") return adminPlayers(env, q);
+    if (action === "player") return adminPlayer(env, q);
+    if (action === "runs") return adminRuns(env, q);
+    if (action === "log") {
+      const r = await env.DB.prepare("SELECT * FROM admin_log ORDER BY at DESC LIMIT 200").all();
+      return json({ rows: r.results });
+    }
+    fail(404, "unknown admin view");
+  }
+  if (req.method !== "POST") fail(405, "method not allowed");
   const b = await body(req);
-  if (action === "remove-score") {
-    const r = await env.DB.prepare("UPDATE scores SET removed = 1 WHERE id = ?").bind(b.id).run();
-    return json({ removed: r.meta.changes });
+  if (action === "remove-score" || action === "restore-score") {
+    const off = action === "remove-score" ? 1 : 0;
+    const run = await env.DB.prepare("SELECT s.id, s.board, s.dev, s.wpm, u.name FROM scores s LEFT JOIN users u ON u.id = s.user_id WHERE s.id = ?").bind(+b.id).first();
+    if (!run) fail(404, "no such run");
+    await env.DB.prepare("UPDATE scores SET removed = ? WHERE id = ?").bind(off, run.id).run();
+    await logAction(env, req, action, `run #${run.id}`, { player: run.name, board: run.board, dev: run.dev, wpm: run.wpm });
+    return json({ ok: true, removed: off });
   }
   if (action === "ban") {
-    const r = await env.DB.prepare("UPDATE users SET banned = ? WHERE name = ?").bind(b.ban === false ? 0 : 1, b.name).run();
-    return json({ updated: r.meta.changes });
+    const u = await findUser(env, b), on = b.ban === false ? 0 : 1;
+    await env.DB.prepare("UPDATE users SET banned = ? WHERE id = ?").bind(on, u.id).run();
+    await logAction(env, req, on ? "ban" : "unban", who(u));
+    return json({ ok: true, banned: on });
   }
   if (action === "set-name") {
     // Give an account any name, including a reserved one (e.g. the owner's own handle). The account
     // keeps its scores, stats and recovery code, and this doesn't count toward the 60-day rename limit.
     const to = String(b.to || "").trim();
     if (!/^[A-Za-z0-9_]{3,16}$/.test(to)) fail(400, "use 3–16 letters, numbers or _");
-    const u = await env.DB.prepare("SELECT id FROM users WHERE name = ?").bind(b.from).first();
-    if (!u) fail(404, "no account has that name");
+    const u = await findUser(env, b);
     if (!(await nameFree(env, to, u.id))) fail(409, "that name is taken");
     await env.DB.prepare("UPDATE users SET name = ? WHERE id = ?").bind(to, u.id).run();
-    return json({ name: to });
+    await logAction(env, req, "set-name", who(u), { to });
+    return json({ ok: true, name: to });
   }
   if (action === "release-name") {
-    const r = await env.DB.prepare("UPDATE users SET name = NULL WHERE name = ?").bind(b.name).run();
-    return json({ updated: r.meta.changes });
+    const u = await findUser(env, b);
+    await env.DB.prepare("UPDATE users SET name = NULL WHERE id = ?").bind(u.id).run();
+    await logAction(env, req, "release-name", who(u));
+    return json({ ok: true });
+  }
+  if (action === "delete-user") {
+    const u = await findUser(env, b);
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM scores WHERE user_id = ?").bind(u.id),
+      env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id),
+    ]);
+    await logAction(env, req, "delete-user", who(u));
+    return json({ ok: true });
   }
   fail(404, "unknown admin action");
+}
+
+async function adminOverview(env) {
+  const now = Date.now(), dayStart = (utcDay(now) - 1) * DAY + Date.UTC(2026, 8, 30), week = now - 7 * DAY, today = utcDay(now);
+  const one = (sql, ...a) => env.DB.prepare(sql).bind(...a);
+  const [players, runs, byBoard, byDev, perDay, daily, top] = await env.DB.batch([
+    one(`SELECT COUNT(*) AS total,
+           SUM(created >= ?1) AS newToday, SUM(created >= ?2) AS newWeek,
+           SUM(last_seen >= ?1) AS activeToday, SUM(last_seen >= ?2) AS activeWeek,
+           SUM(name IS NULL) AS nameless, SUM(banned) AS banned FROM users`, dayStart, week),
+    one(`SELECT COUNT(*) AS total, SUM(created >= ?1) AS today, SUM(created >= ?2) AS week,
+           SUM(removed) AS removed FROM scores`, dayStart, week),
+    one(`SELECT board, COUNT(*) AS n FROM scores WHERE created >= ? AND removed = 0 GROUP BY board`, week),
+    one(`SELECT dev, COUNT(*) AS n FROM scores WHERE created >= ? AND removed = 0 GROUP BY dev`, week),
+    one(`SELECT CAST((created - ?1) / 86400000 AS INTEGER) + 1 AS day, COUNT(*) AS n, COUNT(DISTINCT user_id) AS players
+           FROM scores WHERE created >= ?2 AND removed = 0 GROUP BY day ORDER BY day`, Date.UTC(2026, 8, 30), now - 14 * DAY),
+    one(`SELECT day, COUNT(*) AS n FROM scores WHERE board = 'daily' AND removed = 0 AND day >= ? GROUP BY day ORDER BY day`, today - 13),
+    one(`SELECT s.id, s.board, s.dev, s.wpm, s.acc, u.name FROM scores s JOIN users u ON u.id = s.user_id
+           WHERE s.created >= ? AND s.removed = 0 ORDER BY s.wpm DESC LIMIT 8`, dayStart),
+  ]);
+  return json({
+    today, players: players.results[0], runs: runs.results[0],
+    byBoard: byBoard.results, byDev: byDev.results, perDay: perDay.results, daily: daily.results, top: top.results,
+  });
+}
+async function adminPlayers(env, q) {
+  const term = (q.get("q") || "").trim(), off = Math.max(0, parseInt(q.get("offset"), 10) || 0);
+  const r = await env.DB.prepare(`
+    SELECT u.id, u.name, u.created, u.last_seen, u.banned, u.renamed,
+      (SELECT COUNT(*) FROM scores s WHERE s.user_id = u.id) AS runs,
+      (SELECT MAX(wpm) FROM scores s WHERE s.user_id = u.id AND s.board = 'time60' AND s.removed = 0) AS best60,
+      (SELECT MAX(wpm) FROM scores s WHERE s.user_id = u.id AND s.removed = 0) AS best
+    FROM users u WHERE (?1 = '' OR u.name LIKE '%' || ?1 || '%' OR CAST(u.id AS TEXT) = ?1)
+    ORDER BY u.last_seen DESC LIMIT 50 OFFSET ?2`).bind(term, off).all();
+  const total = await env.DB.prepare(`SELECT COUNT(*) AS n FROM users u WHERE (?1 = '' OR u.name LIKE '%' || ?1 || '%' OR CAST(u.id AS TEXT) = ?1)`).bind(term).first();
+  return json({ rows: r.results, total: total.n });
+}
+async function adminPlayer(env, q) {
+  const u = await findUser(env, { id: q.get("id") });
+  const runs = await env.DB.prepare("SELECT id, board, dev, day, wpm, acc, created, removed FROM scores WHERE user_id = ? ORDER BY created DESC LIMIT 60").bind(u.id).all();
+  let blob = {}; try { blob = JSON.parse(u.blob || "{}") || {}; } catch { blob = {}; }
+  const synced = {
+    clacks: blob.clacks || 0, history: (blob.history || []).length, badges: Object.keys(blob.badges || {}).length,
+    ships: Object.keys((blob.owned || {}).ship || {}).length, trails: Object.keys((blob.owned || {}).trail || {}).length,
+    lessons: Object.values((blob.school || {}).stars || {}).filter(Boolean).length, dailies: Object.keys(blob.daily || {}).length,
+  };
+  return json({
+    user: { id: u.id, name: u.name, created: u.created, last_seen: u.last_seen, renamed: u.renamed, banned: u.banned, renameIn: renameIn(u) },
+    runs: runs.results, synced,
+  });
+}
+async function adminRuns(env, q) {
+  const board = q.get("board") || "", dev = q.get("dev") || "", flagged = q.get("flagged") === "1", removed = q.get("removed") === "1";
+  const r = await env.DB.prepare(`
+    SELECT s.id, s.board, s.dev, s.day, s.wpm, s.acc, s.created, s.removed, s.user_id, u.name
+    FROM scores s LEFT JOIN users u ON u.id = s.user_id
+    WHERE (?1 = '' OR s.board = ?1) AND (?2 = '' OR s.dev = ?2)
+      AND (?3 = 0 OR (s.dev = 'k' AND s.wpm >= ?5) OR (s.dev = 't' AND s.wpm >= ?6))
+      AND (?4 = 0 OR s.removed = 1)
+    ORDER BY s.created DESC LIMIT 150`).bind(board, dev, flagged ? 1 : 0, removed ? 1 : 0, FAST.k, FAST.t).all();
+  return json({ rows: r.results.map(x => ({ ...x, flagged: x.wpm >= FAST[x.dev] })) });
 }

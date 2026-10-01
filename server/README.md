@@ -16,9 +16,17 @@ Cloudflare Worker with a D1 (SQLite) database.
   the best run per player, top 50, plus your own rank.
 - **Sync:** `POST /api/sync` adds counter deltas (key accuracy, activity, clacks) and merges everything else
   (`src/merge.js`), so devices add up instead of overwriting each other.
-- **Moderation:** `POST /api/admin/remove-score {id}`, `/api/admin/ban {name, ban}`, `/api/admin/release-name {name}`,
-  and `/api/admin/set-name {from, to}` (gives an account any name, including a reserved one such as the owner's
-  own handle, without using up its 60-day rename), all with an `X-Admin-Key` header.
+- **Admin** (used by [`admin.html`](../admin.html); every request needs the `X-Admin-Key` header, and wrong keys are
+  locked out after 10 an hour per IP):
+  - reads: `GET /api/admin/overview`, `/players?q=`, `/player?id=`, `/runs?board=&dev=&flagged=1&removed=1`, `/log`
+  - actions (`POST`, each written to the `admin_log` table): `remove-score {id}`, `restore-score {id}`,
+    `ban {id, ban}`, `set-name {id | from, to}` (any name, including reserved ones such as the owner's handle,
+    without using up the 60-day rename), `release-name {id}`, `delete-user {id}`
+
+## Admin page
+
+Open `admin.html` (live at https://bralash.github.io/clack/admin.html) and paste the admin key. It's kept only for
+that browser tab. Served from localhost it talks to the local API; add `?api=<url>` to point it elsewhere.
 
 ## Run it locally
 
@@ -30,7 +38,8 @@ npm test           # unit tests, plus API tests when `npm run dev` is running
 
 In a second terminal, `npm run site` serves the site on `http://localhost:5173`, where it talks to the local API
 automatically. (It has to be served from localhost; opening `index.html` as a file leaves the leaderboard off.)
-To start from a clean database, stop `npm run dev`, delete `.wrangler/` and start it again.
+To start from a clean database, stop `npm run dev`, delete `.wrangler/` and start it again;
+`node scripts/seed-local.mjs` then fills it with a few sample players and runs.
 For local admin calls and a looser sign-up limit, create `.dev.vars`:
 
 ```

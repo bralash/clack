@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Clack admin</title>
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Clack admin: stats and moderation for the leaderboard API (server/). Needs the ADMIN_KEY secret. */
+  :root{--bg:#0f1012;--surface:#16181b;--surface-2:#1d2024;--line:#26292e;--text:#e7e8ea;--dim:#8b8f96;--faint:#5c6066;
+    --gold:#e2b425;--gold-dim:#8a7220;--red:#e5484d;--green:#3fbf63;--blue:#60a5fa;--mono:'JetBrains Mono',ui-monospace,monospace;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;}
+  button,input,select{font-family:var(--mono);font-size:13px;}
+  [hidden]{display:none!important;}
+  a{color:var(--gold);}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+  /* sign in */
+  .login{min-height:100vh;display:grid;place-items:center;padding:20px;}
+  .lbox{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+  .brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:700;}
+  .brand img{width:34px;height:34px;}
+  .brand .c{color:var(--faint)}.brand .a{color:var(--gold)}
+  .brand small{font-size:12px;color:var(--dim);font-weight:500;border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:4px;}
+  .muted{color:var(--dim);line-height:1.6;margin:0;}
+  .in{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text);outline:none;}
+  .in:focus{border-color:var(--gold-dim);}
+  .btn{background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;white-space:nowrap;}
+  .btn:hover{border-color:var(--gold-dim);color:var(--gold);}
+  .btn.primary{background:var(--gold);color:#1a1608;border-color:var(--gold);font-weight:700;}
+  .btn.primary:hover{background:#f0c534;color:#1a1608;}
+  .btn.danger{color:var(--red);}.btn.danger:hover{border-color:var(--red);}
+  .btn.sm{padding:5px 10px;font-size:12px;border-radius:8px;}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .err{color:var(--red);min-height:18px;}
+  /* app */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .top-r{display:flex;align-items:center;gap:10px;color:var(--dim);font-size:12px;}
+  .tabs{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;width:max-content;max-width:100%;overflow-x:auto;margin-bottom:18px;}
+  .tab{background:none;border:0;color:var(--dim);padding:8px 14px;border-radius:9px;cursor:pointer;}
+  .tab:hover{color:var(--text);background:var(--surface-2);}
+  .tab.on{color:var(--gold);background:var(--surface-2);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .kpi b{display:block;font-size:26px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .kpi b.g{color:var(--gold)}
+  .kpi span{color:var(--dim);font-size:11px;}
+  .sec{margin-top:22px;}
+  .sec h3{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--text);letter-spacing:.3px;}
+  .sec h3 small{color:var(--dim);font-weight:400;}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .bars{display:flex;align-items:flex-end;gap:5px;height:130px;padding-top:6px;}
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%;min-width:0;}
+  .bar i{display:block;width:100%;max-width:34px;flex:none;background:var(--gold);border-radius:4px 4px 0 0;min-height:2px;}
+  .bar i.p{background:var(--blue);}
+  .bar span{font-size:10px;color:var(--faint);white-space:nowrap;}
+  .bar em{font-style:normal;font-size:10px;color:var(--dim);}
+  .split{display:flex;flex-direction:column;gap:9px;}
+  .split div{display:grid;grid-template-columns:90px 1fr 46px;gap:10px;align-items:center;}
+  .split .track{height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden;}
+  .split .track i{display:block;height:100%;background:var(--gold);border-radius:999px;}
+  .legend{display:flex;gap:14px;color:var(--dim);font-size:11px;margin-top:8px;}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-weight:500;color:var(--dim);font-size:11px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tr.click{cursor:pointer;}
+  tr.click:hover td{background:var(--surface-2);}
+  tr.sel td{background:rgba(226,180,37,.07);}
+  tr.off td{opacity:.45;}
+  .tablebox{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:auto;}
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .gold{color:var(--gold)}.red{color:var(--red)}.green{color:var(--green)}.dimt{color:var(--dim)}
+  .pill{display:inline-block;font-size:11px;border-radius:999px;padding:2px 8px;border:1px solid var(--line);color:var(--dim);}
+  .pill.ban{color:var(--red);border-color:var(--red);}
+  .pill.flag{color:#ff8a3d;border-color:#ff8a3d;}
+  .bar-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .bar-tools .in{width:auto;flex:1;min-width:200px;}
+  select.in{flex:none;width:auto;}
+  label.chk{display:flex;align-items:center;gap:7px;color:var(--dim);cursor:pointer;}
+  .players{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,1fr);gap:14px;align-items:start;}
+  @media (max-width:900px){.players{grid-template-columns:1fr;}}
+  .detail{position:sticky;top:14px;display:flex;flex-direction:column;gap:14px;}
+  .detail h2{margin:0;font-size:18px;}
+  .kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:12px;}
+  .kv dt{color:var(--dim);}.kv dd{margin:0;}
+  .acts{display:flex;flex-direction:column;gap:10px;}
+  .row{display:flex;gap:8px;flex-wrap:wrap;}
+  .row .in{flex:1;min-width:140px;width:auto;}
+  .empty{color:var(--dim);padding:18px;text-align:center;}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:11px 18px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:10;max-width:90vw;}
+  .toast.bad{border-color:var(--red);color:var(--red);}
+  .toast.ok{border-color:var(--gold-dim);}
+</style>
+</head>
+<body>
+
+<!-- sign in -->
+<div class="login" id="login">
+  <div class="lbox">
+    <div class="brand"><img src="brand/favicon.svg" alt=""><span><span class="c">cl</span><span class="a">ack</span></span><small>admin</small></div>
+    <p class="muted">Paste the admin key — the <b>ADMIN_KEY</b> secret you set on the Worker. It's kept only for this browser tab.</p>
+    <input class="in" id="key" type="password" placeholder="admin key" autocomplete="off" spellcheck="false" aria-label="admin key">
+    <button class="btn primary" id="signin">sign in</button>
+    <div class="err" id="loginErr" aria-live="polite"></div>
+    <p class="muted" style="font-size:11px">API: <span id="apiHost"></span></p>
+  </div>
+</div>
+
+<!-- app -->
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <div class="brand"><img src="brand/favicon.svg" alt=""><span><span class="c">cl</span><span class="a">ack</span></span><small>admin</small></div>
+    <div class="top-r"><span id="apiHost2"></span><button class="btn sm" id="refresh">↻ refresh</button><button class="btn sm" id="signout">sign out</button></div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-v="overview">overview</button>
+    <button class="tab" data-v="players">players</button>
+    <button class="tab" data-v="runs">runs</button>
+    <button class="tab" data-v="log">activity log</button>
+  </div>
+
+  <section id="v-overview"></section>
+
+  <section id="v-players" hidden>
+    <div class="bar-tools"><input class="in" id="pq" placeholder="search by name or id" autocomplete="off" spellcheck="false"></div>
+    <div class="players">
+      <div class="tablebox" id="plist"></div>
+      <div class="detail" id="pdetail"><div class="card empty">pick a player to see their details and actions</div></div>
+    </div>
+  </section>
+
+  <section id="v-runs" hidden>
+    <div class="bar-tools">
+      <select class="in" id="rb"><option value="">all boards</option><option value="daily">daily</option><option value="time30">30s</option><option value="time60">60s</option></select>
+      <select class="in" id="rd"><option value="">keyboard + phone</option><option value="k">keyboard</option><option value="t">phone</option></select>
+      <label class="chk"><input type="checkbox" id="rf"> flagged only</label>
+      <label class="chk"><input type="checkbox" id="rr"> removed only</label>
+    </div>
+    <div class="tablebox" id="rlist"></div>
+  </section>
+
+  <section id="v-log" hidden><div class="tablebox" id="llist"></div></section>
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const API=(()=>{const q=new URLSearchParams(location.search).get("api");if(q)return q.replace(/\/+$/,"");
+  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?"http://127.0.0.1:8787":"https://clack-api.design-critic.workers.dev";})();
+const DAY=864e5,EPOCH=Date.UTC(2026,8,30);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>(+n||0).toLocaleString("en-US");
+const BOARD={daily:"daily",time30:"30s",time60:"60s"},DEV={k:"keyboard",t:"phone"};
+function ago(ms){if(!ms)return "—";const s=(Date.now()-ms)/1000;
+  return s<60?"just now":s<3600?Math.round(s/60)+"m ago":s<86400?Math.round(s/3600)+"h ago":s<86400*30?Math.round(s/86400)+"d ago":new Date(ms).toLocaleDateString();}
+const when=ms=>ms?new Date(ms).toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}):"—";
+const dayLabel=n=>new Date(EPOCH+(n-1)*DAY).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"});
+let KEY=(()=>{try{return sessionStorage.getItem("clack_admin_key")||"";}catch(e){return "";}})();
+$("#apiHost").textContent=$("#apiHost2").textContent=API.replace(/^https?:\/\//,"");
+
+async function api(path,{method="GET",body}={}){
+  const h={"X-Admin-Key":KEY};if(body)h["Content-Type"]="application/json";
+  let r;try{r=await fetch(API+"/api/admin/"+path,{method,headers:h,body:body&&JSON.stringify(body)});}
+  catch(e){throw new Error("can't reach the API at "+API);}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.error||("request failed ("+r.status+")"));e.status=r.status;throw e;}
+  return j;
+}
+let tt=0;
+function toast(msg,bad){const t=$("#toast");t.textContent=msg;t.className="toast "+(bad?"bad":"ok");t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,bad?6000:2600);}
+async function act(path,body,ok){try{const r=await api(path,{method:"POST",body});toast(ok);return r;}catch(e){toast(e.message,true);if(e.status===403)signOut();throw e;}}
+
+/* ---------- sign in ---------- */
+async function signIn(k){
+  KEY=k.trim();$("#loginErr").textContent="checking…";
+  try{await api("overview");try{sessionStorage.setItem("clack_admin_key",KEY);}catch(e){}
+    $("#login").hidden=true;$("#app").hidden=false;$("#loginErr").textContent="";show("overview");}
+  catch(e){KEY="";$("#loginErr").textContent=e.message;}
+}
+function signOut(){KEY="";try{sessionStorage.removeItem("clack_admin_key");}catch(e){}$("#app").hidden=true;$("#login").hidden=false;$("#key").value="";$("#key").focus();}
+$("#signin").onclick=()=>signIn($("#key").value);
+$("#key").onkeydown=e=>{if(e.key==="Enter")signIn($("#key").value);};
+$("#signout").onclick=signOut;
+
+/* ---------- tabs ---------- */
+let view="overview";
+function show(v){view=v;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.v===v));
+  for(const s of ["overview","players","runs","log"])$("#v-"+s).hidden=s!==v;
+  ({overview:loadOverview,players:loadPlayers,runs:loadRuns,log:loadLog})[v]();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.v));
+$("#refresh").onclick=()=>{show(view);if(view==="players"&&selId)openPlayer(selId);};
+
+/* ---------- overview ---------- */
+async function loadOverview(){
+  const box=$("#v-overview");box.innerHTML=`<div class="empty">loading…</div>`;
+  let o;try{o=await api("overview");}catch(e){box.innerHTML=`<div class="card err">${esc(e.message)}</div>`;return;}
+  const P=o.players,R=o.runs,kpi=(v,l,g)=>`<div class="kpi"><b class="${g?"g":""}">${fmt(v)}</b><span>${l}</span></div>`;
+  // the last 14 days, oldest first, filling in empty days
+  const days=[];for(let d=o.today-13;d<=o.today;d++)days.push(d);
+  const per=Object.fromEntries(o.perDay.map(x=>[x.day,x])),dly=Object.fromEntries(o.daily.map(x=>[x.day,x.n]));
+  const maxRuns=Math.max(1,...days.map(d=>per[d]?.n||0)),maxDaily=Math.max(1,...days.map(d=>dly[d]||0));
+  const split=(rows,key,names)=>{const tot=rows.reduce((s,r)=>s+r.n,0)||1;
+    return Object.entries(names).map(([k,label])=>{const n=(rows.find(r=>r[key]===k)||{}).n||0;
+      return `<div><span class="dimt">${label}</span><span class="track"><i style="width:${n/tot*100}%"></i></span><span class="num">${fmt(n)}</span></div>`;}).join("");};
+  box.innerHTML=`
+    <div class="grid">
+      ${kpi(P.total,"players",1)}${kpi(P.newToday,"new today")}${kpi(P.newWeek,"new this week")}
+      ${kpi(P.activeToday,"active today")}${kpi(P.activeWeek,"active this week")}
+      ${kpi(R.total,"runs, all time",1)}${kpi(R.today,"runs today")}${kpi(R.week,"runs this week")}
+      ${kpi(P.banned,"banned")}${kpi(P.nameless,"without a name")}${kpi(R.removed,"runs removed")}
+    </div>
+    <div class="sec cols">
+      <div class="card"><h3>runs per day <small>— last 14 days</small></h3>
+        <div class="bars">${days.map(d=>{const x=per[d]||{n:0,players:0};
+          return `<div class="bar" title="${dayLabel(d)}: ${x.n} runs by ${x.players} players"><em>${x.n||""}</em><i style="height:${x.n/maxRuns*100}%"></i><span>${dayLabel(d).split(" ")[1]}</span></div>`;}).join("")}</div></div>
+      <div class="card"><h3>daily challenge players <small>— last 14 days</small></h3>
+        <div class="bars">${days.filter(d=>d>=1).map(d=>`<div class="bar" title="daily #${d} (${dayLabel(d)}): ${dly[d]||0} players"><em>${dly[d]||""}</em><i class="p" style="height:${(dly[d]||0)/maxDaily*100}%"></i><span>#${d}</span></div>`).join("")}</div></div>
+    </div>
+    <div class="sec cols">
+      <div class="card"><h3>runs by board <small>— this week</small></h3><div class="split">${split(o.byBoard,"board",BOARD)}</div></div>
+      <div class="card"><h3>keyboard vs phone <small>— this week</small></h3><div class="split">${split(o.byDev,"dev",DEV)}</div></div>
+    </div>
+    <div class="sec"><h3>fastest runs today</h3>
+      <div class="tablebox">${o.top.length?`<table><tr><th>player</th><th>board</th><th>device</th><th class="num">wpm</th><th class="num">acc</th></tr>
+        ${o.top.map(t=>`<tr><td>${esc(t.name)}</td><td>${BOARD[t.board]}</td><td class="dimt">${DEV[t.dev]}</td><td class="num gold">${t.wpm}</td><td class="num">${t.acc}%</td></tr>`).join("")}</table>`
+        :`<div class="empty">no runs yet today</div>`}</div></div>`;
+}
+
+/* ---------- players ---------- */
+let selId=null,pTimer=0;
+async function loadPlayers(){
+  const box=$("#plist");box.innerHTML=`<div class="empty">loading…</div>`;
+  let r;try{r=await api("players?q="+encodeURIComponent($("#pq").value.trim()));}catch(e){box.innerHTML=`<div class="empty err">${esc(e.message)}</div>`;return;}
+  box.innerHTML=r.rows.length?`<table><tr><th>name</th><th>id</th><th>joined</th><th>last seen</th><th class="num">runs</th><th class="num">best 60s</th><th class="num">best</th><th></th></tr>
+    ${r.rows.map(u=>`<tr class="click ${u.id===selId?"sel":""}" data-id="${u.id}"><td>${u.name?esc(u.name):'<span class="dimt">(no name)</span>'}</td><td class="dimt">${u.id}</td>
+      <td class="dimt">${ago(u.created)}</td><td>${ago(u.last_seen)}</td><td class="num">${u.runs}</td><td class="num">${u.best60??"—"}</td><td class="num gold">${u.best??"—"}</td>
+      <td>${u.banned?'<span class="pill ban">banned</span>':""}</td></tr>`).join("")}</table>
+    <div class="empty" style="text-align:left">${r.total} ${r.total===1?"player":"players"}${r.total>r.rows.length?` · showing the ${r.rows.length} seen most recently`:""}</div>`
+    :`<div class="empty">no players match</div>`;
+  box.querySelectorAll("tr[data-id]").forEach(tr=>tr.onclick=()=>openPlayer(+tr.dataset.id));
+}
+$("#pq").oninput=()=>{clearTimeout(pTimer);pTimer=setTimeout(loadPlayers,250);};
+async function openPlayer(id){
+  selId=id;document.querySelectorAll("#plist tr[data-id]").forEach(tr=>tr.classList.toggle("sel",+tr.dataset.id===id));
+  const box=$("#pdetail");box.innerHTML=`<div class="card empty">loading…</div>`;
+  let d;try{d=await api("player?id="+id);}catch(e){box.innerHTML=`<div class="card err">${esc(e.message)}</div>`;return;}
+  const u=d.user,s=d.synced,label=u.name||"#"+u.id;
+  box.innerHTML=`
+    <div class="card">
+      <h2>${u.name?esc(u.name):'<span class="dimt">(no name)</span>'} ${u.banned?'<span class="pill ban">banned</span>':""}</h2>
+      <dl class="kv" style="margin-top:12px">
+        <dt>id</dt><dd>${u.id}</dd><dt>joined</dt><dd>${when(u.created)}</dd><dt>last seen</dt><dd>${when(u.last_seen)} <span class="dimt">(${ago(u.last_seen)})</span></dd>
+        <dt>renamed</dt><dd>${u.renamed?when(u.renamed)+(u.renameIn?` <span class="dimt">· next change in ${u.renameIn}d</span>`:""):"never"}</dd>
+        <dt>synced</dt><dd>${fmt(s.clacks)} clacks · ${s.badges} badges · ${s.ships} ships · ${s.trails} trails · ${s.lessons} lessons · ${s.dailies} dailies · ${s.history} runs in history</dd>
+      </dl>
+    </div>
+    <div class="card acts">
+      <h3 style="margin:0">actions</h3>
+      <div class="row"><input class="in" id="newName" placeholder="new name (reserved names allowed)" value="${esc(u.name||"")}" maxlength="16" spellcheck="false">
+        <button class="btn" id="aRename">rename</button></div>
+      <div class="row">
+        <button class="btn ${u.banned?"":"danger"}" id="aBan">${u.banned?"unban":"ban from the boards"}</button>
+        <button class="btn" id="aRelease" ${u.name?"":"disabled"}>release name</button>
+      </div>
+      <div class="row"><input class="in" id="delConfirm" placeholder="type ${esc(label)} to delete" spellcheck="false">
+        <button class="btn danger" id="aDelete" disabled>delete account</button></div>
+      <p class="muted" style="font-size:11px">Ban hides every run from the boards. Release frees the name for anyone. Delete removes the account and all its runs, for good.</p>
+    </div>
+    <div class="card" style="padding:0;overflow:auto">
+      <h3 style="margin:14px 16px 4px">recent runs <small class="dimt">— ${d.runs.length}</small></h3>
+      ${d.runs.length?`<table>${d.runs.map(r=>runRow(r,false)).join("")}</table>`:`<div class="empty">no runs</div>`}
+    </div>`;
+  const reload=()=>{openPlayer(id);if(view==="players")loadPlayers();};
+  $("#aRename").onclick=async()=>{const to=$("#newName").value.trim();if(!to||to===u.name)return;
+    try{await act("set-name",{id,to},`renamed to ${to}`);reload();}catch(e){}};
+  $("#aBan").onclick=async()=>{try{await act("ban",{id,ban:!u.banned},u.banned?`${label} unbanned`:`${label} banned`);reload();}catch(e){}};
+  $("#aRelease").onclick=async()=>{if(!confirm(`Free the name "${u.name}"? The account keeps its runs but has no name until it picks one.`))return;
+    try{await act("release-name",{id},`released ${u.name}`);reload();}catch(e){}};
+  $("#delConfirm").oninput=e=>{$("#aDelete").disabled=e.target.value.trim()!==label;};
+  $("#aDelete").onclick=async()=>{try{await act("delete-user",{id},`deleted ${label}`);selId=null;
+    $("#pdetail").innerHTML=`<div class="card empty">account deleted</div>`;loadPlayers();}catch(e){}};
+  wireRuns(box,()=>openPlayer(id));
+}
+
+/* ---------- runs ---------- */
+function runRow(r,withName){
+  return `<tr class="${r.removed?"off":""}">
+    <td class="dimt" title="${when(r.created)}">${withName?when(r.created):ago(r.created)}</td>
+    ${withName?`<td>${r.name?`<a href="#" data-player="${r.user_id}">${esc(r.name)}</a>`:'<span class="dimt">(no name)</span>'}</td>`:""}
+    <td>${BOARD[r.board]||r.board}${r.board==="daily"?` <span class="dimt">#${r.day}</span>`:""}</td><td class="dimt">${DEV[r.dev]}</td>
+    <td class="num ${r.flagged?"":"gold"}">${r.wpm}${r.flagged?' <span class="pill flag" title="unusually fast — worth a look">fast</span>':""}</td><td class="num">${r.acc}%</td>
+    <td class="num">${r.removed?`<button class="btn sm" data-restore="${r.id}">restore</button>`:`<button class="btn sm danger" data-remove="${r.id}">remove</button>`}</td></tr>`;
+}
+function wireRuns(box,after){
+  box.querySelectorAll("[data-remove]").forEach(b=>b.onclick=async()=>{try{await act("remove-score",{id:+b.dataset.remove},"run removed from the boards");after();}catch(e){}});
+  box.querySelectorAll("[data-restore]").forEach(b=>b.onclick=async()=>{try{await act("restore-score",{id:+b.dataset.restore},"run restored");after();}catch(e){}});
+  box.querySelectorAll("[data-player]").forEach(a=>a.onclick=e=>{e.preventDefault();show("players");openPlayer(+a.dataset.player);});
+}
+async function loadRuns(){
+  const box=$("#rlist");box.innerHTML=`<div class="empty">loading…</div>`;
+  const q=`runs?board=${$("#rb").value}&dev=${$("#rd").value}&flagged=${$("#rf").checked?1:0}&removed=${$("#rr").checked?1:0}`;
+  let r;try{r=await api(q);}catch(e){box.innerHTML=`<div class="empty err">${esc(e.message)}</div>`;return;}
+  box.innerHTML=r.rows.length?`<table><tr><th>when</th><th>player</th><th>board</th><th>device</th><th class="num">wpm</th><th class="num">acc</th><th></th></tr>${r.rows.map(x=>runRow(x,true)).join("")}</table>
+    <div class="empty" style="text-align:left">latest ${r.rows.length} · "fast" marks keyboard runs from 150 wpm and phone runs from 110 wpm</div>`:`<div class="empty">no runs match</div>`;
+  wireRuns(box,loadRuns);
+}
+for(const id of ["#rb","#rd","#rf","#rr"])$(id).onchange=loadRuns;
+
+/* ---------- activity log ---------- */
+// "swift_keys · daily · keyboard · 177 wpm" for runs, "→ bra_lash" for renames
+function logDetail(raw){
+  if(!raw)return "";let d;try{d=JSON.parse(raw);}catch(e){return raw;}
+  if(d.to)return "→ "+d.to;
+  if(d.board)return [d.player||"(no name)",BOARD[d.board]||d.board,DEV[d.dev]||d.dev,d.wpm+" wpm"].join(" · ");
+  return raw;
+}
+async function loadLog(){
+  const box=$("#llist");box.innerHTML=`<div class="empty">loading…</div>`;
+  let r;try{r=await api("log");}catch(e){box.innerHTML=`<div class="empty err">${esc(e.message)}</div>`;return;}
+  box.innerHTML=r.rows.length?`<table><tr><th>when</th><th>action</th><th>on</th><th>detail</th><th>from</th></tr>
+    ${r.rows.map(x=>`<tr><td class="dimt">${when(x.at)}</td><td class="gold">${esc(x.action)}</td><td>${esc(x.target)}</td><td class="dimt">${esc(logDetail(x.detail))}</td><td class="dimt">${esc(x.ip)}</td></tr>`).join("")}</table>`
+    :`<div class="empty">no admin actions yet</div>`;
+}
+
+if(KEY)signIn(KEY);else $("#key").focus();
+</script>
+</body>
+</html>

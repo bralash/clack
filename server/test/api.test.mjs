@@ -90,6 +90,34 @@ test("admin can give an account a reserved name; players can't take it", opts, a
   await call("/api/me", { method: "DELETE", code: u.code });
 });
 
+test("admin page: overview, players, runs, actions and the log", opts, async () => {
+  const K = "local-admin-key", get = p => call("/api/admin/" + p, { admin: K }), post = (p, body) => call("/api/admin/" + p, { method: "POST", body, admin: K });
+  assert.equal((await call("/api/admin/overview", { admin: "nope" })).status, 403);
+  assert.equal((await call("/api/admin/overview", { admin: "  " + K + "\n" })).status, 200, "stray spaces around the key are ignored");
+  const u = (await call("/api/register", { method: "POST", body: { name: "adm_" + tag } })).body;
+  const seed = 77 + Math.floor(Math.random() * 1e6), run = typeWords(timeWords(seed), { maxMs: 30000 });
+  const sc = await call("/api/scores", { method: "POST", code: u.code, body: { board: "time30", seed, dev: "t", ...run } });
+  assert.equal(sc.status, 201);
+  const ov = (await get("overview")).body;
+  assert.ok(ov.players.total >= 1 && ov.runs.total >= 1); assert.ok(Array.isArray(ov.perDay) && Array.isArray(ov.top));
+  const pl = (await get("players?q=adm_" + tag)).body;
+  assert.equal(pl.rows.length, 1); const id = pl.rows[0].id; assert.equal(pl.rows[0].runs, 1);
+  const pd = (await get("player?id=" + id)).body;
+  assert.equal(pd.user.name, "adm_" + tag); assert.equal(pd.runs.length, 1);
+  const runs = (await get("runs?dev=t")).body.rows; const mine = runs.find(r => r.user_id === id);
+  assert.ok(mine, "the phone run is listed");
+  assert.equal((await post("remove-score", { id: mine.id })).body.removed, 1);
+  assert.equal((await get("runs?removed=1")).body.rows.some(r => r.id === mine.id), true);
+  assert.equal((await post("restore-score", { id: mine.id })).body.removed, 0);
+  assert.equal((await post("ban", { id, ban: true })).body.banned, 1);
+  assert.equal((await post("ban", { id, ban: false })).body.banned, 0);
+  assert.equal((await post("set-name", { id, to: "adm2_" + tag })).body.name, "adm2_" + tag);
+  const log = (await get("log")).body.rows.slice(0, 6).map(r => r.action);
+  for (const a of ["set-name", "unban", "ban", "restore-score", "remove-score"]) assert.ok(log.includes(a), "logged " + a);
+  assert.equal((await post("delete-user", { id })).status, 200);
+  assert.equal((await get("player?id=" + id)).status, 404);
+});
+
 test("sync: two devices add up instead of overwriting", opts, async () => {
   const u = (await call("/api/register", { method: "POST", body: { name: "sync_" + tag } })).body;
   const laptop = await call("/api/sync", { method: "POST", code: u.code, body: {
