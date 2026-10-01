@@ -113,7 +113,8 @@
     font-family:var(--mono);font-size:11px;color:var(--text-dim);}
   .cal-months span{grid-row:1;white-space:nowrap;}
   .cal-body{display:flex;gap:6px;}
-  .cal-dow{display:grid;grid-template-rows:repeat(7,14px);gap:3px;width:24px;
+  .cal-dow{display:grid;grid-template-rows:repeat(7,14px);gap:3px;width:24px;flex:none;
+    position:sticky;left:0;z-index:1;background:var(--bg);   /* stays put while the grid scrolls */
     font-family:var(--mono);font-size:9px;color:var(--text-faint);}
   .cal-dow span{display:flex;align-items:center;height:14px;}
   .cal-grid{display:grid;grid-template-rows:repeat(7,14px);grid-auto-columns:14px;
@@ -279,9 +280,24 @@
     font-size:12px;cursor:pointer;padding:4px 0 0;letter-spacing:.5px;
     white-space:nowrap;}
   .linkbtn:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px;}
-  .headnav{margin-left:auto;display:flex;align-items:center;gap:10px;padding-top:4px;}
-  .headnav .linkbtn{padding:0;}
+  .headnav{margin-left:auto;display:flex;align-items:center;gap:4px;padding-top:2px;}
   .dotsep{color:var(--text-faint);font-family:var(--mono);font-size:12px;}
+  /* icon buttons in the home header; the label shows as a tooltip on hover / keyboard focus */
+  .navbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    height:38px;min-width:38px;padding:0 9px;border-radius:10px;border:1px solid transparent;background:none;
+    color:var(--text-dim);font-family:var(--mono);font-size:13px;cursor:pointer;}
+  .navbtn svg{width:19px;height:19px;display:block;}
+  .navbtn:hover{color:var(--gold);background:var(--surface);border-color:var(--line);}
+  .navbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .navbtn.bal{border-color:var(--line);background:var(--surface);margin-left:6px;}
+  .navbtn.bal .ck{width:16px;height:16px;}
+  .navbtn[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%) translateY(-3px);
+    white-space:nowrap;font-size:11px;letter-spacing:.3px;color:var(--text);background:var(--surface-2);border:1px solid var(--line);
+    border-radius:7px;padding:5px 9px;pointer-events:none;opacity:0;transition:opacity .12s,transform .12s;z-index:5;}
+  .navbtn[data-tip]:hover::after,.navbtn[data-tip]:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0);}
+  .navbtn.bal[data-tip]::after{left:auto;right:0;transform:translateY(-3px);}
+  .navbtn.bal[data-tip]:hover::after,.navbtn.bal[data-tip]:focus-visible::after{transform:translateY(0);}
+  @media (hover:none){.navbtn[data-tip]::after{display:none;}}
   .res-help{margin-top:22px;}
 
   /* ---------- CLACK SCHOOL ---------- */
@@ -413,7 +429,7 @@
   .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
   /* ---------- SHARE DIALOG ---------- */
-  .share-scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:40;}
+  .share-scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;}
   .share{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:41;
     width:min(560px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;
     background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px 16px;
@@ -530,8 +546,19 @@
   @media (prefers-reduced-motion:reduce){.pb-badge.pop{animation:none;}}
 
   /* ---------- LEADERBOARD ---------- */
-  .lb-who{font-family:var(--mono);font-size:12px;color:var(--text-dim);max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .lb-who b{color:var(--gold);font-weight:600;}
+  .lb-chip{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px;cursor:pointer;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    display:inline-flex;align-items:center;gap:7px;}
+  .lb-chip:hover{border-color:var(--gold-dim);color:var(--gold);}
+  .lb-chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .lb-chip i{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none;}
+  .lb-chip.join{color:#1a1608;background:var(--gold);border-color:var(--gold);font-weight:700;}
+  .lb-chip.join:hover{background:#f0c534;color:#1a1608;}
+  .acct{width:min(440px,calc(100% - 32px));}
+  .acct:focus{outline:none;}
+  .acct .lb-card{background:none;border:0;padding:0;}
+  .acct .lb-acts{align-items:center;}
+  .lb-danger{border-top:1px solid var(--line);padding-top:12px;margin-top:4px;}
   .lb-tabs,.st-dev{align-self:flex-start;}
   .lb-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;}
   .lb-bar .mchip{font-size:12px;padding:6px 11px;}
@@ -640,16 +667,20 @@
         <div class="head">
           <div class="brand"><img class="brand-mark" src="brand/favicon.svg" alt="" width="44" height="44">
             <div><span class="brand-word">cl<b>ack</b></span><span class="sub">a minimalistic typing test</span></div></div>
-          <nav class="headnav">
-            <button class="linkbtn" id="boardBtn" hidden>leaderboard</button>
-            <span class="dotsep" id="boardSep" aria-hidden="true" hidden>·</span>
-            <button class="linkbtn" id="schoolBtn">clack school</button>
-            <span class="dotsep" aria-hidden="true">·</span>
-            <button class="linkbtn bal" id="storeBtn" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span> store</button>
-            <span class="dotsep" aria-hidden="true">·</span>
-            <button class="linkbtn" id="helpBtn">how it works</button>
-            <span class="dotsep" aria-hidden="true">·</span>
-            <button class="linkbtn" id="statsBtn">detailed stats →</button>
+          <nav class="headnav" aria-label="menu">
+            <button class="navbtn" id="boardBtn" data-tip="leaderboard" aria-label="leaderboard" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 3.6M16 6h2.5a2.5 2.5 0 0 1-2.6 3.6"/><path d="M12 13v3.5M9 20h6M10 16.5h4V20h-4z"/></svg></button>
+            <button class="navbtn" id="schoolBtn" data-tip="clack school" aria-label="clack school">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6v4.1c1.5 1.4 3.4 2.1 5.5 2.1s4-.7 5.5-2.1v-4.1"/><path d="M21.5 9.5v5"/></svg></button>
+            <button class="navbtn" id="statsBtn" data-tip="stats" aria-label="detailed stats">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg></button>
+            <button class="navbtn" id="helpBtn" data-tip="how it works" aria-label="how it works">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 17.2v.1"/></svg></button>
+            <button class="navbtn bal" id="storeBtn" data-tip="store" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span></button>
           </nav>
         </div>
         <div class="totals">
@@ -873,7 +904,7 @@
         <div class="st-top">
           <div class="quit" id="lbBack">← back</div>
           <div class="st-title">leaderboard</div>
-          <div class="lb-who" id="lbWho"></div>
+          <button class="lb-chip" id="lbWho" aria-haspopup="dialog"></button>
         </div>
         <div class="st-sec">
           <div class="modebar lb-tabs" id="lbTabs" role="tablist" aria-label="leaderboard">
@@ -891,8 +922,14 @@
           <div class="lb-list" id="lbList" aria-live="polite"></div>
           <div class="lb-foot" id="lbFoot"></div>
         </div>
-        <div class="st-sec" id="lbAccount"></div>
       </div>
+    </div>
+    <!-- your name: claim / restore / rename / recovery code, in a dialog so the board stays the focus -->
+    <div class="share-scrim" id="acctScrim" hidden></div>
+    <div class="share acct" id="acctBox" role="dialog" aria-modal="true" aria-labelledby="acctTitle" hidden>
+      <div class="share-top"><div class="share-title" id="acctTitle">your name</div>
+        <button class="share-x" id="acctClose" aria-label="close">✕</button></div>
+      <div id="lbAccount"></div>
     </div>
   </section>
 
@@ -1130,16 +1167,13 @@ function renderMonths(){
   const start=new Date(now);
   start.setDate(start.getDate()-now.getDay()-(WEEKS-1)*7);
   const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  let cells="",labels="",lastMonth=-1;
+  let cells="",lastMonth=-1;const marks=[];
   const d=new Date(start);
   for(let w=0;w<WEEKS;w++){
     for(let dowi=0;dowi<7;dowi++){
       const cur=new Date(d);
       // month label on the column where a new month first appears (top row)
-      if(dowi===0 && cur.getMonth()!==lastMonth){
-        lastMonth=cur.getMonth();
-        labels+=`<span style="grid-column:${w+1}">${MONTHS[lastMonth]}</span>`;
-      }
+      if(dowi===0 && cur.getMonth()!==lastMonth){lastMonth=cur.getMonth();marks.push([w,lastMonth]);}
       if(cur>now){cells+='<div class="cell empty"></div>';}
       else{
         const rec=DATA[dayKey(cur)];
@@ -1150,6 +1184,9 @@ function renderMonths(){
       d.setDate(d.getDate()+1);
     }
   }
+  // a month that only shows for a column or two at the left edge would collide with the next label
+  const labels=marks.filter((m,i)=>!marks[i+1]||marks[i+1][0]-m[0]>=3)
+    .map(([w,m])=>`<span style="grid-column:${w+1}">${MONTHS[m]}</span>`).join("");
   const dowArr=["","Mon","","Wed","","Fri",""];
   el.months.innerHTML=`
     <div class="cal-wrap">
@@ -2676,7 +2713,7 @@ async function api(path,{method="GET",body,code=ON.code}={}){
 
 /* ---------- posting runs ---------- */
 function showResBoard(html){const b=$("#rBoard");b.hidden=!html;b.innerHTML=html||"";
-  const j=$("#rJoin");if(j)j.onclick=()=>openBoard($("#rJoin").dataset.b);
+  const j=$("#rJoin");if(j)j.onclick=()=>{openBoard($("#rJoin").dataset.b);openAccount();};
   const v=$("#rView");if(v)v.onclick=()=>openBoard($("#rView").dataset.b);}
 const rankLine=(run,r)=>{
   const where=run.board==="daily"?`daily #${run.day}`:`today's ${BOARD_NAME[run.board]}`;
@@ -2826,7 +2863,10 @@ function renderBoardBar(){
       `<button class="mchip ${LB.range===k?"active":""}" data-range="${k}" role="tab" aria-selected="${LB.range===k}">${l}</button>`).join("");
     w.querySelectorAll("[data-range]").forEach(x=>x.onclick=()=>{LB.range=x.dataset.range;loadBoard();});
   }
-  $("#lbWho").innerHTML=joined()?`<b>${escHtml(ON.name)}</b>`:needsName()?"pick a name":"not on the board";
+  const who=$("#lbWho");
+  who.className="lb-chip"+(joined()?"":" join");
+  who.innerHTML=joined()?`<i></i>${escHtml(ON.name)}`:needsName()?"pick a name":"join";
+  who.setAttribute("aria-label",joined()?`you're ${ON.name} — manage your name`:"join the leaderboard");
 }
 async function loadBoard(){
   renderBoardBar();
@@ -2844,12 +2884,23 @@ async function loadBoard(){
     if(r.me&&!r.rows.some(x=>x.me))h+=`<div class="lb-gap">···</div>`+row({...r.me,me:true});
     const where=LB.b==="daily"?`daily #${LB.day}`:"this board";
     list.innerHTML=h||`<div class="empty">no one is on ${where} yet${LB.dev==="t"?" for phones":""} — ${LB.b==="daily"?"play the daily from the home screen":"finish a "+BOARD_NAME[LB.b]+" run"} to be first</div>`;
-    $("#lbFoot").textContent=r.total?`${r.total} ${r.total===1?"player":"players"} · each player's best run · every run is re-checked from its keystrokes`:"";
+    $("#lbFoot").textContent=r.total?`${r.total} ${r.total===1?"player":"players"} · best run each`:"";
   }catch(e){
     if(my!==LB.req)return;
     list.innerHTML=`<div class="empty">${escHtml(e.message)}</div>`;$("#lbFoot").textContent="";
   }
 }
+function openAccount(){
+  LB.confirm=null;renderAccount();
+  $("#acctScrim").hidden=false;$("#acctBox").hidden=false;
+  const f=$("#acctBox input:not([disabled])"),box=$("#acctBox");
+  if(f)f.focus();else{box.tabIndex=-1;box.focus({preventScroll:true});}   // focus the dialog itself, not a ringed button
+}
+function closeAccount(){$("#acctScrim").hidden=true;$("#acctBox").hidden=true;
+  if(LB.fresh){LB.fresh=null;LB.showCode=false;}renderBoardBar();}
+$("#lbWho").onclick=openAccount;
+$("#acctClose").onclick=closeAccount;$("#acctScrim").onclick=closeAccount;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#acctBox").hidden){e.preventDefault();closeAccount();}});
 document.querySelectorAll("#lbTabs .mchip").forEach(x=>x.onclick=()=>{LB.b=x.dataset.b;loadBoard();});
 document.querySelectorAll("#lbDev .mchip").forEach(x=>x.onclick=()=>{LB.dev=x.dataset.dev;loadBoard();});
 $("#lbBack").onclick=closeBoard;
@@ -2858,12 +2909,13 @@ $("#boardBtn").onclick=()=>openBoard();
 /* ---------- your name: claim, restore, rename, recovery code ---------- */
 const NAME_RE=/^[A-Za-z0-9_]{3,16}$/;
 function renderAccount(note){
-  const box=$("#lbAccount");
+  const box=$("#lbAccount"),title=t=>{$("#acctTitle").textContent=t;};
   if(!API){box.innerHTML="";return;}
+  renderBoardBar();
   if(needsName()){
+    title("pick a new name");
     box.innerHTML=`<div class="lb-card">
-      <div class="st-h">pick a new name</div>
-      <p>Your old name was released after six months away. Your stats and clacks are safe — pick a name to get back on the board.</p>
+      <p>Your old name was released after six months away. Your stats and clacks are safe.</p>
       <div class="lb-form"><input class="lb-input" id="lbNew" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="name">
         <button class="btn primary" id="lbRename">save name</button></div>
       <div class="lb-msg" id="lbNMsg">3–16 letters, numbers or _</div></div>`;
@@ -2877,15 +2929,14 @@ function renderAccount(note){
   }
   if(!joined()){
     const pend=ON.pending.length;
+    title("join the leaderboard");
     box.innerHTML=`<div class="lb-card">
-      <div class="st-h">join the leaderboard</div>
-      <p>Pick a name — <b>no email, no password</b>. Your daily, 30s and 60s runs are posted under it, and your stats,
-        clacks and store items sync to any device you sign in on.${pend?` <b>Your last ${pend===1?"run":pend+" runs"} will be posted too.</b>`:""}</p>
+      <p>Pick a name — <b>no email, no password</b>.${pend?` Your last ${pend===1?"run":pend+" runs"} will be posted under it.`:""}</p>
       ${note?`<div class="lb-msg bad">${escHtml(note)}</div>`:""}
       <div class="lb-form"><input class="lb-input" id="lbName" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="name">
         <button class="btn primary" id="lbClaim">claim name</button></div>
       <div class="lb-msg" id="lbMsg">3–16 letters, numbers or _</div>
-      <div class="lb-acts"><button class="linkbtn" id="lbHaveCode">already have a name? use your recovery code</button></div>
+      <div class="lb-acts"><button class="linkbtn" id="lbHaveCode">have a recovery code? sign in</button></div>
       <div id="lbRestore" hidden>
         <div class="lb-form"><input class="lb-input" id="lbCode" placeholder="clack-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" aria-label="recovery code">
           <button class="btn" id="lbRestoreBtn">sign in</button></div>
@@ -2921,46 +2972,63 @@ function renderAccount(note){
     $("#lbRestoreBtn").onclick=restore;$("#lbCode").onkeydown=e=>{if(e.key==="Enter")restore();};
     return;
   }
-  const code=ON.code,fresh=LB.fresh===code;
+  const code=ON.code;
+  const copyBtn=(id,primary)=>`<button class="btn${primary?" primary":""}" id="${id}">copy code</button>`;
+  const wireCopy=id=>$("#"+id).onclick=async e=>{try{await navigator.clipboard.writeText(code);e.target.textContent="copied ✓";}
+    catch(_){const r=document.createRange();r.selectNodeContents($("#lbCodeBox"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="selected — copy it";}};
+  // just claimed: the one thing that matters is saving the code
+  if(LB.fresh===code){
+    title("save your recovery code");
+    box.innerHTML=`<div class="lb-card">
+      <p>You're <b>${escHtml(ON.name)}</b>. This code is the only key to your name — use it to sign in on another device.
+        There's no email to reset it, so keep it somewhere safe.</p>
+      <div class="lb-code" id="lbCodeBox">${escHtml(code)}</div>
+      <div class="lb-form">${copyBtn("lbCopy",true)}<button class="btn" id="lbSaved">I've saved it</button></div></div>`;
+    wireCopy("lbCopy");$("#lbSaved").onclick=closeAccount;
+    return;
+  }
+  title(ON.name);
+  const open=LB.open;            // which section is expanded: "code" | "rename" | null
   box.innerHTML=`<div class="lb-card">
-    <div class="st-h">you're <b>${escHtml(ON.name)}</b></div>
-    ${fresh?`<p><b>Save your recovery code now.</b> It's the only key to your name — there's no email to reset it.
-      Use it to sign in on your phone or another computer.</p>`:""}
-    ${LB.showCode?`<div class="lb-code" id="lbCodeBox">${escHtml(code)}</div>
-      <div class="lb-acts"><button class="linkbtn" id="lbCopy">copy code</button><button class="linkbtn" id="lbHide">hide</button></div>
-      <p>Anyone with this code can post as you, so keep it private.</p>`:""}
-    <p>${ON.syncedAt?`Stats, clacks and store items synced ${ago(ON.syncedAt)}.`:"Stats, clacks and store items sync to every device you sign in on."}</p>
-    <div class="lb-form"><input class="lb-input" id="lbNew" maxlength="16" placeholder="new name" autocomplete="off" spellcheck="false" aria-label="new name" ${ON.renameIn?"disabled":""}>
-      <button class="btn" id="lbRename" ${ON.renameIn?"disabled":""}>change name</button></div>
-    <div class="lb-msg" id="lbNMsg">${ON.renameIn?`you can change your name again in ${ON.renameIn} ${ON.renameIn===1?"day":"days"}`:"you can change your name once every 60 days"}</div>
-    <div class="lb-acts">
-      ${LB.showCode?"":`<button class="linkbtn" id="lbShow">show my recovery code</button>`}
-      <button class="linkbtn" id="lbOut">${LB.confirm==="out"?"sign out — tap again to confirm":"sign out on this device"}</button>
-      <button class="linkbtn danger" id="lbDel">${LB.confirm==="del"?"delete my name and all my scores — tap again":"delete my name & scores"}</button>
+    <p>${ON.syncedAt?`Stats, clacks and store items synced ${ago(ON.syncedAt)}.`:"Your stats, clacks and store items sync to every device you sign in on."}</p>
+    ${open==="code"?`<div class="lb-code" id="lbCodeBox">${escHtml(code)}</div>
+      <div class="lb-form">${copyBtn("lbCopy")}<button class="btn" id="lbFold">done</button></div>
+      <div class="lb-msg">anyone with this code can post as you — keep it private</div>`
+    :open==="rename"?`<div class="lb-form"><input class="lb-input" id="lbNew" maxlength="16" placeholder="new name" autocomplete="off" spellcheck="false" aria-label="new name">
+        <button class="btn primary" id="lbRename">save</button><button class="btn" id="lbFold">cancel</button></div>
+      <div class="lb-msg" id="lbNMsg">you can change it again after 60 days</div>`
+    :`<div class="lb-acts">
+        <button class="linkbtn" id="lbShow">recovery code</button>
+        ${ON.renameIn?`<span class="lb-msg">name change in ${ON.renameIn} ${ON.renameIn===1?"day":"days"}</span>`:`<button class="linkbtn" id="lbOpenRename">change name</button>`}
+      </div>`}
+    <div class="lb-acts lb-danger">
+      <button class="linkbtn" id="lbOut">${LB.confirm==="out"?"tap again to sign out":"sign out"}</button>
+      <button class="linkbtn danger" id="lbDel">${LB.confirm==="del"?"tap again — this deletes your name and scores":"delete name & scores"}</button>
     </div></div>`;
-  $("#lbShow")&&($("#lbShow").onclick=()=>{LB.showCode=true;renderAccount();});
-  $("#lbHide")&&($("#lbHide").onclick=()=>{LB.showCode=false;LB.fresh=null;renderAccount();});
-  $("#lbCopy")&&($("#lbCopy").onclick=async e=>{try{await navigator.clipboard.writeText(code);e.target.textContent="copied ✓";}
-    catch(_){const r=document.createRange();r.selectNodeContents($("#lbCodeBox"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="selected — copy it";}});
+  const fold=()=>{LB.open=null;renderAccount();};
+  $("#lbFold")&&($("#lbFold").onclick=fold);
+  $("#lbShow")&&($("#lbShow").onclick=()=>{LB.open="code";renderAccount();});
+  $("#lbOpenRename")&&($("#lbOpenRename").onclick=()=>{LB.open="rename";renderAccount();$("#lbNew").focus();});
+  $("#lbCopy")&&wireCopy("lbCopy");
   const rename=async()=>{
     const v=$("#lbNew").value.trim(),m=$("#lbNMsg");
     if(!NAME_RE.test(v)){m.className="lb-msg bad";m.textContent="use 3–16 letters, numbers or _";return;}
-    try{const r=await api("/api/me",{method:"PATCH",body:{name:v}});ON.name=r.name;ON.renameIn=r.renameIn;saveOn();renderAccount();loadBoard();}
+    try{const r=await api("/api/me",{method:"PATCH",body:{name:v}});ON.name=r.name;ON.renameIn=r.renameIn;saveOn();LB.open=null;renderAccount();loadBoard();}
     catch(e){m.className="lb-msg bad";m.textContent=e.message;}
   };
-  $("#lbRename").onclick=rename;$("#lbNew").onkeydown=e=>{if(e.key==="Enter")rename();};
+  if($("#lbRename")){$("#lbRename").onclick=rename;$("#lbNew").onkeydown=e=>{if(e.key==="Enter")rename();};}
   $("#lbOut").onclick=()=>{if(LB.confirm!=="out"){LB.confirm="out";renderAccount();return;}
-    LB.confirm=null;LB.showCode=false;signedOut();renderAccount();loadBoard();};
-  $("#lbDel").onclick=async()=>{if(LB.confirm!=="del"){LB.confirm="del";renderAccount();return;}
+    LB.confirm=null;LB.open=null;signedOut();closeAccount();loadBoard();};
+  $("#lbDel").onclick=async e=>{if(LB.confirm!=="del"){LB.confirm="del";renderAccount();return;}
     LB.confirm=null;
-    try{await api("/api/me",{method:"DELETE"});ON={pending:[]};saveOn();LB.showCode=false;renderAccount();loadBoard();}
-    catch(e){$("#lbNMsg").className="lb-msg bad";$("#lbNMsg").textContent=e.message;}};
+    try{await api("/api/me",{method:"DELETE"});ON={pending:[]};saveOn();LB.open=null;closeAccount();loadBoard();}
+    catch(err){e.target.textContent=err.message;}};
 }
 // A name released after months away: signed in, but nameless until a new one is picked.
 const needsName=()=>API&&ON.code&&!ON.name;
 
 ONLINE_READY=true;
-if(API){$("#boardBtn").hidden=false;$("#boardSep").hidden=false;}
+if(API)$("#boardBtn").hidden=false;
 if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")queueSync(1000);});
 
