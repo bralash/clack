@@ -278,8 +278,8 @@
   .s-lives i{width:9px;height:9px;border-radius:50%;background:var(--gold);
     box-shadow:0 0 6px var(--gold-dim);}
   .s-lives i.dead{background:var(--text-faint);box-shadow:none;}
-  .s-hint{position:absolute;bottom:20px;left:0;right:0;text-align:center;z-index:2;
-    font-family:var(--mono);font-size:11px;color:var(--text-faint);
+  .s-hint{position:absolute;bottom:100px;left:0;right:0;text-align:center;z-index:2;   /* above the ship, until the first key */
+    font-family:var(--mono);font-size:11px;color:var(--text-dim);
     transition:opacity .4s;pointer-events:none;}
 
   /* ---------- HOME: stats link ---------- */
@@ -1555,6 +1555,18 @@ const SHIPS={
     g.beginPath();g.moveTo(x,y-16);g.lineTo(x-12,y+8);g.lineTo(x,y+3);g.lineTo(x+12,y+8);g.closePath();g.fill();g.stroke();g.restore();
     g.fillStyle="#b39cff";g.beginPath();g.moveTo(x,y-9);g.lineTo(x-3,y);g.lineTo(x+3,y);g.closePath();g.fill();}}
 };
+// 3D ship art: brand/ships/<id>.png, cut from a rendered sprite sheet by server/scripts/cut-ships.mjs.
+// Each sprite fills a SHIP_PX box (the shield ring's size), nose up, centred just above (x, y).
+// The vector drawings above are the fallback until the image has loaded (or if it fails). Images load
+// the first time a ship is drawn, so the home page doesn't download art for a game nobody's playing.
+const SHIP_PX=60;
+for(const [id,s] of Object.entries(SHIPS)){
+  const img=new Image(),vec=s.draw;img.decoding="async";
+  s.draw=(g,x,y,t)=>{
+    if(!img.src)img.src=`brand/ships/${id}.png`;
+    if(img.complete&&img.naturalWidth)g.drawImage(img,x-SHIP_PX/2,y-SHIP_PX/2-2,SHIP_PX,SHIP_PX);else vec(g,x,y,t);
+  };
+}
 /* trails: draw(ctx, bullet, t). bullet: from (x,y) to (tx,ty); life runs 1 → 0 */
 const bpos=(b,p)=>[b.x+(b.tx-b.x)*p,b.y+(b.ty-b.y)*p];
 const TRAILS={
@@ -1614,11 +1626,11 @@ function renderStore(){
     for(const c of cvs){
       const g=c.getContext("2d");g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,150,90);
       const id=c.dataset.id;
-      if(storeTab==="ship"){g.translate(75,47);g.scale(1.9,1.9);SHIPS[id].draw(g,0,0,t);}   // shown ~2x so details read
+      if(storeTab==="ship"){g.translate(75,47);g.scale(1.3,1.3);SHIPS[id].draw(g,0,0,t);}   // shown larger so details read
       else{
         g.font="600 12px 'JetBrains Mono',monospace";g.textAlign="center";g.fillStyle="#e7e8ea";g.fillText("clack",75,16);
-        g.save();g.translate(75,72);g.scale(1.2,1.2);(SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(g,0,0,t);g.restore();
-        for(let k=0;k<3;k++){const life=1-(((t*1.6)+k/3)%1);TRAILS[id].draw(g,{x:75,y:60,tx:75,ty:22,life,seed:k*.37},t);}
+        for(let k=0;k<3;k++){const life=1-(((t*1.6)+k/3)%1);TRAILS[id].draw(g,{x:75,y:38,tx:75,ty:20,life,seed:k*.37},t);}
+        g.save();g.translate(75,61);g.scale(.85,.85);(SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(g,0,0,t);g.restore();
       }
     }
     storeRaf=requestAnimationFrame(loopPrev);
@@ -2181,7 +2193,7 @@ function spawnEnemy(){
     vy:diff.speed*(0.85+Math.random()*0.3)+sElapsed*diff.ramp});
 }
 function fireBullet(e){
-  bullets.push({x:W/2,y:H-42,tx:e.x,ty:e.y,e:e,life:1,seed:Math.random()});
+  bullets.push({x:W/2,y:H-68,tx:e.x,ty:e.y,e:e,life:1,seed:Math.random()});   // from the ship's nose
 }
 function boom(x,y,col){
   for(let i=0;i<14;i++){const a=Math.random()*6.28,s=40+Math.random()*120;
@@ -2315,7 +2327,7 @@ function draw(){
   // ship (whichever one is equipped in the store)
   const sx=W/2,sy=H-40,tNow=performance.now()/1000;
   (SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(cx,sx,sy,tNow);
-  if(shield){cx.strokeStyle=hexA(PU.shield.col,.75);cx.lineWidth=2;cx.beginPath();cx.arc(sx,sy-2,23,0,6.29);cx.stroke();}
+  if(shield){cx.strokeStyle=hexA(PU.shield.col,.75);cx.lineWidth=2;cx.beginPath();cx.arc(sx,sy-2,SHIP_PX/2+2,0,6.29);cx.stroke();}
   if(wave){cx.strokeStyle=hexA(PU.boom.col,Math.max(0,wave.life*.8));cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,wave.r,0,6.29);cx.stroke();}
   // bullets (equipped trail)
   const trail=TRAILS[STATS.equip.trail]||TRAILS.tracer;

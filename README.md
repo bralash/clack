@@ -69,7 +69,8 @@ as a physical keyboard is detected (an iPad keyboard case, or a Bluetooth keyboa
 - **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
   1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off
   reward for every badge.
-- The **store** sells shooter **ships** (Dart, Stealth Wing, Saucer, Pixel, Comet, Obsidian) and bullet **trails**
+- The **store** sells 3D-rendered shooter **ships** (Dart, Stealth Wing, Saucer, Pixel, Comet, Obsidian; the art is cut
+  from `brand/ships.png` into `brand/ships/` by `server/scripts/cut-ships.mjs`) and bullet **trails**
   (Dotted, Laser, Plasma, Ember, Rainbow), each with a live animated preview. Some also need a badge.
   Everything is cosmetic — nothing changes your score.
 
