@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Clack</title>
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="brand/favicon-32.png" sizes="32x32" type="image/png">
@@ -75,7 +75,8 @@
     overflow:hidden;
   }
   #app{
-    position:relative;width:100%;max-width:1060px;height:100%;
+    /* --app-h: the part of the screen a phone's keyboard leaves visible (set by fitViewport) */
+    position:relative;width:100%;max-width:1060px;height:var(--app-h,100%);
     background:var(--bg);display:flex;flex-direction:column;overflow:hidden;
   }
   .view{position:absolute;inset:0;display:flex;flex-direction:column;}
@@ -278,6 +279,15 @@
   .s-lives i{width:9px;height:9px;border-radius:50%;background:var(--gold);
     box-shadow:0 0 6px var(--gold-dim);}
   .s-lives i.dead{background:var(--text-faint);box-shadow:none;}
+  /* short screens (a phone with its keyboard up): a slim top bar so the playfield gets the room */
+  #app.short .s-hud{padding:10px 16px 0;padding-top:calc(10px + env(safe-area-inset-top,0px));font-size:13px;}
+  #app.short .s-hint{bottom:84px;}
+  /* paused (keyboard closed or app switched): tap to bring the keyboard back */
+  .s-pause{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    background:rgba(10,11,13,.78);font-family:var(--mono);color:var(--text-dim);font-size:13px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;}
+  .s-pause b{font-size:20px;color:var(--gold);letter-spacing:1px;}
+  .s-pause span{padding:10px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);}
   .s-hint{position:absolute;bottom:100px;left:0;right:0;text-align:center;z-index:2;   /* above the ship, until the first key */
     font-family:var(--mono);font-size:11px;color:var(--text-dim);
     transition:opacity .4s;pointer-events:none;}
@@ -819,6 +829,7 @@
       <div class="s-lives" id="sLives"></div>
     </div>
     <div class="s-hint" id="sHint">type a word to lock &amp; fire · type a power-up to grab it</div>
+    <div class="s-pause" id="sPause" role="button" tabindex="0" hidden><b>paused</b><span>tap to keep playing</span></div>
   </section>
 
   <!-- STATS -->
@@ -1109,6 +1120,9 @@
           Every word that reaches your base costs a life; lose them all and it's game over.
           Each word is worth <b>10 + its length</b> in points. <b>calm</b>, <b>normal</b> and <b>frenzy</b> change speed,
           spawn rate and lives, and everything speeds up the longer you survive.</p>
+        <p>On a phone, the game fits itself above the on-screen keyboard. Words fall at the same pace and arrive a
+          little less often, so a smaller screen isn't harder. Close the keyboard or switch apps and it <b>pauses</b> —
+          tap to keep playing.</p>
       </div>
 
       <div class="st-sec">
@@ -2153,15 +2167,55 @@ function detonate(){
   bombs=0;wave={r:0,life:1};
   tone("sine",130,38,0.35,0.55,380);haptic([0,60,30,60]);
 }
-function useBomb(){ if(sRun&&bombs>0)detonate(); }
+function useBomb(){ if(sPaused){resumeShooter();return;} if(sRun&&bombs>0)detonate(); }
 
-function sizeCanvas(){
+// rescale=true when the playfield changes size mid-game (a phone keyboard opening or closing):
+// everything in flight keeps its relative position, so nothing jumps past the base line.
+function sizeCanvas(rescale){
   DPR=Math.min(window.devicePixelRatio||1,2);
-  const r=$("#shoot").getBoundingClientRect();
+  const r=$("#shoot").getBoundingClientRect(),oW=W,oH=H;
   W=r.width;H=r.height;
+  TOP=Math.round($(".s-hud").getBoundingClientRect().bottom-r.top)+14;   // words appear just below the top bar
   cv.width=W*DPR;cv.height=H*DPR;
   cx.setTransform(DPR,0,0,DPR,0,0);
   cx.textAlign="center";cx.textBaseline="middle";
+  if(rescale&&oW&&oH&&(oW!==W||oH!==H)){
+    const kx=W/oW,ky=H/oH;
+    for(const e of enemies){e.x*=kx;e.y*=ky;}
+    for(const b of bullets){b.x*=kx;b.y*=ky;b.tx*=kx;b.ty*=ky;}
+    for(const p of parts){p.x*=kx;p.y*=ky;}
+  }
+  if(sRun)draw();                                  // repaint straight away (the loop is idle while paused)
+}
+// Words fall at a fixed speed on a tall screen. On a short one (a phone with its keyboard up) they
+// slow down in step, so a word takes about as long to reach you either way. FALL_REF is the distance
+// from just under the top bar to the base line on a 760px-tall laptop window, tuned to match the
+// game's original timing (when words started above the screen).
+let TOP=60;
+const FALL_REF=722;
+const fallScale=()=>Math.min(1,Math.max(0.3,(H-52-TOP)/FALL_REF));
+// Smaller playfields (phones, more so with the keyboard up) get new words less often, so they don't
+// pile up on top of each other: spawn gaps stretch with the square root of the area, relative to a laptop.
+const FIELD_REF=1000*640;
+const densScale=()=>Math.max(0.35,Math.sqrt(Math.min(1,W*(H-52-TOP)/FIELD_REF)));
+// Pausing (mobile): when the keyboard is dismissed or the app goes to the background mid-game.
+let sPaused=false,kbMinH=0,kbStartH=0;
+function pauseShooter(){
+  if(!sRun||sPaused)return;
+  sPaused=true;cancelAnimationFrame(raf);raf=0;$("#sPause").hidden=false;
+}
+function resumeShooter(){
+  if(!sPaused)return;
+  sPaused=false;$("#sPause").hidden=true;focusKb();
+  last=performance.now();raf=requestAnimationFrame(loop);
+}
+$("#sPause").onclick=resumeShooter;
+$("#sPause").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();resumeShooter();}};
+// The keyboard counts as open once the playfield has shrunk by 120px; growing back by that much closes it.
+function kbWatch(h){
+  if(!sRun||sPaused||!touchOnly())return;
+  if(h<kbMinH)kbMinH=h;
+  if(kbMinH<kbStartH-120&&h>kbMinH+120){kbMinH=h;pauseShooter();}
 }
 function renderLives(){
   let h="";for(let i=0;i<diff.lives;i++)h+=`<i class="${i>=diff.lives-sLives?'dead':''}"></i>`;
@@ -2180,7 +2234,7 @@ function spawnEnemy(){
     const t=puBag[0];
     if(!taken.has(t[0])){
       const pad=70;puBag.shift();puDue=false;sinceLastPu=0;
-      enemies.push({word:t,pu:t,hit:0,x:pad+Math.random()*(W-pad*2),y:-14,
+      enemies.push({word:t,pu:t,hit:0,x:Math.min(W-pad,Math.max(pad,freeX(t+"   "))),y:TOP,
         vy:diff.speed*0.9+sElapsed*diff.ramp*0.6});
       return;
     }
@@ -2188,9 +2242,22 @@ function spawnEnemy(){
   let w,tries=0;
   do{ w=WORDS[Math.floor(Math.random()*WORDS.length)]; tries++; }
   while(taken.has(w[0]) && tries<12);
-  const pad=44;
-  enemies.push({word:w,hit:0,x:pad+Math.random()*(W-pad*2),y:-14,
+  enemies.push({word:w,hit:0,x:freeX(w),y:TOP,
     vy:diff.speed*(0.85+Math.random()*0.3)+sElapsed*diff.ramp});
+}
+// A spot for a new word that doesn't share a column with the words still in the upper half of the
+// field (they fall at slightly different speeds, so words in one column can end up on top of each other).
+function freeX(word){
+  const pad=44,half=word.length*5.2+14,upper=TOP+(H-52-TOP)*0.5;
+  const near=enemies.filter(e=>e.y<upper).map(e=>[e.x,(e.pu?e.word.length+3:e.word.length)*5.2+14]);
+  let best=pad+Math.random()*(W-pad*2),bestGap=-1;
+  for(let i=0;i<10;i++){
+    const x=pad+Math.random()*(W-pad*2);
+    const gap=near.length?Math.min(...near.map(([nx,nh])=>Math.abs(x-nx)-half-nh)):1e9;
+    if(gap>=0)return x;
+    if(gap>bestGap)[best,bestGap]=[x,gap];
+  }
+  return best;                                       // crowded: the least-overlapping spot found
 }
 function fireBullet(e){
   bullets.push({x:W/2,y:H-68,tx:e.x,ty:e.y,e:e,life:1,seed:Math.random()});   // from the ship's nose
@@ -2210,12 +2277,14 @@ function startShooter(){
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
   sizeCanvas();renderLives();
+  sPaused=false;$("#sPause").hidden=true;kbStartH=kbMinH=Math.round(H);
   sRun=true;last=performance.now();
   window.addEventListener("keydown",onShoot);
   raf=requestAnimationFrame(loop);
   focusKb();
 }
 function stopShooter(){
+  sPaused=false;$("#sPause").hidden=true;
   if(!sRun&&!raf)return;
   sRun=false;cancelAnimationFrame(raf);raf=0;
   window.removeEventListener("keydown",onShoot);
@@ -2257,6 +2326,7 @@ function onShoot(e){
   shootChar(e.key.toLowerCase());
 }
 function shootChar(key){
+  if(sPaused){resumeShooter();return;}              // any key picks the game back up
   if(!sRun||!/[a-z']/.test(key))return;
   $("#sHint").style.opacity="0";
   sKeysAll++;
@@ -2290,10 +2360,17 @@ function loop(now){
   const slow=pwr&&pwr.type==="freeze"?0.25:1;      // freeze slows falling and spawning
   // spawn
   sSpawnT+=dt*1000*slow;
-  const rate=Math.max(420,diff.spawn-sElapsed*6);
+  const rate=Math.max(420,diff.spawn-sElapsed*6)/densScale();
   if(sSpawnT>=rate){sSpawnT=0;spawnEnemy();}
-  // move enemies
-  for(const en of enemies){en.y+=en.vy*dt*slow;}
+  // move enemies (scaled to the playfield height, see fallScale)
+  const fall=fallScale();
+  for(const en of enemies){en.y+=en.vy*dt*slow*fall;}
+  // no overtaking: a word that catches up with one below it in the same column waits behind it
+  const halfW=e=>((e.pu?e.word.length+3:e.word.length)*10.4+18)/2;
+  const byDepth=enemies.slice().sort((a,b)=>b.y-a.y);
+  for(let i=1;i<byDepth.length;i++){const up=byDepth[i];
+    for(let j=0;j<i;j++){const lo=byDepth[j];
+      if(Math.abs(up.x-lo.x)<halfW(up)+halfW(lo)&&up.y>lo.y-30)up.y=lo.y-30;}}
   // collision with base
   for(let i=enemies.length-1;i>=0;i--){
     const en=enemies[i];
@@ -2336,6 +2413,7 @@ function draw(){
   cx.font="600 17px 'JetBrains Mono',monospace";
   for(const en of enemies){
     const locked=(en===target);
+    cx.globalAlpha=Math.min(1,0.2+(en.y-TOP)/30);      // new words fade in under the top bar
     const done=en.word.slice(0,en.hit),rest=en.word.slice(en.hit);
     const wDone=cx.measureText(done).width,wRest=cx.measureText(rest).width;
     if(en.pu){                                       // power-up capsule: icon + name, tinted per type
@@ -2348,7 +2426,7 @@ function draw(){
       cx.fillStyle=p.col;cx.fillText(rest,x0+iconW+wDone,en.y);
       cx.textAlign="center";cx.font="10px 'JetBrains Mono',monospace";cx.fillStyle=hexA(p.col,.65);
       cx.fillText("power-up",en.x,en.y+25);
-      cx.font="600 17px 'JetBrains Mono',monospace";
+      cx.font="600 17px 'JetBrains Mono',monospace";cx.globalAlpha=1;
       continue;
     }
     const total=wDone+wRest,startX=en.x-total/2;
@@ -2364,6 +2442,7 @@ function draw(){
     cx.fillText(rest,startX+wDone,en.y);
     cx.textAlign="center";
   }
+  cx.globalAlpha=1;
   // particles
   for(const p of parts){cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.col;
     cx.fillRect(p.x-1.5,p.y-1.5,3,3);}
@@ -2392,7 +2471,7 @@ function draw(){
 function roundRect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);
   cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);
   cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath();}
-window.addEventListener("resize",()=>{if(sRun)sizeCanvas();});
+window.addEventListener("resize",()=>{if(sRun)sizeCanvas(true);});
 
 /* ==================== STATS PAGE ==================== */
 function modeLabel(key){
@@ -3239,6 +3318,31 @@ ONLINE_READY=true;
 if(API)$("#boardBtn").hidden=false;
 if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")queueSync(1000);});
+
+/* ==================== PHONES: fit the screen around the keyboard ==================== */
+// Phone keyboards cover the bottom of the page without resizing it (iOS always; Android Chrome by
+// default), so the shooter's ship and the test's word could end up underneath. The visual viewport is
+// the part still visible: the app takes its height, follows it as the keyboard opens and closes,
+// and undoes the scroll iOS adds to "reveal" the focused field.
+const VV=window.visualViewport;
+let appH=0;
+function fitViewport(){
+  const zoomed=VV&&VV.scale>1.05;                        // pinch-zoomed: leave the layout alone
+  const h=Math.round(VV&&!zoomed?VV.height:window.innerHeight),app=$("#app");
+  if(h<200)return;                                       // hidden or minimised: not a real size, keep the last one
+  if(h!==appH){
+    appH=h;app.style.setProperty("--app-h",h+"px");app.classList.toggle("short",h<560);
+    if(sRun){sizeCanvas(true);kbWatch(h);}
+  }
+  if(window.scrollY)window.scrollTo(0,0);
+  app.style.transform=VV&&!zoomed&&VV.offsetTop>0?`translateY(${Math.round(VV.offsetTop)}px)`:"";
+}
+if(VV){VV.addEventListener("resize",fitViewport);VV.addEventListener("scroll",fitViewport);}
+window.addEventListener("resize",fitViewport);
+fitViewport();
+// iOS hides the keyboard by blurring the field; switching apps hides the page. Either way, pause.
+kbIn.addEventListener("blur",()=>{if(sRun&&touchOnly())setTimeout(()=>{if(document.activeElement!==kbIn)pauseShooter();},150);});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)pauseShooter();});
 
 /* init */
 renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();maybeAskSchool();

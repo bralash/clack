@@ -17,6 +17,8 @@ A minimalist typing test — inspired by the Bemonkey iOS app and built as a sin
     `freeze` slows everything down for 5s · `double` doubles points for 10s ·
     `shield` restores a life or blocks the next hit · `boom` stores a bomb you set off with **Space** to clear the screen.
     Missing a power-up never costs a life.
+  - **On phones** the game fits above the on-screen keyboard (via the visual viewport), keeps the same fall time on a
+    shorter field, spaces words out on small screens, and pauses when the keyboard closes or the app is switched.
 
 - **Daily challenge** — the same 30 words for everyone each day, one attempt. Share your result as a Wordle-style
   grid (🟩 clean word, 🟨 mistake), post it to 𝕏, or save a result-card image. Consecutive days build a daily streak.
