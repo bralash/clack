@@ -107,24 +107,27 @@
   .tot .l{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:8px;}
 
   /* contribution graph */
-  .cal-wrap{overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+  /* --cs (square size) and --cg (gap) are set by sizeCal(): a full year on wide screens, ~two months on phones */
+  .cal-wrap{--cs:14px;--cg:3px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
   .cal-wrap::-webkit-scrollbar{display:none;}
-  .cal-months{display:grid;gap:3px;margin-left:30px;margin-bottom:7px;height:13px;
+  .cal-months{display:grid;grid-template-columns:repeat(53,var(--cs));gap:var(--cg);margin-left:30px;margin-bottom:7px;height:13px;
     font-family:var(--mono);font-size:11px;color:var(--text-dim);}
   .cal-months span{grid-row:1;white-space:nowrap;}
-  .cal-body{display:flex;gap:6px;}
-  .cal-dow{display:grid;grid-template-rows:repeat(7,14px);gap:3px;width:24px;flex:none;
+  .cal-body{display:flex;width:max-content;padding-right:2px;}   /* room for today's outline */   /* full grid width, so the sticky weekday labels stay put the whole way */
+  .cal-dow{display:grid;grid-template-rows:repeat(7,var(--cs));gap:var(--cg);width:30px;padding-right:6px;box-sizing:border-box;flex:none;
     position:sticky;left:0;z-index:1;background:var(--bg);   /* stays put while the grid scrolls */
-    font-family:var(--mono);font-size:9px;color:var(--text-faint);}
-  .cal-dow span{display:flex;align-items:center;height:14px;}
-  .cal-grid{display:grid;grid-template-rows:repeat(7,14px);grid-auto-columns:14px;
-    grid-auto-flow:column;gap:3px;}
-  .cell{border-radius:3px;background:var(--green-0);}
+    font-family:var(--mono);font-size:9px;color:var(--text-dim);}
+  .cal-dow span{display:flex;align-items:center;height:var(--cs);}
+  .cal-grid{display:grid;grid-template-rows:repeat(7,var(--cs));grid-auto-columns:var(--cs);
+    grid-auto-flow:column;gap:var(--cg);}
+  .cal-grid .cell:nth-child(7n+1){scroll-snap-align:start;scroll-margin-left:30px;}
+  .cell{border-radius:min(3px + (var(--cs,14px) - 14px) / 5, 7px);background:var(--green-0);}
+  .cal-grid .cell.future{background:none;}
   .cell.l1{background:var(--green-1);}
   .cell.l2{background:var(--green-2);}
   .cell.l3{background:var(--green-3);}
   .cell.l4{background:var(--green-4);}
-  .cell.empty{background:transparent;}
   .cell.today{box-shadow:0 0 0 1.5px var(--gold);}
   .legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;
     margin-top:14px;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
@@ -1167,14 +1170,12 @@ function renderMonths(){
   const start=new Date(now);
   start.setDate(start.getDate()-now.getDay()-(WEEKS-1)*7);
   const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  let cells="",lastMonth=-1;const marks=[];
+  let cells="";
   const d=new Date(start);
   for(let w=0;w<WEEKS;w++){
     for(let dowi=0;dowi<7;dowi++){
       const cur=new Date(d);
-      // month label on the column where a new month first appears (top row)
-      if(dowi===0 && cur.getMonth()!==lastMonth){lastMonth=cur.getMonth();marks.push([w,lastMonth]);}
-      if(cur>now){cells+='<div class="cell empty"></div>';}
+      if(cur>now){cells+='<div class="cell future"></div>';}   // rest of this week: blank, like GitHub
       else{
         const rec=DATA[dayKey(cur)];
         const lv=level(rec?rec.words:0);
@@ -1184,13 +1185,11 @@ function renderMonths(){
       d.setDate(d.getDate()+1);
     }
   }
-  // a month that only shows for a column or two at the left edge would collide with the next label
-  const labels=marks.filter((m,i)=>!marks[i+1]||marks[i+1][0]-m[0]>=3)
-    .map(([w,m])=>`<span style="grid-column:${w+1}">${MONTHS[m]}</span>`).join("");
+  const labels=calLabels(start).map(([w,m])=>`<span style="grid-column:${w+1}">${MONTHS[m]}</span>`).join("");
   const dowArr=["","Mon","","Wed","","Fri",""];
   el.months.innerHTML=`
     <div class="cal-wrap">
-      <div class="cal-months" style="grid-template-columns:repeat(${WEEKS},14px)">${labels}</div>
+      <div class="cal-months">${labels}</div>
       <div class="cal-body">
         <div class="cal-dow">${dowArr.map(x=>`<span>${x}</span>`).join("")}</div>
         <div class="cal-grid">${cells}</div>
@@ -1199,8 +1198,7 @@ function renderMonths(){
     <div class="legend">less
       <span class="cell l0"></span><span class="cell l1"></span><span class="cell l2"></span>
       <span class="cell l3"></span><span class="cell l4"></span>more</div>`;
-  const cw=el.months.querySelector(".cal-wrap");   // open on the most recent weeks
-  if(cw)requestAnimationFrame(()=>{cw.scrollLeft=cw.scrollWidth;});
+  sizeCal();
   // header stats
   const t=monthTotals(now.getFullYear(),now.getMonth());
   $("#tStreak").textContent=currentStreak();
@@ -1208,6 +1206,31 @@ function renderMonths(){
   $("#tTime").textContent=fmtTime(t.time);
   renderDaily();updateBalance();
 }
+
+// Month labels for the heatmap, as [column, month] pairs. A label goes on the first column whose top
+// (Sunday) cell is in a new month. Months start 4-5 columns apart, except at the left edge, where the
+// grid can open on the last few days of a month: that label is dropped when the next one is fewer
+// than CAL_LABEL_GAP columns away, so the two never print on top of each other ("SepOct").
+const CAL_LABEL_GAP=3;
+function calLabels(start){
+  const marks=[],d=new Date(start);let last=-1;
+  for(let w=0;w<WEEKS;w++){if(d.getMonth()!==last){last=d.getMonth();marks.push([w,last]);}d.setDate(d.getDate()+7);}
+  return marks.filter((m,i)=>!marks[i+1]||marks[i+1][0]-m[0]>=CAL_LABEL_GAP);
+}
+// The squares are sized so a set number of weeks fills the width: about two months on phones and
+// six on wider screens. The rest of the year is a scroll away. Opens on the latest weeks.
+const CAL_PHONE=640;
+function sizeCal(){
+  const cw=el.months.querySelector(".cal-wrap");if(!cw)return;
+  const small=window.innerWidth<CAL_PHONE,gap=4,maxCs=small?48:30,room=cw.clientWidth-32;   // 32 = weekday labels + padding
+  let weeks=small?9:26;
+  if((room-(weeks-1)*gap)/weeks>maxCs)weeks=Math.floor((room+gap)/(maxCs+gap));   // very wide: more weeks, not huge squares
+  const cs=Math.max(14,(room-(weeks-1)*gap)/weeks);           // exactly `weeks` whole columns, no sliver
+  cw.style.setProperty("--cs",cs+"px");cw.style.setProperty("--cg",gap+"px");
+  cw.scrollLeft=cw.scrollWidth;requestAnimationFrame(()=>{cw.scrollLeft=cw.scrollWidth;});   // again once fonts/layout settle
+}
+let calW=window.innerWidth;
+window.addEventListener("resize",()=>{if(Math.abs(window.innerWidth-calW)>40){calW=window.innerWidth;sizeCal();}});
 
 /* ---------- config sheet ---------- */
 function labelFor(){
