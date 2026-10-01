@@ -483,8 +483,15 @@
   .dgrid i{width:8px;height:8px;border-radius:2px;background:var(--green-4);}
   .dgrid i.x{background:var(--gold);}
   .daily .btn{padding:9px 16px;font-size:12px;}
-  .d-sub .d-rank{padding:0;font-size:12px;color:var(--gold);}
-  .d-sub .d-rank:hover{text-decoration:underline;text-underline-offset:3px;}
+  .d-eyebrow{display:flex;align-items:center;gap:8px;}
+  .d-streak{font-size:11px;letter-spacing:0;text-transform:none;font-weight:600;color:var(--text);
+    background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;}
+  .d-rank{font-family:var(--mono);font-size:12px;color:var(--gold);background:none;cursor:pointer;
+    border:1px solid var(--gold-dim);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+  .d-rank:hover{background:rgba(226,180,37,.1);}
+  .d-rank:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  /* phones: score, rank and share on one row; the word grid is in the shared result */
+  @media (max-width:480px){.daily .dgrid{display:none;}.d-right{gap:10px;}}
   .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
   /* ---------- SHARE DIALOG ---------- */
@@ -1819,33 +1826,35 @@ function startDaily(){
 function restoreMode(){if(prevMode){[mode,value]=prevMode;prevMode=null;renderOpts();syncLabels();updateMods();}}
 function renderDaily(){
   const n=dailyNo(),r=STATS.daily[n],box=$("#daily");if(!box)return;
-  // dailies played on consecutive days; shown from 2, so it doesn't read like a second "day streak"
-  const streak=dailyStreak(),run=streak>=2?` · 🔥 ${streak} dailies in a row`:"";
-  $("#dNo").textContent="daily #"+n;
+  // dailies played on consecutive days: a small chip by the title, from 2 (so it isn't a second "day streak")
+  const streak=dailyStreak();
+  $("#dNo").innerHTML=`daily #${n}${streak>=2?`<span class="d-streak" title="${streak} dailies in a row">🔥 ${streak}</span>`:""}`;
   if(!r){
-    $("#dSub").textContent="30 words · same for everyone today"+run;
-    $("#dRight").innerHTML=`<button class="btn primary" id="dPlay">play today's</button>`;
+    $("#dSub").textContent="30 words, same for everyone";
+    $("#dRight").innerHTML=`<button class="btn primary" id="dPlay">play</button>`;
     $("#dPlay").onclick=startDaily;
   }else{
-    $("#dSub").innerHTML=`next daily in ${untilNextDaily()}${run}${dailyRankHtml(n,r)}`;
-    $("#dRight").innerHTML=`<div class="d-score"><b>${r.wpm}</b> wpm · ${r.acc}%</div>
-      <div class="dgrid" aria-label="${r.grid.split("").filter(c=>c==="1").length} of ${r.grid.length} words clean">${[...r.grid].map(c=>`<i class="${c==="1"?"":"x"}"></i>`).join("")}</div>
+    $("#dSub").textContent=`next in ${untilNextDaily()}`;
+    const clean=r.grid.split("").filter(c=>c==="1").length;
+    $("#dRight").innerHTML=`<div class="d-score"><b>${r.wpm}</b> wpm</div>${dailyRankHtml(n,r)}
+      <div class="dgrid" title="${clean} of ${r.grid.length} words clean · ${r.acc}% accuracy" aria-label="${clean} of ${r.grid.length} words clean, ${r.acc}% accuracy">${[...r.grid].map(c=>`<i class="${c==="1"?"":"x"}"></i>`).join("")}</div>
       <button class="btn" id="dShare">share</button>`;
     $("#dShare").onclick=()=>openShare(n);
     const rk=$("#dRank");if(rk)rk.onclick=()=>openBoard("daily");
   }
 }
-// "· #3 of 41 →" on the played daily card: from the leaderboard, cached for a minute.
+// "🏆 #3 of 41" chip on the played daily card: from the leaderboard, cached for a minute.
 let dRank={n:0,at:0,txt:""};
 function dailyRankHtml(n,r){
   if(!ONLINE_READY||!API)return "";
-  if(!joined())return ` · <button class="linkbtn d-rank" id="dRank">see the board →</button>`;
+  const chip=t=>`<button class="d-rank" id="dRank" title="today's leaderboard">🏆 ${t}</button>`;
+  if(!joined())return chip("board");
   if(dRank.n!==n||Date.now()-dRank.at>60e3){
     dRank={n,at:Date.now(),txt:dRank.n===n?dRank.txt:""};
     api(`/api/board?b=daily&day=${n}&dev=${r.dev||"k"}`).then(b=>{
-      dRank.txt=b.me?`#${b.me.rank} of ${b.total}`:"see the board";if(!el.home.hidden)renderDaily();}).catch(()=>{});
+      dRank.txt=b.me?`#${b.me.rank} of ${b.total}`:"board";if(!el.home.hidden)renderDaily();}).catch(()=>{});
   }
-  return dRank.txt?` · <button class="linkbtn d-rank" id="dRank">${dRank.txt} →</button>`:"";
+  return chip(dRank.txt||"board");
 }
 setInterval(()=>{if(!el.home.hidden)renderDaily();},30000);   // keep the countdown fresh
 
