@@ -1859,9 +1859,12 @@ function dailyRankHtml(n,r){
 setInterval(()=>{if(!el.home.hidden)renderDaily();},30000);   // keep the countdown fresh
 
 /* ---------- share: text, image card, post to X ---------- */
+// Who's sharing: your leaderboard name and today's rank, when you have them (set by openShare).
+let SHW={name:null,rank:null,total:0};
 function shareText(n,r){
   const rows=[];for(let i=0;i<r.grid.length;i+=10)rows.push([...r.grid.slice(i,i+10)].map(c=>c==="1"?"🟩":"🟨").join(""));
-  return `Clack Daily #${n} ⌨️\n${r.wpm} wpm · ${r.acc}% · ×${r.combo}\n${rows.join("\n")}\n${SITE}`;
+  const who=SHW.name?` · ${SHW.name}`:"",rank=SHW.rank?` · 🏆 #${SHW.rank} of ${SHW.total}`:"";
+  return `Clack Daily #${n} ⌨️${who}\n${r.wpm} wpm · ${r.acc}% · ×${r.combo}${rank}\n${rows.join("\n")}\n${SITE}`;
 }
 async function drawShareCard(n,r){
   try{await document.fonts.load("700 180px 'JetBrains Mono'");await document.fonts.load("400 24px 'JetBrains Mono'");}catch(e){}
@@ -1873,6 +1876,15 @@ async function drawShareCard(n,r){
   g.textBaseline="alphabetic";g.font=F(700,52);g.fillStyle="#5c6066";g.fillText("cl",72,112);
   g.fillStyle="#e2b425";g.fillText("ack",72+g.measureText("cl").width,112);
   g.font=F(600,22);g.fillStyle="#b39024";g.fillText(`DAILY #${n}  ·  ${dailyDate(n).toUpperCase()}`,74,160);
+  if(SHW.name){                                          // whose run this is, and where it placed
+    g.font=F(400,28);g.fillStyle="#6b7078";g.fillText("by ",74,212);
+    const bx=74+g.measureText("by ").width;g.font=F(700,28);g.fillStyle="#e7e8ea";g.fillText(SHW.name,bx,212);
+    if(SHW.rank){const rx=bx+g.measureText(SHW.name).width+22,label=`🏆 #${SHW.rank} of ${SHW.total}`;
+      g.font=F(600,22);const rw=g.measureText(label).width+28;
+      g.fillStyle="rgba(226,180,37,.12)";g.strokeStyle="#8a7220";g.lineWidth=1.5;
+      g.beginPath();g.roundRect?g.roundRect(rx,186,rw,36,18):g.rect(rx,186,rw,36);g.fill();g.stroke();
+      g.fillStyle="#e2b425";g.fillText(label,rx+14,211);}
+  }
   // big wpm
   g.font=F(700,190);g.fillStyle="#e2b425";g.fillText(String(r.wpm),62,392);
   const nw=g.measureText(String(r.wpm)).width;g.font=F(600,38);g.fillStyle="#5c6066";g.fillText("wpm",78+nw,392);
@@ -1894,6 +1906,13 @@ async function openShare(n){
   const r=STATS.daily[n];if(!r)return;shareNo=n;
   $("#shNo").textContent=n;$("#shNote").textContent="";
   $("#shareScrim").hidden=false;$("#shareBox").hidden=false;
+  // signed in: put your name on it, plus today's rank (fresh, but never wait more than ~1.5s for it)
+  SHW={name:null,rank:null,total:0};
+  if(ONLINE_READY&&joined()){
+    SHW.name=ON.name;
+    try{const b=await Promise.race([api(`/api/board?b=daily&day=${n}&dev=${r.dev||"k"}`),new Promise((_,no)=>setTimeout(no,1500))]);
+      if(b.me){SHW.rank=b.me.rank;SHW.total=b.total;}}catch(e){}
+  }
   shareCanvas=await drawShareCard(n,r);$("#shImg").src=shareCanvas.toDataURL("image/png");
   $("#shCopy").focus();
 }
