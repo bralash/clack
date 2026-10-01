@@ -76,6 +76,9 @@ test("sync: deltas add up across devices, sets merge without duplicates", () => 
   mergeSets(blob, { history: [{ t: 1, wpm: 50, dev: "k" }], pb: { "time·60": { v: 70, kind: "wpm" } }, badges: { first: 200 }, owned: { ship: { dart: 1 } } });
   mergeSets(blob, { history: [{ t: 1, wpm: 50, dev: "k" }, { t: 2, wpm: 30, dev: "t" }], pb: { "time·60": { v: 60, kind: "wpm" } }, badges: { first: 100 }, owned: { trail: { laser: 1 } } });
   assert.equal(blob.history.length, 2);
+  mergeSets(blob, { history: [{ t: 3, wpm: 70, dev: "k", m: "time·60" }] });
+  mergeSets(blob, { history: [{ t: 3, wpm: 70, dev: "k" }] });              // an older copy without the mode
+  assert.equal(blob.history.find(h => h.t === 3).m, "time·60");
   assert.equal(blob.pb["time·60"].v, 70);
   assert.equal(blob.badges.first, 100);
   assert.deepEqual(blob.owned, { ship: { dart: 1 }, trail: { laser: 1 } });

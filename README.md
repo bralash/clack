@@ -31,8 +31,13 @@ built from the keys you miss most — also one click away on the stats page. Wor
 - A **combo multiplier** that grows with each clean word and resets on a mistake.
 
 ### Progress & stats
-- A GitHub-style **contribution heatmap** of your real daily activity, with day-streak and monthly totals.
-- A **stats page**: per-key accuracy heatmap (which keys you fumble), a WPM-over-time chart, and personal bests per mode.
+- The home screen shows your **day streak** and **this week** (Monday to Sunday, a square per day) at a glance, plus
+  this month's totals on wider screens.
+- A **stats page**: a GitHub-style **activity heatmap** (six months on screen, a year to scroll through), per-key accuracy
+  (which keys you fumble), a WPM-over-time chart, and personal bests per mode.
+- Results compare each run with **your average** for that mode and device, and flag runs that count for the
+  leaderboard with a 🏆 **ranked** tag before you start.
+- **Keyboard first:** <kbd>Enter</kbd> starts a run and plays again from the results, <kbd>Tab</kbd> restarts, <kbd>Esc</kbd> quits.
 - **Achievements** — 16 badges (speed tiers, accuracy, streaks, volume, combo, variety and four shooter badges), each with its own emblem and an unlock celebration.
 - **Help page** — "how it works" explains every mode, the WPM maths, the shooter, power-ups and achievements.
 

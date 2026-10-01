@@ -31,7 +31,9 @@ export function mergeSets(into, from) {
   for (const h of [...(Array.isArray(into.history) ? into.history : []), ...(Array.isArray(from.history) ? from.history : [])]) {
     if (!isObj(h) || !Number.isFinite(h.t)) continue;
     const e = { t: h.t, wpm: clamp(h.wpm, 0, 400) }; if (h.dev === "t" || h.dev === "k") e.dev = h.dev;
-    hist.set(e.t + ":" + e.wpm, e);
+    if (typeof h.m === "string" && h.m.length <= 24) e.m = h.m;              // what kind of run, e.g. "time·60"
+    const key = e.t + ":" + e.wpm, prev = hist.get(key);
+    hist.set(key, prev ? { ...e, ...prev } : e);                              // keep fields either copy has
   }
   into.history = [...hist.values()].sort((a, b) => a.t - b.t).slice(-120);
   const best = (a, b) => {                                  // personal bests: keep the higher value

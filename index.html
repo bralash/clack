@@ -97,7 +97,7 @@
     color:var(--text-dim);line-height:1;display:flex;align-items:center;gap:clamp(10px,1.4vw,14px);}
   .brand-mark{width:clamp(36px,4.6vw,46px);height:auto;flex:none;display:block;}
   .brand b{color:var(--gold);font-weight:700;}
-  .brand .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--text-faint);
+  .brand .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--text-dim);
     letter-spacing:2px;margin-top:9px;text-transform:uppercase;}
   .totals{display:flex;gap:clamp(26px,4vw,56px);}
   .tot{text-align:left;}
@@ -108,13 +108,14 @@
 
   /* contribution graph */
   /* --cs (square size) and --cg (gap) are set by sizeCal(): a full year on wide screens, ~two months on phones */
-  .cal-wrap{--cs:14px;--cg:3px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;
+  #months{--cs:14px;--cg:3px;}   /* set by sizeCal() on #months, so the grid and the legend share them */
+  .cal-wrap{overflow-x:auto;scrollbar-width:none;padding-bottom:4px;
     scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
   .cal-wrap::-webkit-scrollbar{display:none;}
   .cal-months{display:grid;grid-template-columns:repeat(53,var(--cs));gap:var(--cg);margin-left:30px;margin-bottom:7px;height:13px;
     font-family:var(--mono);font-size:11px;color:var(--text-dim);}
   .cal-months span{grid-row:1;white-space:nowrap;}
-  .cal-body{display:flex;width:max-content;padding-right:2px;}   /* room for today's outline */   /* full grid width, so the sticky weekday labels stay put the whole way */
+  .cal-body{display:flex;width:max-content;}   /* full grid width, so the sticky weekday labels stay put the whole way */
   .cal-dow{display:grid;grid-template-rows:repeat(7,var(--cs));gap:var(--cg);width:30px;padding-right:6px;box-sizing:border-box;flex:none;
     position:sticky;left:0;z-index:1;background:var(--bg);   /* stays put while the grid scrolls */
     font-family:var(--mono);font-size:9px;color:var(--text-dim);}
@@ -128,10 +129,11 @@
   .cell.l2{background:var(--green-2);}
   .cell.l3{background:var(--green-3);}
   .cell.l4{background:var(--green-4);}
-  .cell.today{box-shadow:0 0 0 1.5px var(--gold);}
+  .cell.today{box-shadow:inset 0 0 0 2px var(--gold);}   /* inside the square: nothing pokes past the grid's edge */
   .legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;
     margin-top:14px;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
-  .legend .cell{width:12px;height:12px;}
+  /* legend squares: the grid's shape at ~60% of its size */
+  .legend .cell{--ls:clamp(12px,calc(var(--cs) * .6),20px);width:var(--ls);height:var(--ls);border-radius:calc(var(--ls) * .21);}
 
   /* ---------- CONFIG PILL + SHEET ---------- */
   .pill-bar{position:absolute;left:0;right:0;bottom:0;padding:20px 26px;
@@ -150,8 +152,11 @@
   .pill{display:flex;align-items:center;width:100%;max-width:480px;background:var(--surface-2);
     border:1px solid var(--line);border-radius:14px;padding:15px 22px;cursor:pointer;
     font-family:var(--mono);box-shadow:0 8px 30px rgba(0,0,0,.4);}
-  .pill .cfg{display:flex;align-items:center;gap:8px;color:var(--gold);font-size:14px;flex:1;
+  .pill .cfg{display:flex;align-items:center;gap:8px;color:var(--gold);font-size:14px;flex:1;white-space:nowrap;min-width:0;
     border-radius:8px;padding:4px 8px;margin:-4px -8px;}
+  .pill .start{white-space:nowrap;}
+  @media (max-width:640px){.start-kbd{display:none;}}
+  @media (max-width:430px){.pill .ranked{font-size:0;padding:2px 6px;margin-left:4px;}.pill .ranked::before{content:"🏆";font-size:12px;}}
   .pill .cfg:hover{background:var(--surface);}
   .pill .cfg .caret{color:var(--text-dim);font-size:11px;margin-left:2px;}
   .pill .cfg:hover .caret{color:var(--gold);}
@@ -159,7 +164,7 @@
   .pill .start{color:var(--text);font-size:14px;font-weight:700;letter-spacing:1px;}
   .pill .start:hover{color:var(--gold);}
 
-  .sheet-scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);
+  .sheet-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);
     opacity:0;pointer-events:none;transition:opacity .25s;z-index:5;}
   .sheet-scrim.open{opacity:1;pointer-events:auto;}
   .sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;max-width:480px;margin:0 auto;
@@ -301,6 +306,45 @@
   .navbtn.bal[data-tip]::after{left:auto;right:0;transform:translateY(-3px);}
   .navbtn.bal[data-tip]:hover::after,.navbtn.bal[data-tip]:focus-visible::after{transform:translateY(0);}
   @media (hover:none){.navbtn[data-tip]::after{display:none;}}
+  .navbtn[aria-expanded="true"]::after{display:none;}
+  /* settings menu: theme, sound, help */
+  .navwrap{position:relative;display:inline-flex;}
+  .navmenu{position:absolute;top:calc(100% + 8px);right:0;z-index:20;min-width:180px;display:flex;flex-direction:column;
+    padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,.35);}
+  .navmenu[hidden]{display:none;}
+  .nm-item{font-family:var(--mono);font-size:13px;color:var(--text-dim);background:none;border:0;text-align:left;
+    padding:9px 11px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+  .nm-item:hover,.nm-item:focus-visible{color:var(--text);background:var(--surface-2);outline:none;}
+  .nm-item.on{color:var(--gold);}
+  /* progress strip: streak | this week (M..S) | this month — one row, everything centred on the same line */
+  .strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;width:100%;cursor:pointer;
+    font-family:var(--mono);color:var(--text-dim);font-size:11px;background:none;border:0;padding:0;text-align:left;}
+  .strip:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:10px;}
+  .strip-streak{display:flex;flex-direction:column;gap:7px;justify-self:start;}
+  .strip-streak b{font-size:clamp(26px,3.4vw,32px);color:var(--gold);font-weight:700;line-height:1;}
+  .strip-week{display:grid;grid-template-columns:repeat(7,var(--d));gap:6px 7px;--d:clamp(22px,3.2vw,26px);justify-self:center;}
+  .strip-week i{width:var(--d);height:var(--d);border-radius:6px;background:var(--green-0);}
+  .strip-week i.l1{background:var(--green-1);}.strip-week i.l2{background:var(--green-2);}
+  .strip-week i.l3{background:var(--green-3);}.strip-week i.l4{background:var(--green-4);}
+  .strip-week i.today{box-shadow:0 0 0 2px var(--gold);}
+  .strip-week i.future{background:none;box-shadow:inset 0 0 0 1px var(--line);}
+  .strip-week span{text-align:center;font-size:11px;color:var(--text-dim);line-height:1;}
+  .strip-week span.today{color:var(--gold);}
+  .strip-month{display:flex;flex-direction:column;gap:7px;align-items:flex-end;justify-self:end;text-align:right;}
+  .strip-month b{color:var(--text);font-weight:600;font-size:13px;}
+  .strip:hover .strip-month,.strip:hover .strip-streak{color:var(--text);}
+  /* phones: streak on the left, the week on the right; this month's totals are on the stats page */
+  @media (max-width:520px){.strip{grid-template-columns:auto 1fr;}.strip-month{display:none;}.strip-week{justify-self:end;--d:28px;gap:6px 8px;}}
+  @media (max-width:360px){.strip-week{--d:24px;gap:6px;}}
+  /* leaderboard tag and keyboard hints */
+  .ranked{font-size:11px;color:var(--gold);border:1px solid var(--gold-dim);border-radius:999px;padding:2px 8px;margin-left:8px;white-space:nowrap;}
+  .sheet-rank{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:right;line-height:1.5;}
+  .sheet-rank b{color:var(--gold);font-weight:600;}
+  .start-kbd{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.5px;color:var(--text-dim);border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:5px;padding:1px 5px;margin-left:10px;vertical-align:2px;}
+  .res-keys{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:18px;}
+  .res-keys kbd{font-family:var(--mono);font-size:10px;color:var(--text);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;}
+  @media (hover:none) and (pointer:coarse){.start-kbd,.res-keys{display:none;}}
   .res-help{margin-top:22px;}
 
   /* ---------- CLACK SCHOOL ---------- */
@@ -429,6 +473,8 @@
   .dgrid i{width:8px;height:8px;border-radius:2px;background:var(--green-4);}
   .dgrid i.x{background:var(--gold);}
   .daily .btn{padding:9px 16px;font-size:12px;}
+  .d-sub .d-rank{padding:0;font-size:12px;color:var(--gold);}
+  .d-sub .d-rank:hover{text-decoration:underline;text-underline-offset:3px;}
   .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
   /* ---------- SHARE DIALOG ---------- */
@@ -610,7 +656,12 @@
   .res-board{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:-10px 0 22px;
     font-family:var(--mono);font-size:13px;color:var(--text-dim);min-height:18px;}
   .res-board b{color:var(--gold);}
-  .res-board .linkbtn{padding:0;font-size:13px;}
+  .res-board .linkbtn{padding:0;font-size:13px;color:var(--gold);}
+  .res-board .linkbtn:hover{text-decoration:underline;text-underline-offset:3px;}
+  .res-ctx{font-family:var(--mono);font-size:13px;color:var(--text-dim);margin:-16px 0 26px;min-height:18px;text-align:center;}
+  .res-ctx b{color:var(--text);font-weight:600;}
+  .res-ctx .up{color:#3fbf63;}
+  .res-ctx .down{color:var(--text-dim);}
   .res-board .bad{color:var(--red);}
 </style>
 </head>
@@ -669,7 +720,7 @@
       <div class="home-inner">
         <div class="head">
           <div class="brand"><img class="brand-mark" src="brand/favicon.svg" alt="" width="44" height="44">
-            <div><span class="brand-word">cl<b>ack</b></span><span class="sub">a minimalistic typing test</span></div></div>
+            <div><span class="brand-word">cl<b>ack</b></span><span class="sub">a minimalist typing app</span></div></div>
           <nav class="headnav" aria-label="menu">
             <button class="navbtn" id="boardBtn" data-tip="leaderboard" aria-label="leaderboard" hidden>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -680,17 +731,25 @@
             <button class="navbtn" id="statsBtn" data-tip="stats" aria-label="detailed stats">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg></button>
-            <button class="navbtn" id="helpBtn" data-tip="how it works" aria-label="how it works">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 17.2v.1"/></svg></button>
+            <div class="navwrap">
+              <button class="navbtn" id="menuBtn" data-tip="settings" aria-label="settings and help" aria-haspopup="menu" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+              <div class="navmenu" id="navMenu" role="menu" hidden>
+                <button class="nm-item" id="themeBtn" role="menuitem">☀ light</button>
+                <button class="nm-item" id="sndBtn" role="menuitem">♪ sound on</button>
+                <button class="nm-item" id="helpBtn" role="menuitem">? how it works</button>
+              </div>
+            </div>
             <button class="navbtn bal" id="storeBtn" data-tip="store" aria-label="store — clacks balance"><span class="ck-slot"></span><span class="balN">0</span></button>
           </nav>
         </div>
-        <div class="totals">
-          <div class="tot"><div class="v gold" id="tStreak">0</div><div class="l">day streak</div></div>
-          <div class="tot"><div class="v" id="tWords">0</div><div class="l">words this month</div></div>
-          <div class="tot"><div class="v" id="tTime">0m</div><div class="l">time this month</div></div>
-        </div>
+        <!-- progress at a glance; the full activity heatmap lives on the stats page -->
+        <button class="strip" id="strip" aria-label="your activity — open stats">
+          <span class="strip-streak"><b id="tStreak">0</b><span>day streak</span></span>
+          <span class="strip-week" id="stripWeek"></span>
+          <span class="strip-month"><span><b id="tWords">0</b> words</span><span><b id="tTime">0m</b> this month</span></span>
+        </button>
         <div class="daily" id="daily">
           <div class="d-left">
             <div class="d-eyebrow" id="dNo">daily</div>
@@ -698,7 +757,6 @@
           </div>
           <div class="d-right" id="dRight"></div>
         </div>
-        <div id="months"></div>
       </div>
     </div>
     <div class="pill-bar">
@@ -709,9 +767,9 @@
         <button class="mchip" data-mode="shoot" role="tab">✷ shoot</button>
       </div>
       <div class="pill">
-        <div class="cfg" id="pillCfg" role="button" tabindex="0" title="change duration & options"><span id="pillIcon">⏱</span> <span id="pillLabel">60 seconds</span><span class="caret">▾</span></div>
+        <div class="cfg" id="pillCfg" role="button" tabindex="0" title="change duration & options"><span id="pillIcon">⏱</span> <span id="pillLabel">60 seconds</span><span class="ranked" id="rankTag" title="this run counts for the leaderboard" hidden>🏆 ranked</span><span class="caret">▾</span></div>
         <span class="sep">|</span>
-        <div class="start" id="startBtn">START</div>
+        <div class="start" id="startBtn" role="button" tabindex="0">START<kbd class="start-kbd" aria-hidden="true">enter</kbd></div>
       </div>
     </div>
     <div class="sheet-scrim" id="scrim"></div>
@@ -730,10 +788,7 @@
       </div>
       <div class="sheet-foot">
         <div class="sheet-cfg"><span id="sheetIcon">⏱</span> <span id="sheetLabel">60 seconds</span></div>
-        <div class="foot-btns">
-          <button class="snd" id="themeBtn">☀ light</button>
-          <button class="snd" id="sndBtn">♪ sound on</button>
-        </div>
+        <div class="sheet-rank" id="sheetRank"></div>
       </div>
     </div>
   </section>
@@ -775,6 +830,10 @@
         <div class="st-title">stats</div>
         <div style="width:52px"></div>
       </div>
+      <div class="st-sec">
+        <div class="st-h">activity <span class="st-cap" id="actCap"></span></div>
+        <div id="months"></div>
+      </div>
       <div class="modebar st-dev" id="stDev" role="tablist" aria-label="which device" hidden>
         <button class="mchip" data-dev="all" role="tab">all</button>
         <button class="mchip" data-dev="k" role="tab">⌨ keyboard</button>
@@ -814,6 +873,7 @@
       <div class="res-item"><div class="res-num" id="rWpm">0</div><div class="res-lab">wpm</div></div>
       <div class="res-item"><div class="res-num sm" id="rAcc">0%</div><div class="res-lab">acc</div></div>
     </div>
+    <div class="res-ctx" id="rCtx"></div>
     <div class="res-sub">
       <div id="rWordsWrap">words <b id="rWords">0</b></div>
       <div>time <b id="rTime">0s</b></div>
@@ -824,11 +884,13 @@
       <span class="ck-slot"></span><span>+<b id="rClacksN">0</b> clacks</span><span class="ck-why" id="rClacksWhy"></span>
     </div>
     <div class="res-board" id="rBoard" aria-live="polite" hidden></div>
+    <div class="res-board res-school" id="rSchool" hidden>still hunting for keys? <button class="linkbtn" id="rSchoolBtn">clack school teaches touch typing from zero →</button></div>
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
       <div class="btn primary" id="shareBtn" hidden>share result</div>
       <div class="btn" id="done">done</div>
     </div>
+    <div class="res-keys" id="resKeys" aria-hidden="true"><kbd>enter</kbd> try again · <kbd>esc</kbd> done</div>
     <button class="linkbtn res-help" id="wpmHelp">how is wpm calculated?</button>
   </section>
 
@@ -1062,8 +1124,11 @@
 
       <div class="st-sec">
         <div class="st-h">progress</div>
-        <p>The heatmap on the home screen shows how much you typed each day, with your day streak and this month's totals.
-          <b>Detailed stats</b> has your personal best for every mode, your wpm over time, and a keyboard that shows which keys you miss most.</p>
+        <p>The home screen shows your <b>day streak</b>, this week (a green square for every day you practised) and this
+          month's totals — tap it for
+          <b>stats</b>, which has the full activity heatmap, your personal best for every mode, your wpm over time, and a
+          keyboard that shows which keys you miss most. After each run, the results compare it with your average for
+          that mode. The 🏆 <b>ranked</b> tag on the start bar means the run will count for the leaderboard.</p>
         <p>Everything is saved <b>in this browser, on this device</b>. There are no accounts yet, so your progress doesn't
           follow you to another device, and clearing this site's data resets it.</p>
       </div>
@@ -1085,7 +1150,9 @@
       <div class="st-sec">
         <div class="st-h">shortcuts</div>
         <dl class="kv">
-          <dt><kbd>Esc</kbd></dt><dd>Quit the current run.</dd>
+          <dt><kbd>Enter</kbd></dt><dd>Start a run from the home screen · try again from the results.</dd>
+          <dt><kbd>Tab</kbd></dt><dd>Restart the current run (not the daily — that's one attempt).</dd>
+          <dt><kbd>Esc</kbd></dt><dd>Quit the current run · close the results.</dd>
           <dt><kbd>Space</kbd></dt><dd>Skip a word (typing) · set off a bomb (shooter).</dd>
           <dt><kbd>Backspace</kbd></dt><dd>Fix the last letter of the current word.</dd>
         </dl>
@@ -1164,7 +1231,7 @@ function currentStreak(){
 
 /* ---------- heatmap: horizontal contribution graph (GitHub-style) ---------- */
 const WEEKS=53;
-function renderMonths(){
+function renderHeatmap(){
   const now=new Date();now.setHours(0,0,0,0);
   // Sunday of the first column, WEEKS-1 weeks before this week's Sunday
   const start=new Date(now);
@@ -1199,9 +1266,26 @@ function renderMonths(){
       <span class="cell l0"></span><span class="cell l1"></span><span class="cell l2"></span>
       <span class="cell l3"></span><span class="cell l4"></span>more</div>`;
   sizeCal();
-  // header stats
-  const t=monthTotals(now.getFullYear(),now.getMonth());
-  $("#tStreak").textContent=currentStreak();
+  const active=Object.keys(DATA).filter(k=>/^\d{4}-\d{1,2}-\d{1,2}$/.test(k)&&DATA[k].words>0).length;
+  $("#actCap").textContent=active?`— ${active} ${active===1?"day":"days"} of practice`:"— finish a run and today lights up";
+}
+// Home: the progress strip (streak, last 14 days, this month) and the daily card.
+// The full heatmap is on the stats page (renderHeatmap).
+function renderMonths(){
+  const now=new Date();now.setHours(0,0,0,0);
+  // this week, Monday to Sunday: a square per day (green = practised), the day letters underneath
+  const mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  let sq="",lt="";
+  for(let i=0;i<7;i++){
+    const d=new Date(mon);d.setDate(mon.getDate()+i);
+    const rec=DATA[dayKey(d)],w=rec?rec.words:0,today=d.getTime()===now.getTime(),future=d>now;
+    const tip=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+(future?"":` · ${w?fmtNum(w)+" words":"no practice"}`);
+    sq+=`<i class="${future?"future":"l"+level(w)}${today?" today":""}" title="${tip}"></i>`;
+    lt+=`<span class="${today?"today":""}">${"MTWTFSS"[i]}</span>`;
+  }
+  $("#stripWeek").innerHTML=sq+lt;
+  const t=monthTotals(now.getFullYear(),now.getMonth()),streak=currentStreak();
+  $("#tStreak").textContent=streak;
   $("#tWords").textContent=fmtNum(t.words);
   $("#tTime").textContent=fmtTime(t.time);
   renderDaily();updateBalance();
@@ -1222,11 +1306,11 @@ function calLabels(start){
 const CAL_PHONE=640;
 function sizeCal(){
   const cw=el.months.querySelector(".cal-wrap");if(!cw)return;
-  const small=window.innerWidth<CAL_PHONE,gap=4,maxCs=small?48:30,room=cw.clientWidth-32;   // 32 = weekday labels + padding
+  const small=window.innerWidth<CAL_PHONE,gap=4,maxCs=small?48:30,room=cw.clientWidth-30;   // 30 = weekday labels
   let weeks=small?9:26;
   if((room-(weeks-1)*gap)/weeks>maxCs)weeks=Math.floor((room+gap)/(maxCs+gap));   // very wide: more weeks, not huge squares
   const cs=Math.max(14,(room-(weeks-1)*gap)/weeks);           // exactly `weeks` whole columns, no sliver
-  cw.style.setProperty("--cs",cs+"px");cw.style.setProperty("--cg",gap+"px");
+  el.months.style.setProperty("--cs",cs+"px");el.months.style.setProperty("--cg",gap+"px");
   cw.scrollLeft=cw.scrollWidth;requestAnimationFrame(()=>{cw.scrollLeft=cw.scrollWidth;});   // again once fonts/layout settle
 }
 let calW=window.innerWidth;
@@ -1242,6 +1326,15 @@ function labelFor(){
 function syncLabels(){
   el.pillLabel.textContent=labelFor();el.sheetLabel.textContent=labelFor();
   $("#pillIcon").textContent=ICONS[mode];$("#sheetIcon").textContent=ICONS[mode];
+  syncRanked();
+}
+// Leaderboard runs: plain 30s or 60s (no punctuation, numbers or weak keys) and the daily.
+// var-guarded: syncLabels can run before the online block has set API up.
+function isRanked(){return !!(ONLINE_READY&&API)&&mode==="time"&&(value===30||value===60)&&!punct&&!nums&&!weakFocus;}
+function syncRanked(){
+  const on=isRanked();$("#rankTag").hidden=!on;
+  $("#sheetRank").innerHTML=!(ONLINE_READY&&API)||mode==="shoot"?"":on?"<b>🏆 ranked</b> — counts for the leaderboard":
+    "unranked — 30s or 60s with no extras go on the leaderboard";
 }
 function renderOpts(){
   el.opts.innerHTML=OPTS[mode].map(v=>`<div class="opt${v===value?' active':''}" data-v="${v}">${v}</div>`).join("");
@@ -1553,9 +1646,10 @@ function recordKey(expected,ok){
   e.a++;if(!ok)e.e++;
 }
 // logs the run, updates PB; returns true only when an existing record was beaten
-// dev: "k" for a physical keyboard, "t" for a touch keyboard
-function finishRun(modeKey,kind,val,wpm,dev){
-  STATS.history.push({t:Date.now(),wpm:wpm||0,dev});
+// dev: "k" for a physical keyboard, "t" for a touch keyboard; hk: what kind of run it was (e.g. "time·60",
+// "daily"), so the results screen can compare a run with earlier runs of the same kind
+function finishRun(modeKey,kind,val,wpm,dev,hk=modeKey){
+  STATS.history.push({t:Date.now(),wpm:wpm||0,dev,m:hk||undefined});
   if(STATS.history.length>120)STATS.history=STATS.history.slice(-120);
   if(!modeKey){saveStats();return false;}           // e.g. the daily: logged, but not a personal-best category
   const prev=STATS.pb[modeKey];let beat=false;
@@ -1564,6 +1658,30 @@ function finishRun(modeKey,kind,val,wpm,dev){
   if(!pd[modeKey]||val>pd[modeKey].v)pd[modeKey]={v:val,kind:kind};
   saveStats();
   return beat;
+}
+// "▲ 6 above your average of 78 · best 88": this run against your last 10 of the same kind,
+// on the same kind of keyboard. Called before the run is added to the history.
+function resultContext(hk,dev,wpm){
+  const prev=STATS.history.filter(h=>h.m===hk&&(h.dev||"k")===dev&&h.wpm>0).slice(-10);
+  const what=hk==="daily"?"daily":modeLabel(hk)+(hk.endsWith("·weak")?" weak-key":"");
+  if(!prev.length){
+    // runs from before modes were recorded: fall back to the stored personal best, if there is one
+    const pb=(STATS.pbDev[dev]||{})[hk];
+    if(pb)return wpm>pb.v?"":`your best ${what} is <b>${pb.v}</b>`;
+    if(STATS.history.some(h=>!h.m))return "";
+    return `your first ${what} run${dev==="t"?" on a phone":""} — beat it next time`;
+  }
+  const avg=Math.round(prev.reduce((s,h)=>s+h.wpm,0)/prev.length),best=Math.max(...prev.map(h=>h.wpm)),d=wpm-avg;
+  const vs=hk==="daily"?"your daily average":"your average";
+  const head=d>0?`<span class="up">▲ ${d}</span> above ${vs} of <b>${avg}</b>`:d<0?`▼ ${-d} below ${vs} of <b>${avg}</b>`:`right on ${vs} of <b>${avg}</b>`;
+  return head+(wpm>best?"":` · best <b>${best}</b>`);
+}
+// A slow run on a physical keyboard: point at Clack School (once per visit, until the course is done).
+let schoolNudged=false;
+function schoolNudge(dev,wpm,chars){
+  const done=Object.values(STATS.school.stars).filter(Boolean).length;
+  const show=dev==="k"&&!touchOnly()&&wpm>0&&wpm<25&&chars>=40&&done<LESSONS.length&&!schoolNudged;
+  $("#rSchool").hidden=!show;if(show)schoolNudged=true;
 }
 function fanfare(){
   if(!soundOn)return;
@@ -1675,19 +1793,33 @@ function startDaily(){
 function restoreMode(){if(prevMode){[mode,value]=prevMode;prevMode=null;renderOpts();syncLabels();updateMods();}}
 function renderDaily(){
   const n=dailyNo(),r=STATS.daily[n],box=$("#daily");if(!box)return;
-  const streak=dailyStreak();
+  // dailies played on consecutive days; shown from 2, so it doesn't read like a second "day streak"
+  const streak=dailyStreak(),run=streak>=2?` · 🔥 ${streak} dailies in a row`:"";
   $("#dNo").textContent="daily #"+n;
   if(!r){
-    $("#dSub").textContent="30 words · same for everyone today"+(streak?` · 🔥 ${streak} day streak`:"");
+    $("#dSub").textContent="30 words · same for everyone today"+run;
     $("#dRight").innerHTML=`<button class="btn primary" id="dPlay">play today's</button>`;
     $("#dPlay").onclick=startDaily;
   }else{
-    $("#dSub").textContent=`next daily in ${untilNextDaily()}`+(streak?` · 🔥 ${streak} day streak`:"");
+    $("#dSub").innerHTML=`next daily in ${untilNextDaily()}${run}${dailyRankHtml(n,r)}`;
     $("#dRight").innerHTML=`<div class="d-score"><b>${r.wpm}</b> wpm · ${r.acc}%</div>
       <div class="dgrid" aria-label="${r.grid.split("").filter(c=>c==="1").length} of ${r.grid.length} words clean">${[...r.grid].map(c=>`<i class="${c==="1"?"":"x"}"></i>`).join("")}</div>
       <button class="btn" id="dShare">share</button>`;
     $("#dShare").onclick=()=>openShare(n);
+    const rk=$("#dRank");if(rk)rk.onclick=()=>openBoard("daily");
   }
+}
+// "· #3 of 41 →" on the played daily card: from the leaderboard, cached for a minute.
+let dRank={n:0,at:0,txt:""};
+function dailyRankHtml(n,r){
+  if(!ONLINE_READY||!API)return "";
+  if(!joined())return ` · <button class="linkbtn d-rank" id="dRank">see the board →</button>`;
+  if(dRank.n!==n||Date.now()-dRank.at>60e3){
+    dRank={n,at:Date.now(),txt:dRank.n===n?dRank.txt:""};
+    api(`/api/board?b=daily&day=${n}&dev=${r.dev||"k"}`).then(b=>{
+      dRank.txt=b.me?`#${b.me.rank} of ${b.total}`:"see the board";if(!el.home.hidden)renderDaily();}).catch(()=>{});
+  }
+  return dRank.txt?` · <button class="linkbtn d-rank" id="dRank">${dRank.txt} →</button>`:"";
 }
 setInterval(()=>{if(!el.home.hidden)renderDaily();},30000);   // keep the countdown fresh
 
@@ -1789,8 +1921,9 @@ function startTest(){
   if(weakFocus&&(mode==="time"||mode==="words")){weakSet=weakKeys();weakPool=weakSet&&buildWeakPool(weakSet);if(!weakPool)weakSet=null;}
   $("#hint").textContent=weakSet?"practising your weak keys: "+weakSet.join(" · "):
     (weakFocus&&(mode==="time"||mode==="words"))?"not enough key data yet — this run is normal practice":"just start typing";
+  if(mode!=="daily"&&!touchOnly())$("#hint").textContent+=" · tab restarts";
   runTouch=false;runKeys="";runGaps=[];runGen=null;
-  runBoard=!API?null:mode==="daily"?"daily":(mode==="time"&&(value===30||value===60)&&!punct&&!nums&&!weakSet)?"time"+value:null;
+  runBoard=!API?null:mode==="daily"?"daily":isRanked()?"time"+value:null;
   if(runBoard&&runBoard!=="daily"){runSeed=crypto.getRandomValues(new Uint32Array(1))[0];runGen=wordGen(runSeed);}
   if(mode==="daily"){seq=dailyWords(value);curAuthor="";dailyGrid=[];}
   else if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
@@ -1824,7 +1957,11 @@ function endTest(){
   if(isDaily&&!STATS.daily[value])STATS.daily[value]={wpm,acc,combo:maxCombo,time:Math.round(elapsed),grid:dailyGrid.join("")};
   // the daily and weak-key practice (harder, hand-picked words) are logged but don't set personal bests
   const dev=runTouch?"t":"k";
-  const beat=finishRun(isDaily||weakSet?null:mode+"·"+value,"wpm",wpm,wpm,dev);
+  const hk=isDaily?"daily":mode+"·"+value+(weakSet?"·weak":"");
+  $("#rCtx").innerHTML=resultContext(hk,dev,wpm,"wpm");          // before this run joins the history
+  if(isDaily&&STATS.daily[value])STATS.daily[value].dev=dev;
+  const beat=finishRun(isDaily||weakSet?null:mode+"·"+value,"wpm",wpm,wpm,dev,hk);
+  schoolNudge(dev,wpm,totalChars);
   if(runBoard&&runKeys)postRun({board:runBoard,day:isDaily?value:undefined,seed:runGen?runSeed:undefined,dev,keys:runKeys,gaps:runGaps.slice()});
   else showResBoard("");
   runBoard=null;runGen=null;
@@ -1832,6 +1969,7 @@ function endTest(){
   // show results
   $("#rTitle").textContent = isDaily ? "daily #"+value+" complete" : mode==="quote"&&curAuthor ? "— "+curAuthor : "test complete";
   $("#again").hidden=isDaily;$("#shareBtn").hidden=!isDaily;shareNo=isDaily?value:shareNo;
+  $("#resKeys").innerHTML=isDaily?"<kbd>esc</kbd> done":"<kbd>enter</kbd> try again · <kbd>esc</kbd> done";
   $("#rScoreItem").hidden=true;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=false;
   $("#rWpm").textContent=wpm;
   $("#rAcc").textContent=acc+"%";
@@ -2077,9 +2215,12 @@ function endShoot(){
   const acc=sKeysAll?Math.round(sKeysOk/sKeysAll*100):100;
   const k=dayKey(new Date());const rec=DATA[k]||{words:0,time:0};
   rec.words+=sKills;rec.time+=Math.round(elapsed);DATA[k]=rec;saveData(DATA);renderMonths();
-  const beat=finishRun("shoot·"+value,"score",sScore,wpm,runTouch?"t":"k");
-  showResBoard("");
+  const sdev=runTouch?"t":"k",sbest=(STATS.pbDev[sdev]||{})["shoot·"+value];
+  $("#rCtx").innerHTML=sbest?(sScore>sbest.v?"":`your best on ${value} is <b>${fmtNum(sbest.v)}</b> pts`):`first game on ${value}`;
+  const beat=finishRun("shoot·"+value,"score",sScore,wpm,sdev);
+  showResBoard("");$("#rSchool").hidden=true;
   $("#rTitle").textContent="game over";$("#again").hidden=false;$("#shareBtn").hidden=true;
+  $("#resKeys").innerHTML="<kbd>enter</kbd> play again · <kbd>esc</kbd> done";
   $("#rScoreItem").hidden=false;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=true;
   $("#rScore").textContent=sScore;
   $("#rWpm").textContent=wpm;$("#rAcc").textContent=acc+"%";
@@ -2253,13 +2394,17 @@ function modeLabel(key){
 let statsDev="all";
 const histFor=dv=>STATS.history.filter(h=>dv==="all"||(h.dev||"k")===dv);
 function renderStats(){
+  renderHeatmap();
   // the device switch appears once there's something to compare (or on a touch device)
   const hasTouch=STATS.history.some(h=>h.dev==="t")||Object.keys(STATS.pbDev.t||{}).length;
   $("#stDev").hidden=!(hasTouch||touchOnly());
   document.querySelectorAll("#stDev .mchip").forEach(b=>{const on=b.dataset.dev===statsDev;b.classList.toggle("active",on);b.setAttribute("aria-selected",on);});
   // personal bests
   const pbs=statsDev==="all"?STATS.pb:(STATS.pbDev[statsDev]||{});
-  const keys=Object.keys(pbs).sort();
+  // typing first (time, words, quote — shortest first), then the shooter by difficulty
+  const ORDER={time:0,words:1,quote:2,shoot:3},SUB={short:0,medium:1,long:2,calm:0,normal:1,frenzy:2};
+  const rank=k=>{const [m,v]=k.split("·");return [ORDER[m]??9,isNaN(+v)?(SUB[v]??9):+v];};
+  const keys=Object.keys(pbs).sort((a,b)=>{const x=rank(a),y=rank(b);return x[0]-y[0]||x[1]-y[1];});
   $("#pbList").innerHTML = keys.length
     ? keys.map(k=>{const r=pbs[k];const val=r.kind==="score"?(fmtNum(r.v)+" pts"):(r.v+" wpm");
         return `<div class="pb-row"><span>${modeLabel(k)}</span><b>${val}</b></div>`;}).join("")
@@ -2327,6 +2472,7 @@ function openStats(){el.home.hidden=true;el.test.hidden=true;el.result.hidden=tr
   $("#stats").hidden=false;renderStats();}
 function closeStats(){$("#stats").hidden=true;el.home.hidden=false;renderMonths();}
 $("#statsBtn").onclick=openStats;
+$("#strip").onclick=openStats;
 document.querySelectorAll("#stDev .mchip").forEach(b=>b.onclick=()=>{statsDev=b.dataset.dev;renderStats();});
 $("#statsBack").onclick=closeStats;
 
@@ -2652,7 +2798,7 @@ function maybeAskSchool(){
 function answerAsk(learn){STATS.school.asked=true;saveStats();$("#askScrim").hidden=true;$("#askBox").hidden=true;if(learn)openSchool();}
 
 /* school wiring */
-$("#schoolBtn").onclick=openSchool;$("#scBack").onclick=closeSchool;$("#scExit").onclick=()=>exitLesson();
+$("#schoolBtn").onclick=openSchool;$("#rSchoolBtn").onclick=openSchool;$("#scBack").onclick=closeSchool;$("#scExit").onclick=()=>exitLesson();
 $("#scUnits").addEventListener("click",e=>{const n=e.target.closest("[data-lesson]");if(n&&!n.disabled)startLesson(+n.dataset.lesson);});
 $("#scNext").onclick=()=>{const i=SC.i+1;exitLesson(true);startLesson(i);};
 $("#scRetry").onclick=()=>{const i=SC.i;exitLesson(true);startLesson(i);};
@@ -2668,7 +2814,33 @@ document.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{storeTab=b.dataset.
 $("#storeGrid").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b)storeAction(b.dataset.act,b.dataset.id);});
 document.querySelectorAll(".ck-slot").forEach(s=>s.innerHTML=CK);
 
-$("#helpBtn").onclick=()=>openHelp();
+/* settings menu in the header: theme, sound, how it works */
+function toggleMenu(open){
+  const m=$("#navMenu"),b=$("#menuBtn");open=open??m.hidden;
+  m.hidden=!open;b.setAttribute("aria-expanded",String(open));
+}
+$("#menuBtn").onclick=e=>{e.stopPropagation();toggleMenu();};
+document.addEventListener("click",e=>{if(!$("#navMenu").hidden&&!e.target.closest(".navwrap"))toggleMenu(false);});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#navMenu").hidden){toggleMenu(false);$("#menuBtn").focus();}});
+$("#helpBtn").onclick=()=>{toggleMenu(false);openHelp();};
+
+/* keyboard: Enter starts from home; on results Enter / Tab plays again and Esc is done; Tab restarts a run */
+const dialogOpen=()=>["#askBox","#kbBox","#shareBox","#acctBox"].some(s=>!$(s).hidden)||!$("#navMenu").hidden;
+window.addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||e.repeat||dialogOpen())return;
+  const a=document.activeElement,onControl=a&&a!==document.body&&a!==kbIn&&a.closest("button,[role=button],input,a,.tab,.opt");
+  if(!el.home.hidden&&e.key==="Enter"){
+    if(onControl&&a!==$("#startBtn"))return;          // Enter on a focused button presses that button
+    e.preventDefault();$("#startBtn").click();
+  }else if(!el.result.hidden&&(e.key==="Enter"||e.key==="Tab"||e.key==="Escape")){
+    if(e.key==="Enter"&&onControl)return;
+    e.preventDefault();
+    if(e.key==="Escape"||$("#again").hidden)$("#done").click();else $("#again").click();
+  }else if(running&&e.key==="Tab"&&mode!=="daily"){   // the daily is one attempt, so no restarts
+    e.preventDefault();clearInterval(tick);running=false;window.removeEventListener("keydown",onKey);startTest();
+  }
+});
+$("#startBtn").addEventListener("keydown",e=>{if(e.key===" "){e.preventDefault();$("#startBtn").click();}});
 $("#wpmHelp").onclick=()=>openHelp("help-wpm");
 $("#helpBack").onclick=closeHelp;
 window.addEventListener("resize",()=>{if(!$("#stats").hidden)drawChart();});
@@ -2677,7 +2849,7 @@ window.addEventListener("resize",()=>{if(!$("#stats").hidden)drawChart();});
 let theme=(function(){try{return localStorage.getItem("clack_theme")||"dark";}catch(e){return "dark";}})();
 function applyTheme(){
   document.documentElement.setAttribute("data-theme",theme);
-  $("#themeBtn").textContent=theme==="light"?"☾ dark":"☀ light";
+  $("#themeBtn").textContent=theme==="light"?"☾ dark theme":"☀ light theme";
   $("#themeBtn").classList.toggle("on",theme==="light");
   if(!$("#stats").hidden)renderStats();     // recolor the key heatmap for the new theme
 }
@@ -2685,7 +2857,7 @@ $("#themeBtn").onclick=e=>{e.stopPropagation();theme=(theme==="light"?"dark":"li
   try{localStorage.setItem("clack_theme",theme);}catch(_){}applyTheme();};
 
 try{const m=JSON.parse(localStorage.getItem("clack_mods"));if(m){punct=!!m.punct;nums=!!m.nums;weakFocus=!!m.weak;}}catch(e){}
-function syncMods(){$("#punctBtn").classList.toggle("on",punct);$("#numBtn").classList.toggle("on",nums);$("#weakBtn").classList.toggle("on",weakFocus);}
+function syncMods(){$("#punctBtn").classList.toggle("on",punct);$("#numBtn").classList.toggle("on",nums);$("#weakBtn").classList.toggle("on",weakFocus);syncRanked();}
 function saveMods(){try{localStorage.setItem("clack_mods",JSON.stringify({punct,nums,weak:weakFocus}));}catch(e){}}
 $("#weakBtn").onclick=e=>{e.stopPropagation();weakFocus=!weakFocus;saveMods();syncMods();};
 
@@ -2790,7 +2962,8 @@ function mergeSets(into,from){
   const isObj=v=>v&&typeof v==="object"&&!Array.isArray(v);
   if(!isObj(from))return into;
   const hist=new Map();
-  for(const h of [...(into.history||[]),...(from.history||[])])if(isObj(h)&&Number.isFinite(h.t))hist.set(h.t+":"+h.wpm,h);
+  for(const h of [...(into.history||[]),...(from.history||[])])if(isObj(h)&&Number.isFinite(h.t)){
+    const k=h.t+":"+h.wpm,prev=hist.get(k);hist.set(k,prev?{...h,...prev}:h);}   // keep fields either copy has (e.g. the mode)
   into.history=[...hist.values()].sort((a,b)=>a.t-b.t).slice(-120);
   const best=(a,b)=>{a=isObj(a)?a:{};if(isObj(b))for(const [k,v] of Object.entries(b))if(isObj(v)&&(!a[k]||v.v>a[k].v))a[k]={v:v.v,kind:v.kind};return a;};
   into.pb=best(into.pb,from.pb);
