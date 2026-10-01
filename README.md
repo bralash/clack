@@ -52,9 +52,11 @@ Lessons unlock at 90% accuracy and earn up to three stars; the on-screen keyboar
 learn not to look. The **get set** lesson opens with a picture of both hands in the home position, and a **hand position**
 button brings it back during any lesson (the clock pauses while it's open). First-time visitors are asked whether they can already touch type.
 
-Clack School is a **keyboard feature**: it teaches 10-finger typing, which doesn't apply to a phone's on-screen keyboard.
-On phones the course map explains this and offers to share the link so you can open it on a computer. Lessons unlock as soon
-as a physical keyboard is detected (an iPad keyboard case, or a Bluetooth keyboard on a phone).
+Clack School is made for a **full keyboard**. Computers and tablets with a keyboard get it as is. Tablets on their
+on-screen keyboard can take the lessons too (the keyboard comes up, and lesson 0 explains home position on glass), with a
+note that a real keyboard is better. Phones are told the lessons don't apply to thumb typing and can share the link to a
+computer; they unlock as soon as a physical keyboard is detected. Phones, tablets (including iPads that present themselves
+as Macs) and desktops are told apart by the browser's own report, the OS in the user agent, then screen size.
 
 ### Leaderboard & sync
 - Three boards — **daily**, **30s** and **60s** — each with separate **keyboard** and **phone** lists, and

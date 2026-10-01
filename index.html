@@ -929,6 +929,10 @@
               with a phone's on-screen keyboard. Open clack on a computer — or connect a keyboard and press any key.</span>
             <button class="chip" id="scTouchShare">send me the link</button>
           </div>
+          <div class="sc-note sc-nokb" id="scGlass" hidden>
+            <span><b>⌨ best with a keyboard.</b> The lessons work on the on-screen keyboard, but a real one is better —
+              you can feel the bumps on F and J, and your hands learn where the keys are. Connect one any time.</span>
+          </div>
         </div>
         <div class="sc-units" id="scUnits"></div>
       </div>
@@ -948,7 +952,7 @@
           <ol>
             <li>Sit up, relax your shoulders, and keep your wrists just above the keyboard.</li>
             <li>Rest your left fingers on <b>A S D F</b> and your right fingers on <b>J K L ;</b> — this is the <b>home row</b>.</li>
-            <li>Feel the little bumps on <b>F</b> and <b>J</b>. Your index fingers live there, so you can find home without looking.</li>
+            <li id="scBumps">Feel the little bumps on <b>F</b> and <b>J</b>. Your index fingers live there, so you can find home without looking.</li>
             <li>Rest your thumbs on the <b>space bar</b>. Keep your eyes on the screen from now on.</li>
           </ol>
           <div class="sc-ready">press <kbd>space</kbd> when you're ready</div>
@@ -1074,8 +1078,9 @@
           type <b>words</b> made only from keys you know, then a scored <b>check</b>. A wrong key doesn't move you on, and
           Clack tells you which finger you used by mistake. Forgot where your hands go? Press <b>✋ hand position</b> under
           the keyboard to see the home position again (the clock pauses while you look).</p>
-        <p>Clack School needs a <b>physical keyboard</b> — on a phone's on-screen keyboard you type with your thumbs, so the lessons
-          don't apply. Connect a keyboard (or open clack on a computer) and the lessons work as normal.</p>
+        <p>Clack School is made for a <b>full keyboard</b>. On a computer, or a tablet with a keyboard, it works as is. On a
+          tablet's on-screen keyboard the lessons work too — you just can't feel the bumps on F and J, so a real keyboard is
+          better. On a phone you type with your thumbs, so the lessons don't apply: connect a keyboard or open clack on a computer.</p>
         <p>Pass a lesson with <b>90% accuracy</b> to unlock the next one; higher accuracy and speed earn up to three stars.
           The on-screen keyboard fades out while you're typing accurately, so you learn not to look. You can pin it if you'd rather keep it.</p>
       </div>
@@ -2135,6 +2140,7 @@ function blurKb(){ try{kbIn.blur();}catch(e){} }
 kbIn.addEventListener("beforeinput",e=>{
   e.preventDefault();                              // keep the hidden field empty
   if(kdPending){kdPending=false;return;}           // its keydown already handled this keystroke
+  if(SC){if((e.inputType==="insertText"||e.inputType==="insertCompositionText")&&e.data)for(const ch of e.data)schoolChar(ch);return;}
   if(running||sRun)runTouch=true;                  // typed on a touch keyboard: this run goes in the phone lists
   const t=e.inputType;
   if(t==="insertText"||t==="insertCompositionText"){
@@ -2771,12 +2777,27 @@ function renderSchool(){
           <span class="sc-nk">${open?label:"🔒"}</span><span class="sc-ns">${"★".repeat(s)}${"☆".repeat(3-s)}</span></button>`;}).join("")}</div>
     </div>`).join("");
   $("#scTouch").hidden=!needsKb();
+  $("#scGlass").hidden=!onGlass();
 }
-// Clack School needs a physical keyboard. Touch-only devices (phones) are told so, unless a real
-// key press shows one is connected (an iPad keyboard case, a Bluetooth keyboard on a phone).
 const touchOnly=()=>matchMedia("(pointer: coarse)").matches&&!matchMedia("(any-pointer: fine)").matches;
+// What kind of device this is: "phone", "tablet" or "desktop". The browser's own answer first
+// (Chromium's userAgentData.mobile, then the OS in the user agent); iPads that present themselves as
+// Macs are caught by their touch points; anything else touch-only goes by screen size.
+function deviceKind(){
+  const ua=navigator.userAgent||"",uad=navigator.userAgentData;
+  if(uad&&uad.mobile===true)return "phone";
+  if(/iPhone|iPod|Windows Phone/.test(ua)||(/Android/.test(ua)&&/Mobile/.test(ua)))return "phone";
+  if(/iPad/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)||/Android/.test(ua))return "tablet";
+  if(touchOnly())return Math.min(screen.width,screen.height)<600?"phone":"tablet";
+  return "desktop";
+}
+const DEVICE=deviceKind();
+// Clack School teaches on a full keyboard. Phones are told it won't work on their on-screen keyboard,
+// unless a real key press shows a keyboard is connected. Tablets are welcome either way: with a
+// keyboard case it's the real thing; on the glass keyboard the lessons still work, with a note.
 let hwKb=false;
-const needsKb=()=>touchOnly()&&!hwKb;
+const needsKb=()=>DEVICE==="phone"&&!hwKb;
+const onGlass=()=>DEVICE==="tablet"&&!hwKb;
 window.addEventListener("keydown",e=>{
   if(hwKb||e.isComposing||e.keyCode===229||!e.key||e.key==="Unidentified")return;
   if(document.activeElement===kbIn)return;          // soft keyboards type into the hidden field
@@ -2810,8 +2831,13 @@ function startLesson(i){
   for(const [id,p] of Object.entries(PADS))Guide.tips[id]=[...p];   // every lesson starts with all pads at home
   Guide.start();ac();
   $("#scIntro").hidden=!SC.intro;$("#scLesson").hidden=SC.intro;
+  // on glass you can't feel the home-row bumps, so lesson 0 says what to do instead
+  $("#scBumps").innerHTML=onGlass()
+    ?`On glass you can't feel the bumps on <b>F</b> and <b>J</b>, so rest your fingertips lightly on the home row and bring them back there after every key.`
+    :`Feel the little bumps on <b>F</b> and <b>J</b>. Your index fingers live there, so you can find home without looking.`;
   if(!SC.intro)beginStep();else{Guide.st.target=null;renderSteps();}
   window.addEventListener("keydown",schoolKey);
+  if(DEVICE!=="desktop")focusKb();                 // tablets (and phones with a keyboard): bring up the keyboard / take its keys
 }
 function beginStep(){
   const st=SC.steps[SC.step];SC.pos=0;SC.streak=0;
@@ -2858,11 +2884,19 @@ function schoolKey(e){
   if(!$("#scHands").hidden){if(!["Shift","Control","Alt","Meta","CapsLock"].includes(e.key)){e.preventDefault();hideHands();}return;}
   if(e.key==="Escape"){e.preventDefault();exitLesson();return;}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
-  if(SC.intro&&!$("#scIntro").hidden){if(e.key===" "||e.key==="Enter"){e.preventDefault();SC.intro=false;beginStep();}return;}
-  if(!$("#scDone").hidden)return;
+  if(e.key==="Enter"){if(SC.intro&&!$("#scIntro").hidden){e.preventDefault();schoolChar(" ");}return;}
   if(e.key.length!==1)return;
-  claimKey(e);
-  const k=e.key.toLowerCase(),st=SC.steps[SC.step],exp=st.text[SC.pos];
+  claimKey(e);schoolChar(e.key);
+}
+// One typed character in a lesson, from a real keyboard (schoolKey) or an on-screen one (beforeinput).
+function schoolChar(ch){
+  if(!SC)return;
+  if(!$("#scHands").hidden){hideHands();return;}
+  // keys arriving with no on-screen keyboard showing: a real keyboard is attached
+  if(DEVICE!=="desktop"&&!hwKb&&!softKbUp())hwKb=true;
+  if(SC.intro&&!$("#scIntro").hidden){if(ch===" "){SC.intro=false;beginStep();}return;}
+  if(!$("#scDone").hidden)return;
+  const k=ch.toLowerCase(),st=SC.steps[SC.step],exp=st.text[SC.pos];
   if(!SC.t0)SC.t0=performance.now();
   if(st.kind==="check"&&!SC.tc0)SC.tc0=performance.now();
   SC.keys++;recordKey(exp,k===exp);
@@ -2906,13 +2940,13 @@ function finishLesson(){
   updateBalance();
 }
 function exitLesson(silent){
-  window.removeEventListener("keydown",schoolKey);Guide.stop();SC=null;$("#scHands").hidden=true;
+  window.removeEventListener("keydown",schoolKey);Guide.stop();SC=null;$("#scHands").hidden=true;blurKb();
   if(!silent){$("#scPlay").hidden=true;$("#scMap").hidden=false;renderSchool();}
 }
 
 /* first visit: ask whether they can already touch type */
 function maybeAskSchool(){
-  if(STATS.school.asked||STATS.history.length||touchOnly())return;   // phones can't take the course, so don't offer it
+  if(STATS.school.asked||STATS.history.length||DEVICE==="phone")return;   // phones can't take the course, so don't offer it
   $("#askScrim").hidden=false;$("#askBox").hidden=false;$("#askNo").focus();
 }
 function answerAsk(learn){STATS.school.asked=true;saveStats();$("#askScrim").hidden=true;$("#askBox").hidden=true;if(learn)openSchool();}
@@ -2923,6 +2957,8 @@ $("#scUnits").addEventListener("click",e=>{const n=e.target.closest("[data-lesso
 $("#scNext").onclick=()=>{const i=SC.i+1;exitLesson(true);startLesson(i);};
 $("#scRetry").onclick=()=>{const i=SC.i;exitLesson(true);startLesson(i);};
 $("#scToMap").onclick=()=>exitLesson();
+// tapping the lesson brings the on-screen keyboard back if it was put away
+$("#scPlay").addEventListener("click",e=>{if(SC&&DEVICE!=="desktop"&&!e.target.closest("button,.quit"))focusKb();});
 $("#kbOk").onclick=closeKbNote;$("#kbScrim").onclick=closeKbNote;
 $("#kbShare").onclick=e=>shareSchoolLink(e.currentTarget);$("#scTouchShare").onclick=e=>shareSchoolLink(e.currentTarget);
 $("#askNo").onclick=()=>answerAsk(true);$("#askYes").onclick=()=>answerAsk(false);$("#askScrim").onclick=()=>answerAsk(false);
@@ -3152,7 +3188,7 @@ function openBoard(b){
   lbFrom=el.result.hidden?"home":"result";
   for(const v of ["#stats","#help","#store","#school"])$(v).hidden=true;el.home.hidden=true;el.result.hidden=true;
   $("#board").hidden=false;
-  if(b)LB.b=b;if(!LB.day)LB.day=dailyNo();if(!LB.dev)LB.dev=touchOnly()?"t":"k";
+  if(b)LB.b=b;if(!LB.day)LB.day=dailyNo();if(!LB.dev)LB.dev=(DEVICE==="phone"||onGlass())?"t":"k";
   LB.confirm=null;
   loadBoard();renderAccount();
   if(joined())api("/api/me").then(m=>{ON.name=m.name;ON.renameIn=m.renameIn;saveOn();renderAccount();})
@@ -3374,7 +3410,8 @@ function fitViewport(){
 // case shows no on-screen keyboard, so its runs stay "keyboard".
 // Only on devices driven by touch: a desktop window made shorter (dev tools, resizing) isn't a keyboard.
 function softKbUp(){return matchMedia("(pointer: coarse)").matches&&fullH-appH>120;}
-function noteDevice(){if(!runTouch&&(running||sRun)&&softKbUp())runTouch=true;}
+// On a phone (by its OS) every run is a phone run, even on a floating keyboard that doesn't shrink the screen.
+function noteDevice(){if(!runTouch&&(running||sRun)&&(DEVICE==="phone"||softKbUp()))runTouch=true;}
 if(VV){VV.addEventListener("resize",fitViewport);VV.addEventListener("scroll",fitViewport);}
 window.addEventListener("resize",fitViewport);
 fitViewport();
