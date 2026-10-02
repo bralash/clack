@@ -611,6 +611,67 @@
   @keyframes pbPop{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
   @media (prefers-reduced-motion:reduce){.pb-badge.pop{animation:none;}}
 
+  /* ---------- CLACK OFF ---------- */
+  .duel-new{font-family:var(--mono);font-size:12px;font-weight:700;color:#1a1608;background:var(--gold);border-radius:999px;padding:3px 10px;}
+  /* race lanes in the test view: you vs the challenger's ghost */
+  .race{width:min(560px,calc(100% - 32px));margin:6px auto 0;display:flex;flex-direction:column;gap:7px;font-family:var(--mono);z-index:2;}
+  .lane{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;align-items:center;font-size:12px;}
+  .lane .who{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lane.ghost .who{color:var(--text-dim);}
+  .lane .track{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;}
+  .lane .track i{display:block;height:100%;width:0;border-radius:999px;background:var(--gold);transition:width .25s linear;}
+  .lane.ghost .track i{background:#b39cff;opacity:.85;}
+  .lane b{color:var(--gold);text-align:right;font-variant-numeric:tabular-nums;}
+  .lane.ghost b{color:#b39cff;}
+  .race-gap{font-size:11px;color:var(--text-dim);text-align:center;min-height:14px;}
+  #app.short .race{margin-top:2px;gap:5px;}
+  /* the clack off screen */
+  .co-hero{display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+  .co-taunt{font-family:var(--mono);font-size:clamp(24px,4vw,34px);font-weight:700;color:var(--text);line-height:1.2;margin:0;}
+  .co-taunt::before{content:"“";color:var(--gold);}.co-taunt::after{content:"”";color:var(--gold);}
+  .co-by{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+  .co-by b{color:var(--gold);}
+  .co-meta{display:flex;flex-wrap:wrap;gap:8px;}
+  .co-meta span{font-family:var(--mono);font-size:12px;color:var(--text-dim);border:1px solid var(--line);border-radius:999px;padding:4px 10px;}
+  .co-meta span b{color:var(--text);font-weight:600;}
+  .co-act{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;font-family:var(--mono);}
+  .co-act p{margin:0;font-size:12px;line-height:1.6;color:var(--text-dim);}
+  .co-act p b{color:var(--text);}
+  .co-act .btn.big{padding:13px 18px;font-size:14px;text-align:center;}
+  .co-big{font-size:18px;color:var(--text);line-height:1.4;}
+  .co-big b{color:var(--gold);}
+  .co-link{display:flex;gap:8px;flex-wrap:wrap;}
+  .co-link .lb-input{font-size:13px;color:var(--gold);}
+  .co-taunts{display:flex;flex-wrap:wrap;gap:6px;}
+  .co-taunts button{font-family:var(--mono);font-size:12px;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--line);
+    border-radius:999px;padding:6px 11px;cursor:pointer;}
+  .co-taunts button.on{color:#1a1608;background:var(--gold);border-color:var(--gold);font-weight:600;}
+  .co-list{display:flex;flex-direction:column;gap:6px;}
+  .co-item{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;font-family:var(--mono);text-align:left;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);}
+  .co-item:hover{border-color:var(--gold-dim);}
+  .co-item .t{font-size:14px;}.co-item .t i{font-style:normal;color:var(--gold);}
+  .co-item .s{font-size:11px;color:var(--text-dim);grid-column:1;}
+  .co-item .r{grid-row:1/3;grid-column:2;text-align:right;font-size:12px;color:var(--text-dim);}
+  .co-item .r b{display:block;font-size:16px;color:var(--gold);}
+  .co-item .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-left:8px;vertical-align:1px;}
+  .co-starts{display:flex;gap:8px;flex-wrap:wrap;}
+  .lb-row .n .ghost-tag{color:#b39cff;}
+  .co-msg:empty{display:none;}
+  .lb-n{font-style:normal;font-size:10px;margin-left:6px;padding:1px 6px;border-radius:99px;background:var(--surface-2,rgba(127,127,127,.15));color:var(--text-dim);}
+  .lb-n:empty{display:none;}
+  .mchip.active .lb-n{color:var(--gold);}
+  .co-guest{white-space:normal;text-align:left;line-height:1.5;}
+  /* clack off result on the results screen */
+  .res-duel{display:flex;flex-direction:column;align-items:center;gap:10px;margin:-6px 0 22px;font-family:var(--mono);text-align:center;}
+  .res-duel .hd{font-size:17px;color:var(--text);}
+  .res-duel .hd b{color:var(--gold);}
+  .res-duel .sub{font-size:12px;color:var(--text-dim);}
+  .res-duel .sub b{color:var(--text);}
+  .res-duel .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .res-duel .btn{padding:8px 14px;font-size:12px;}
+  .res-duel .bad{color:var(--red);}
+
   /* ---------- LEADERBOARD ---------- */
   .lb-chip{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--line);
     border-radius:999px;padding:6px 12px;cursor:pointer;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -685,6 +746,14 @@
 <body>
 
 <div id="app">
+  <!-- clack off: make a challenge from your last 30s / 60s run (opens from the results screen) -->
+  <div class="share-scrim" id="coScrim" hidden></div>
+  <div class="share acct" id="coBox" role="dialog" aria-modal="true" aria-labelledby="coTitle" hidden>
+    <div class="share-top"><div class="share-title" id="coTitle">⚔ clack off</div>
+      <button class="share-x" id="coClose" aria-label="close">✕</button></div>
+    <div id="coBody"></div>
+  </div>
+
   <!-- clack school on a phone: it needs a physical keyboard -->
   <div class="share-scrim" id="kbScrim" hidden></div>
   <div class="share ask" id="kbBox" role="dialog" aria-modal="true" aria-labelledby="kbTitle" hidden>
@@ -774,6 +843,13 @@
           </div>
           <div class="d-right" id="dRight"></div>
         </div>
+        <div class="daily duel-card" id="duelCard" hidden>
+          <div class="d-left">
+            <div class="d-eyebrow">⚔ clack off</div>
+            <div class="d-sub">challenge friends to race your ghost</div>
+          </div>
+          <div class="d-right"><span class="duel-new" id="duelNew" hidden></span><button class="btn" id="duelsBtn">open</button></div>
+        </div>
       </div>
     </div>
     <div class="pill-bar">
@@ -816,6 +892,12 @@
       <div class="quit" id="quit">✕ Quit</div>
       <div class="timer" id="timer">00:00</div>
       <div class="dur" id="dur">60s</div>
+    </div>
+    <!-- clack off: you vs the challenger's ghost -->
+    <div class="race" id="race" hidden aria-live="off">
+      <div class="lane"><span class="who">you</span><span class="track"><i id="raceYou"></i></span><b id="raceYouW">0</b></div>
+      <div class="lane ghost"><span class="who" id="raceGhostName">👻</span><span class="track"><i id="raceGhost"></i></span><b id="raceGhostW">0</b></div>
+      <div class="race-gap" id="raceGap"></div>
     </div>
     <div class="stage">
       <div class="live-wpm" id="liveWpm">0</div>
@@ -903,9 +985,11 @@
     </div>
     <div class="res-board" id="rBoard" aria-live="polite" hidden></div>
     <div class="res-board res-school" id="rSchool" hidden>still hunting for keys? <button class="linkbtn" id="rSchoolBtn">clack school teaches touch typing from zero →</button></div>
+    <div class="res-duel" id="rDuel" hidden></div>
     <div class="res-btns">
       <div class="btn primary" id="again">try again</div>
       <div class="btn primary" id="shareBtn" hidden>share result</div>
+      <div class="btn" id="clackOffBtn" role="button" tabindex="0" hidden>⚔ clack off</div>
       <div class="btn" id="done">done</div>
     </div>
     <div class="res-keys" id="resKeys" aria-hidden="true"><kbd>enter</kbd> try again · <kbd>esc</kbd> done</div>
@@ -984,6 +1068,20 @@
     </div>
   </section>
 
+  <!-- CLACK OFF: one challenge, or your list of them -->
+  <section id="duel" class="view" hidden>
+    <div class="st-scroll">
+      <div class="st-inner">
+        <div class="st-top">
+          <div class="quit" id="duelBack">← back</div>
+          <div class="st-title">⚔ clack off</div>
+          <div class="lb-who" id="duelWhen"></div>
+        </div>
+        <div class="st-sec" id="duelBody"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- LEADERBOARD -->
   <section id="board" class="view" hidden>
     <div class="st-scroll">
@@ -1002,8 +1100,8 @@
           <div class="lb-bar">
             <div id="lbWhen"></div>
             <div class="modebar" id="lbDev" role="tablist" aria-label="device">
-              <button class="mchip" data-dev="k" role="tab">⌨ keyboard</button>
-              <button class="mchip" data-dev="t" role="tab">📱 phone</button>
+              <button class="mchip" data-dev="k" role="tab">⌨ keyboard<i class="lb-n" id="lbNk"></i></button>
+              <button class="mchip" data-dev="t" role="tab">📱 phone<i class="lb-n" id="lbNt"></i></button>
             </div>
           </div>
           <div class="lb-list" id="lbList" aria-live="polite"></div>
@@ -1108,6 +1206,19 @@
           scores at any time.</p>
       </div>
 
+      <div class="st-sec" id="help-clackoff">
+        <div class="st-h">⚔ clack off</div>
+        <p>Challenge a friend, or a whole group chat. Play a <b>30s or 60s</b> run, press <b>⚔ clack off</b> on the results,
+          pick a taunt and send the link. Everyone who opens it types <b>the same words</b> you did, racing your
+          <b>ghost</b> — your actual run, replayed keystroke by keystroke, with two lanes at the top showing who's ahead.</p>
+        <p>Each clack off stays open for <b>24 hours</b>, and everyone gets <b>one attempt</b>. The standings show every
+          racer, and you keep a <b>win–loss record</b> against each friend. Lost? Hit <b>rematch</b> to send a new one back.
+          Friends without a name can claim one right there, or race without one (their result isn't posted).
+          The home screen tells you when someone new has raced you.</p>
+        <p>A clack off earns <b>+10 clacks</b>, and <b>+15</b> more for beating the ghost. Like the boards, every run is
+          replayed by the server, so the ghost can't be faked.</p>
+      </div>
+
       <div class="st-sec">
         <div class="st-h">weak-key practice</div>
         <p>Clack tracks which keys you miss. Turn on <b>◎ weak keys</b>, or press <b>practise these keys</b> on the stats page,
@@ -1155,8 +1266,8 @@
           <b>stats</b>, which has the full activity heatmap, your personal best for every mode, your wpm over time, and a
           keyboard that shows which keys you miss most. After each run, the results compare it with your average for
           that mode. The 🏆 <b>ranked</b> tag on the start bar means the run will count for the leaderboard.</p>
-        <p>Everything is saved <b>in this browser, on this device</b>. There are no accounts yet, so your progress doesn't
-          follow you to another device, and clearing this site's data resets it.</p>
+        <p>Everything is saved <b>in this browser, on this device</b>. Pick a name (see the leaderboard above) and it
+          syncs to your other devices too; without one, clearing this site's data resets it.</p>
       </div>
 
       <div class="st-sec">
@@ -1314,7 +1425,7 @@ function renderMonths(){
   $("#tStreak").textContent=streak;
   $("#tWords").textContent=fmtNum(t.words);
   $("#tTime").textContent=fmtTime(t.time);
-  renderDaily();updateBalance();
+  renderDaily();renderDuelCard();updateBalance();
 }
 
 // Month labels for the heatmap, as [column, month] pairs. A label goes on the first column whose top
@@ -1975,15 +2086,19 @@ function updateCombo(){
 function startTest(){
   closeSheet();ac();          // warm up audio on the START click so the first keystroke isn't delayed
   STATS.modes[mode]=1;saveStats();
+  // a clack off run (racing one, or making one) is a plain 30s / 60s run: no weak-key mix, no restarts
+  const plain=!!DUEL||!!CO_NEXT;
   // weak-key focus applies to time and words runs only
   weakSet=null;weakPool=null;
-  if(weakFocus&&(mode==="time"||mode==="words")){weakSet=weakKeys();weakPool=weakSet&&buildWeakPool(weakSet);if(!weakPool)weakSet=null;}
+  if(weakFocus&&!plain&&(mode==="time"||mode==="words")){weakSet=weakKeys();weakPool=weakSet&&buildWeakPool(weakSet);if(!weakPool)weakSet=null;}
   $("#hint").textContent=weakSet?"practising your weak keys: "+weakSet.join(" · "):
-    (weakFocus&&(mode==="time"||mode==="words"))?"not enough key data yet — this run is normal practice":"just start typing";
-  if(mode!=="daily"&&!touchOnly())$("#hint").textContent+=" · tab restarts";
+    (weakFocus&&!plain&&(mode==="time"||mode==="words"))?"not enough key data yet — this run is normal practice":"just start typing";
+  if(mode!=="daily"&&!plain&&!touchOnly())$("#hint").textContent+=" · tab restarts";
+  if(DUEL)$("#hint").textContent=`racing ${DUEL.ch.creator.name}'s ghost — it starts when you do`;
   runTouch=false;runKeys="";runGaps=[];runGen=null;
-  runBoard=!API?null:mode==="daily"?"daily":isRanked()?"time"+value:null;
-  if(runBoard&&runBoard!=="daily"){runSeed=crypto.getRandomValues(new Uint32Array(1))[0];runGen=wordGen(runSeed);}
+  runBoard=!API?null:mode==="daily"?"daily":DUEL?DUEL.ch.board:(CO_NEXT||isRanked())?"time"+value:null;
+  if(runBoard&&runBoard!=="daily"){runSeed=DUEL?DUEL.ch.seed:crypto.getRandomValues(new Uint32Array(1))[0];runGen=wordGen(runSeed);}
+  $("#race").hidden=!DUEL;
   if(mode==="daily"){seq=dailyWords(value);curAuthor="";dailyGrid=[];}
   else if(mode==="quote"){const q=pickQuote(value);seq=q.words.slice();curAuthor=q.by;}
   else{seq=newSeq(mode==="words"?value:120);curAuthor="";}
@@ -1996,6 +2111,7 @@ function startTest(){
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=false;
   el.word.classList.remove("shake","good");
   renderWord();
+  if(DUEL){$("#raceGhostName").textContent="👻 "+DUEL.ch.creator.name;raceTick();}
   window.addEventListener("keydown",onKey);
   focusKb();
 }
@@ -2023,12 +2139,18 @@ function endTest(){
   schoolNudge(dev,wpm,totalChars);
   if(runBoard&&runKeys)postRun({board:runBoard,day:isDaily?value:undefined,seed:runGen?runSeed:undefined,dev,keys:runKeys,gaps:runGaps.slice()});
   else showResBoard("");
+  // a 30s / 60s leaderboard run can become a clack off (or is one)
+  const coRun=runBoard&&runBoard!=="daily"&&runKeys?{board:runBoard,seed:runSeed,dev,keys:runKeys,gaps:runGaps.slice(),wpm,acc,secs:value}:null;
+  const duel=DUEL,coNext=CO_NEXT;DUEL=null;CO_NEXT=null;$("#race").hidden=true;
+  if(coRun&&!duel)LAST_RUN=coRun;
+  $("#clackOffBtn").hidden=!(coRun&&!duel);
   runBoard=null;runGen=null;
   renderMonths();
   // show results
   $("#rTitle").textContent = isDaily ? "daily #"+value+" complete" : mode==="quote"&&curAuthor ? "— "+curAuthor : "test complete";
-  $("#again").hidden=isDaily;$("#shareBtn").hidden=!isDaily;shareNo=isDaily?value:shareNo;
-  $("#resKeys").innerHTML=isDaily?"<kbd>esc</kbd> done":"<kbd>enter</kbd> try again · <kbd>esc</kbd> done";
+  $("#again").hidden=isDaily||!!duel;$("#shareBtn").hidden=!isDaily;shareNo=isDaily?value:shareNo;
+  $("#resKeys").innerHTML=isDaily||duel?"<kbd>esc</kbd> done":"<kbd>enter</kbd> try again · <kbd>esc</kbd> done";
+  $("#rDuel").hidden=true;
   $("#rScoreItem").hidden=true;$("#rWordsWrap").hidden=false;$("#rComboWrap").hidden=false;
   $("#rWpm").textContent=wpm;
   $("#rAcc").textContent=acc+"%";
@@ -2045,11 +2167,15 @@ function endTest(){
   if(isDaily){earned.push(["daily",20]);const st=dailyStreak();if(st>1)earned.push(["streak",5*Math.min(st-1,5)]);}
   if(beat)earned.push(["new best",15]);
   if(newBadges.length)earned.push(["badges",newBadges.reduce((s,b)=>s+(BADGE_REWARD[b.id]||40),0)]);
+  if(duel&&coRun){earned.push(["clack off",10]);if(wpm>(duel.ch.creator.wpm||0))earned.push(["win",15]);}
   awardClacks(earned);
-  if(isDaily)restoreMode();
+  if(isDaily||duel||coNext)restoreMode();
   el.test.hidden=true;el.result.hidden=false;
+  if(duel&&coRun)finishDuel(duel,coRun);
+  if(coNext&&coRun)openCreate(coRun,coNext);
 }
 function quit(){running=false;clearInterval(tick);window.removeEventListener("keydown",onKey);
+  DUEL=null;CO_NEXT=null;$("#race").hidden=true;
   stopShooter();blurKb();restoreMode();
   el.test.hidden=true;el.result.hidden=true;$("#shoot").hidden=true;el.home.hidden=false;renderMonths();}
 
@@ -2063,6 +2189,7 @@ function beginTimer(){
     const ss=String(s%60).padStart(2,"0");
     el.timer.textContent=mm+":"+ss;
     if(el_s>0.4){$("#liveWpm").textContent=Math.round((correctChars/5)/(el_s/60))||0;}
+    if(DUEL)raceTick();
     if(mode==="time"&&s>=value){limitReached=true;endTest();}
   },150);
 }
@@ -2092,6 +2219,7 @@ function commitWord(){
   else{combo=0;}
   if(mode==="daily")dailyGrid.push(clean?1:0);
   updateCombo();
+  if(DUEL)raceTick();
   idx++;typed="";
   if(mode==="words"&&wordsDone>=value){endTest();return;}
   if((mode==="quote"||mode==="daily")&&idx>=seq.length){endTest();return;}
@@ -2135,18 +2263,42 @@ function onKey(e){
 /* hidden input keeps the on-screen keyboard up on touch devices; beforeinput is the
    reliable signal across soft keyboards (which often send keydown as "Unidentified"). */
 const kbIn=$("#kbInput");
-function focusKb(){ try{kbIn.value="";kbIn.focus({preventScroll:true});}catch(e){try{kbIn.focus();}catch(_){}} }
+let kbPrev="",composing=false,absorb=false;
+function focusKb(){ try{kbIn.value="";kbPrev="";kbIn.focus({preventScroll:true});}catch(e){try{kbIn.focus();}catch(_){}} }
 function blurKb(){ try{kbIn.blur();}catch(e){} }
+function softChar(ch){
+  if(SC){schoolChar(ch);return;}
+  if(ch===" "){typeSpace();return;}
+  // our field is always empty, so some keyboards capitalise every word as a new sentence: use the word's own case
+  if(running&&!typed.length){const w0=(seq[idx]||"")[0];if(w0&&ch!==w0&&ch.toLowerCase()===w0)ch=w0;}
+  typeInput(ch);
+}
+function softBack(){ if(!SC)typeBackspace(); }
+// A plain one-key insertText / delete is cancelled and handled here, keeping the field empty. Keyboards
+// with suggestions (Gboard, Samsung…) compose instead: those events can't be cancelled and their data is
+// the whole word so far, so for them we read what changed in the field and type only that one key.
 kbIn.addEventListener("beforeinput",e=>{
-  e.preventDefault();                              // keep the hidden field empty
-  if(kdPending){kdPending=false;return;}           // its keydown already handled this keystroke
-  if(SC){if((e.inputType==="insertText"||e.inputType==="insertCompositionText")&&e.data)for(const ch of e.data)schoolChar(ch);return;}
-  if(running||sRun)runTouch=true;                  // typed on a touch keyboard: this run goes in the phone lists
-  const t=e.inputType;
-  if(t==="insertText"||t==="insertCompositionText"){
-    if(e.data)for(const ch of e.data){ ch===" "?typeSpace():typeInput(ch); }
-  }else if(t==="deleteContentBackward"){ typeBackspace(); }
+  const t=e.inputType,simple=e.cancelable&&!e.isComposing&&t!=="insertCompositionText";
+  if(kdPending){kdPending=false;if(simple)e.preventDefault();else absorb=true;return;}   // its keydown already typed it
+  if(!SC&&(running||sRun))runTouch=true;           // typed on a touch keyboard: this run goes in the phone lists
+  if(!simple)return;                               // composition / autocorrect: see the input event
+  e.preventDefault();
+  if(t==="insertText"&&e.data)for(const ch of e.data)softChar(ch);
+  else if(t==="deleteContentBackward")softBack();
 });
+kbIn.addEventListener("input",()=>{
+  const cur=kbIn.value,old=kbPrev;kbPrev=cur;
+  if(absorb){absorb=false;}
+  else{
+    let p=0;while(p<cur.length&&p<old.length&&cur[p]===old[p])p++;
+    const del=old.length-p,add=cur.slice(p);
+    // one key at a time is typing; bigger rewrites are the keyboard's own (autocorrect, a suggestion) — skip them
+    if(del<=1&&add.length<=1){if(del)softBack();if(add)softChar(add);}
+  }
+  if(!composing){kbIn.value="";kbPrev="";}
+});
+kbIn.addEventListener("compositionstart",()=>{composing=true;});
+kbIn.addEventListener("compositionend",()=>{composing=false;setTimeout(()=>{if(!composing){kbIn.value="";kbPrev="";}},0);});
 $("#test").addEventListener("click",focusKb);
 $("#shoot").addEventListener("click",focusKb);
 
@@ -2981,7 +3133,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#navMenu").hidd
 $("#helpBtn").onclick=()=>{toggleMenu(false);openHelp();};
 
 /* keyboard: Enter starts from home; on results Enter / Tab plays again and Esc is done; Tab restarts a run */
-const dialogOpen=()=>["#askBox","#kbBox","#shareBox","#acctBox"].some(s=>!$(s).hidden)||!$("#navMenu").hidden;
+const dialogOpen=()=>["#askBox","#kbBox","#shareBox","#acctBox","#coBox"].some(s=>!$(s).hidden)||!$("#navMenu").hidden;
 window.addEventListener("keydown",e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||e.repeat||dialogOpen())return;
   const a=document.activeElement,onControl=a&&a!==document.body&&a!==kbIn&&a.closest("button,[role=button],input,a,.tab,.opt");
@@ -2992,7 +3144,7 @@ window.addEventListener("keydown",e=>{
     if(e.key==="Enter"&&onControl)return;
     e.preventDefault();
     if(e.key==="Escape"||$("#again").hidden)$("#done").click();else $("#again").click();
-  }else if(running&&e.key==="Tab"&&mode!=="daily"){   // the daily is one attempt, so no restarts
+  }else if(running&&e.key==="Tab"&&mode!=="daily"&&!DUEL&&!CO_NEXT){   // the daily and clack offs are one attempt: no restarts
     e.preventDefault();clearInterval(tick);running=false;window.removeEventListener("keydown",onKey);startTest();
   }
 });
@@ -3188,7 +3340,7 @@ function openBoard(b){
   lbFrom=el.result.hidden?"home":"result";
   for(const v of ["#stats","#help","#store","#school"])$(v).hidden=true;el.home.hidden=true;el.result.hidden=true;
   $("#board").hidden=false;
-  if(b)LB.b=b;if(!LB.day)LB.day=dailyNo();if(!LB.dev)LB.dev=(DEVICE==="phone"||onGlass())?"t":"k";
+  if(b)LB.b=b;LB.day=dailyNo();if(!LB.dev)LB.dev=(DEVICE==="phone"||onGlass())?"t":"k";
   LB.confirm=null;
   loadBoard();renderAccount();
   if(joined())api("/api/me").then(m=>{ON.name=m.name;ON.renameIn=m.renameIn;saveOn();renderAccount();})
@@ -3225,6 +3377,7 @@ async function loadBoard(){
   const list=$("#lbList"),my=++LB.req;
   if(!API){list.innerHTML=`<div class="empty">the leaderboard isn't switched on yet</div>`;$("#lbFoot").textContent="";return;}
   list.innerHTML=`<div class="empty">loading…</div>`;
+  const setN=c=>{for(const d of ["k","t"])$("#lbN"+d).textContent=c&&c[d]!=null?c[d]:"";};setN(null);
   const q=LB.b==="daily"?`b=daily&day=${LB.day}`:`b=${LB.b}&range=${LB.range}`;
   try{
     const r=await api(`/api/board?${q}&dev=${LB.dev}`);
@@ -3234,8 +3387,10 @@ async function loadBoard(){
       <span class="w">${x.wpm}<span>wpm</span></span><span class="a">${x.acc}%</span></div>`;
     let h=r.rows.map(row).join("");
     if(r.me&&!r.rows.some(x=>x.me))h+=`<div class="lb-gap">···</div>`+row({...r.me,me:true});
-    const where=LB.b==="daily"?`daily #${LB.day}`:"this board";
-    list.innerHTML=h||`<div class="empty">no one is on ${where} yet${LB.dev==="t"?" for phones":""} — ${LB.b==="daily"?"play the daily from the home screen":"finish a "+BOARD_NAME[LB.b]+" run"} to be first</div>`;
+    setN(r.counts);
+    const where=LB.b==="daily"?`daily #${LB.day}`:"this board",o=LB.dev==="t"?"k":"t",on=r.counts?r.counts[o]:0;
+    list.innerHTML=h||`<div class="empty">no one is on ${where} yet${LB.dev==="t"?" for phones":" for keyboards"} — ${LB.b==="daily"?"play the daily from the home screen":"finish a "+BOARD_NAME[LB.b]+" run"} to be first${on?`<br><button class="linkbtn" id="lbOther">see ${on} ${on===1?"player":"players"} on the ${o==="t"?"phone":"keyboard"} list →</button>`:""}</div>`;
+    const ob=$("#lbOther");if(ob)ob.onclick=()=>{LB.dev=o;loadBoard();};
     $("#lbFoot").textContent=r.total?`${r.total} ${r.total===1?"player":"players"} · best run each`:"";
   }catch(e){
     if(my!==LB.req)return;
@@ -3379,6 +3534,275 @@ function renderAccount(note){
 // A name released after months away: signed in, but nameless until a new one is picked.
 const needsName=()=>API&&ON.code&&!ON.name;
 
+/* ==================== CLACK OFF: challenge links ==================== */
+// Play a 30s / 60s run and turn it into a link. Friends race the same words against your ghost (your
+// run, replayed keystroke by keystroke) for 24 hours; each gets one run, verified by the server.
+const TAUNTS=["you're not my type","backspace is not a strategy","my pinky is faster than you","catch me if you can",
+  "type or get typed","no autocorrect can save you","warm up those fingers","bet you can't beat this"];
+// var: startTest / quit can run before this block (they only read these)
+var DUEL=null,CO_NEXT=null,LAST_RUN=null;   // racing a challenge · make one after this run · the last 30s/60s run
+let coView={id:null,from:"home"},duelPending=null,coState=null;
+const duelUrl=id=>location.origin+location.pathname.replace(/[^/]*$/,"")+"?c="+id;
+const devIcon=d=>d==="t"?"📱":"⌨";
+const secsOf=b=>b==="time30"?30:60;
+function closesIn(ms){const m=Math.round((ms-Date.now())/60000);return m<=0?"closed":m<60?`closes in ${m}m`:`closes in ${Math.round(m/60)}h`;}
+function duelHead(d,name){name=`<b>${escHtml(name)}</b>`;
+  return d>0?`🏆 you beat ${name} by ${d} wpm`:d<0?`😈 ${name} wins by ${-d} wpm`:`🤝 dead even with ${name}`;}
+async function copyText(t,btn){try{await navigator.clipboard.writeText(t);if(btn)btn.textContent="copied ✓";}catch(e){if(btn)btn.textContent="couldn't copy";}}
+// what's new since you last looked: players per clack off
+const SEEN_KEY="clack_duels_seen";
+let SEEN=(()=>{try{return JSON.parse(localStorage.getItem(SEEN_KEY))||{};}catch(e){return{};}})();
+function seenDuel(id,n){SEEN[id]=Math.max(SEEN[id]||0,n);try{localStorage.setItem(SEEN_KEY,JSON.stringify(SEEN));}catch(e){}duelCache.at=0;}
+
+// The ghost: the challenger's run replayed with the test's own rules (same as server/src/engine.js),
+// as [time ms, words done, correct chars] points.
+function ghostTimeline(seed,keys,gaps){
+  const gen=wordGen(seed),words=[],word=i=>{while(words.length<=i)words.push(gen());return words[i];};
+  let idx=0,typed="",correct=0,t=0;const pts=[[0,0,0]];
+  const commit=()=>{const w=word(idx);for(let i=0;i<w.length;i++)if(typed[i]===w[i])correct++;correct++;idx++;typed="";pts.push([t,idx,correct]);};
+  for(let i=0;i<keys.length;i++){t+=gaps[i];const ch=keys[i];
+    if(ch==="\b")typed=typed.slice(0,-1);else if(ch===" "){if(typed.length)commit();}else{typed+=ch;if(typed.length>=word(idx).length)commit();}}
+  return pts;
+}
+function ghostAt(pts,t){let p=pts[0];for(const q of pts){if(q[0]>t)break;p=q;}return p;}
+function raceTick(){
+  if(!DUEL)return;
+  const e=startTime?Date.now()-startTime:0,g=ghostAt(DUEL.pts,e),goal=Math.max(DUEL.goal,wordsDone,g[1],1);
+  $("#raceYou").style.width=Math.min(100,wordsDone/goal*100)+"%";
+  $("#raceGhost").style.width=Math.min(100,g[1]/goal*100)+"%";
+  $("#raceYouW").textContent=e>400?Math.round(correctChars/5/(e/60000)):0;
+  $("#raceGhostW").textContent=e>400?Math.round(g[2]/5/(e/60000)):0;
+  const d=wordsDone-g[1];
+  $("#raceGap").textContent=!startTime?"the ghost starts when you do":d>0?`▲ ${d} ${d===1?"word":"words"} ahead`:d<0?`▼ ${-d} ${d===-1?"word":"words"} behind`:"neck and neck";
+}
+
+// A name, claimed on the spot (clack offs need one so the run can be posted)
+async function claimInline(name,msg){
+  if(!NAME_RE.test(name)){msg.className="lb-msg bad";msg.textContent="use 3–16 letters, numbers or _";return false;}
+  msg.className="lb-msg";msg.textContent="claiming…";
+  try{const r=await api("/api/register",{method:"POST",body:{name},code:null});await signIn(r.code,r.name,r.renameIn);
+    msg.textContent="";return true;}
+  catch(e){msg.className="lb-msg bad";msg.textContent=e.message;return false;}
+}
+
+/* ---------- making one: from the results of a 30s / 60s run ---------- */
+function openCreate(run,opts={}){
+  coState={run,taunt:Math.floor(Math.random()*TAUNTS.length),rematchOf:opts.rematchOf||null,made:null,name:""};
+  $("#coScrim").hidden=false;$("#coBox").hidden=false;renderCreate();
+}
+function closeCreate(){$("#coScrim").hidden=true;$("#coBox").hidden=true;}
+function renderCreate(){
+  const s=coState,b=$("#coBody"),secs=secsOf(s.run.board);
+  if(s.made){
+    const url=duelUrl(s.made.id),text=`⚔ Clack Off — I typed ${s.run.wpm} wpm in ${secs}s.\n"${TAUNTS[s.taunt]}"\nBeat me: ${url}`;
+    b.innerHTML=`<div class="lb-card">
+      <p>Your clack off is ready. Send it to a friend or a group chat — it's open for <b>24 hours</b>.</p>
+      <div class="co-link"><input class="lb-input" id="coUrl" value="${escHtml(url)}" readonly aria-label="challenge link"></div>
+      <div class="lb-form"><button class="btn primary" id="coShare">share</button><button class="btn" id="coWa">WhatsApp</button><button class="btn" id="coCopy">copy link</button></div>
+      <div class="lb-acts"><button class="linkbtn" id="coOpen">see your clack off →</button></div></div>`;
+    $("#coShare").onclick=async e=>{const btn=e.currentTarget;
+      try{if(navigator.share){await navigator.share({title:"Clack Off",text});return;}}catch(err){if(err.name==="AbortError")return;}
+      copyText(text,btn);};
+    $("#coWa").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener");
+    $("#coCopy").onclick=e=>copyText(url,e.currentTarget);
+    $("#coUrl").onfocus=e=>e.target.select();
+    $("#coOpen").onclick=()=>{closeCreate();openDuel(s.made.id,"result");};
+    return;
+  }
+  b.innerHTML=`<div class="lb-card">
+    <p>Challenge friends to beat your <b>${s.run.wpm} wpm</b> on these exact ${secs}s words. They race your ghost — open for 24 hours.</p>
+    <div class="st-h" style="font-size:12px">pick a taunt</div>
+    <div class="co-taunts">${TAUNTS.map((t,i)=>`<button data-t="${i}" class="${i===s.taunt?"on":""}">${escHtml(t)}</button>`).join("")}</div>
+    ${joined()?"":`<p>Pick a name so they know who to beat — <b>no email, no password</b>.</p>
+      <div class="lb-form"><input class="lb-input" id="coName" maxlength="16" placeholder="your name" value="${escHtml(s.name)}" autocomplete="off" spellcheck="false" aria-label="your name"></div>`}
+    <div class="lb-msg" id="coMsg"></div>
+    <button class="btn primary" id="coMake">create the link</button></div>`;
+  b.querySelectorAll("[data-t]").forEach(x=>x.onclick=()=>{s.taunt=+x.dataset.t;renderCreate();});
+  const nameIn=$("#coName");if(nameIn)nameIn.oninput=()=>{s.name=nameIn.value;};
+  $("#coMake").onclick=async()=>{
+    const m=$("#coMsg");
+    if(!joined()&&!(await claimInline(s.name.trim(),m)))return;
+    m.className="lb-msg";m.textContent="creating…";$("#coMake").disabled=true;
+    try{const r=s.run;
+      s.made=await api("/api/challenges",{method:"POST",body:{board:r.board,seed:r.seed,dev:r.dev,keys:r.keys,gaps:r.gaps,taunt:s.taunt,rematch_of:s.rematchOf||undefined}});
+      seenDuel(s.made.id,s.made.entries.length);renderCreate();}
+    catch(e){m.className="lb-msg bad";m.textContent=e.message;$("#coMake").disabled=false;}
+  };
+}
+// start a plain 30s / 60s run that becomes a clack off when it ends (optionally a rematch)
+function startCo(secs,rematchOf){
+  if(!API)return;
+  prevMode=[mode,value];mode="time";value=secs;CO_NEXT={rematchOf:rematchOf||null};
+  $("#duel").hidden=true;el.result.hidden=true;lastActivity="test";startTest();
+}
+
+/* ---------- racing one ---------- */
+function startDuel(ch,guest){
+  const pts=ch.ghost?ghostTimeline(ch.seed,ch.ghost.keys,ch.ghost.gaps):[[0,0,0]];
+  prevMode=[mode,value];mode="time";value=secsOf(ch.board);
+  DUEL={ch,pts,goal:pts[pts.length-1][1]*1.08,guest:!!guest};
+  $("#duel").hidden=true;lastActivity="test";startTest();
+}
+function finishDuel(duel,run){
+  const box=$("#rDuel"),c=duel.ch.creator;box.hidden=false;
+  duelPending={id:duel.ch.id,run};
+  if(!joined()){
+    box.innerHTML=`<div class="hd">${duelHead(run.wpm-c.wpm,c.name)}</div>
+      <div class="sub">add a name to put your run on the clack off</div>
+      <div class="row"><input class="lb-input" id="rdName" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="your name" style="width:auto">
+        <button class="btn primary" id="rdClaim">post my run</button></div><div class="lb-msg" id="rdMsg"></div>`;
+    $("#rdClaim").onclick=async()=>{if(await claimInline($("#rdName").value.trim(),$("#rdMsg")))postDuel();};
+    return;
+  }
+  postDuel();
+}
+async function postDuel(){
+  const p=duelPending,box=$("#rDuel");if(!p)return;
+  box.innerHTML=`<div class="sub">posting to the clack off…</div>`;
+  try{
+    const v=await api(`/api/challenges/${p.id}/runs`,{method:"POST",body:{dev:p.run.dev,keys:p.run.keys,gaps:p.run.gaps}});
+    duelPending=null;seenDuel(p.id,v.entries.length);renderDuelResult(v);
+  }catch(e){
+    box.innerHTML=`<div class="sub bad">not posted: ${escHtml(e.message)}</div>${e.status?"":`<div class="row"><button class="btn" id="rdRetry">try again</button></div>`}`;
+    const r=$("#rdRetry");if(r)r.onclick=postDuel;
+  }
+}
+function renderDuelResult(v){
+  const c=v.creator,me=v.mine,box=$("#rDuel");
+  box.innerHTML=`<div class="hd">${duelHead(me.wpm-c.wpm,c.name)}</div>
+    <div class="sub">#${me.rank} of ${v.entries.length}${v.record?` · you vs ${escHtml(c.name)}: <b>${v.record.wins} – ${v.record.losses}</b>`:""}${v.duplicate?" · your first run stands":""}</div>
+    <div class="row"><button class="btn primary" id="rdRematch">rematch</button><button class="btn" id="rdShare">share result</button><button class="btn" id="rdBoard">standings</button></div>`;
+  $("#rdRematch").onclick=()=>startCo(secsOf(v.board),v.id);
+  $("#rdShare").onclick=e=>shareDuel(v,e.currentTarget);
+  $("#rdBoard").onclick=()=>openDuel(v.id,"result");
+}
+// share a result: an image card where the phone can share files, otherwise the text
+async function shareDuel(v,btn){
+  const c=v.creator,me=v.mine,secs=secsOf(v.board),url=duelUrl(v.id),d=me.wpm-c.wpm,you=ON.name||"me";
+  const text=`⚔ Clack Off · ${secs}s\n${you} ${me.wpm} wpm vs ${c.name} ${c.wpm} wpm\n${d>0?you+" wins 🏆":d<0?c.name+" wins 😈":"dead even 🤝"}\nrace us: ${url}`;
+  try{const card=await drawDuelCard(v,you),blob=await new Promise(r=>card.toBlob(r,"image/png"));
+    const file=new File([blob],`clack-off-${v.id}.png`,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return;}
+  }catch(e){if(e&&e.name==="AbortError")return;}
+  copyText(text,btn);
+}
+async function drawDuelCard(v,you){
+  try{await document.fonts.load("700 120px 'JetBrains Mono'");}catch(e){}
+  const W2=1200,H2=630,cv=document.createElement("canvas");cv.width=W2;cv.height=H2;const g=cv.getContext("2d");
+  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`,c=v.creator,me=v.mine;
+  g.fillStyle="#0f1012";g.fillRect(0,0,W2,H2);g.strokeStyle="#26292e";g.lineWidth=2;g.strokeRect(1,1,W2-2,H2-2);
+  g.textBaseline="alphabetic";g.font=F(700,48);g.fillStyle="#5c6066";g.fillText("cl",72,100);g.fillStyle="#e2b425";g.fillText("ack",72+g.measureText("cl").width,100);
+  g.font=F(600,22);g.fillStyle="#b39024";g.fillText(`⚔ CLACK OFF  ·  ${secsOf(v.board)}s`,74,146);
+  const rows=[{n:you,w:me.wpm,a:me.acc},{n:c.name,w:c.wpm,a:c.acc}].sort((x,y)=>y.w-x.w||y.a-x.a);
+  rows.forEach((r,i)=>{const y=280+i*150,win=i===0&&rows[0].w!==rows[1].w;
+    g.font=F(700,44);g.fillStyle=win?"#e7e8ea":"#8b8f96";g.fillText((win?"👑 ":"")+r.n,74,y);
+    g.font=F(700,110);g.fillStyle=win?"#e2b425":"#5c6066";const t=String(r.w),tw=g.measureText(t).width;g.fillText(t,W2-200-tw,y+18);
+    g.font=F(600,30);g.fillStyle="#6b7078";g.fillText("wpm",W2-180,y+18);});
+  g.font=F(400,24);g.fillStyle="#5c6066";g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
+  g.font=F(600,24);g.fillStyle="#e2b425";const cta="race us →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+  return cv;
+}
+
+/* ---------- the clack off screen ---------- */
+function showDuelView(){for(const v of ["#stats","#help","#store","#school","#board"])$(v).hidden=true;
+  el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#duel").hidden=false;$("#duel .st-scroll").scrollTop=0;}
+function closeDuel(){
+  $("#duel").hidden=true;
+  if(coView.from==="result")el.result.hidden=false;else if(coView.from==="list"&&coView.id)openDuels();else{el.home.hidden=false;renderMonths();}
+}
+const startBtns=()=>`<button class="btn" data-co="30">⏱ 30s</button><button class="btn primary" data-co="60">⏱ 60s</button>`;
+function wireStarts(box){box.querySelectorAll("[data-co]").forEach(b=>b.onclick=()=>startCo(+b.dataset.co));}
+async function openDuel(id,from){
+  coView={id,from:from||"home"};showDuelView();
+  const body=$("#duelBody");body.innerHTML=`<div class="empty">loading…</div>`;$("#duelWhen").textContent="";
+  let ch;
+  try{ch=await api("/api/challenges/"+encodeURIComponent(id));}
+  catch(e){if(coView.id!==id)return;
+    body.innerHTML=`<div class="co-act"><div class="co-big">${escHtml(e.message)}</div><p>Start your own and send it to a friend.</p><div class="co-starts">${startBtns()}</div></div>`;
+    wireStarts(body);return;}
+  if(coView.id!==id)return;
+  seenDuel(id,ch.entries.length);renderDuel(ch);
+}
+function renderDuel(ch){
+  const secs=secsOf(ch.board),c=ch.creator,me=ch.mine,n=ch.entries.length,body=$("#duelBody");
+  $("#duelWhen").textContent=ch.open?closesIn(ch.closes):"closed";
+  const rows=ch.entries.map(x=>`<div class="lb-row ${x.rank<=3?"p"+x.rank:""} ${x.me?"me":""}"><span class="r">${x.rank}</span>
+    <span class="n">${escHtml(x.name)}${x.creator?' <small class="ghost-tag" title="the ghost you race">👻</small>':""}${x.me?"<small>you</small>":""}<small>${devIcon(x.dev)}</small></span>
+    <span class="w">${x.wpm}<span>wpm</span></span><span class="a">${x.acc}%</span></div>`).join("");
+  let act;
+  if(c.me){
+    act=`<div class="co-act"><div class="co-big">your clack off · <b>${c.wpm} wpm</b></div>
+      <p>${n>1?`${n-1} ${n===2?"person has":"people have"} raced your ghost.`:"No one has raced your ghost yet — send the link."}</p>
+      <div class="co-link"><input class="lb-input" id="dUrl" value="${escHtml(duelUrl(ch.id))}" readonly aria-label="challenge link">
+        <button class="btn" id="dCopy">copy</button><button class="btn primary" id="dShare">share</button></div></div>`;
+  }else if(me){
+    act=`<div class="co-act"><div class="co-big">${duelHead(me.wpm-c.wpm,c.name)}</div>
+      <p>you: <b>${me.wpm} wpm</b> · #${me.rank} of ${n}${ch.record?` · you vs ${escHtml(c.name)}: <b>${ch.record.wins} – ${ch.record.losses}</b>`:""}</p>
+      <div class="lb-form"><button class="btn primary" id="dRematch">rematch</button><button class="btn" id="dShareRes">share result</button></div></div>`;
+  }else if(ch.open){
+    act=`<div class="co-act">${joined()
+      ?`<p>Same ${secs}s words, <b>one attempt</b>. ${escHtml(c.name)}'s ghost races you — it starts when you type.</p>
+        <button class="btn primary big" id="dRace">race ${escHtml(c.name)}'s ghost</button>`
+      :`<p>Pick a name so your run goes on the board — <b>no email, no password</b>. Same ${secs}s words, one attempt.</p>
+        <div class="lb-form"><input class="lb-input" id="dName" maxlength="16" placeholder="your name" autocomplete="off" spellcheck="false" aria-label="your name">
+          <button class="btn primary" id="dClaim">claim &amp; race</button></div>
+        <div class="lb-msg co-msg" id="dMsg"></div>
+        <div class="lb-acts"><button class="linkbtn co-guest" id="dGuest">or race without a name — it won't be posted</button></div>`}</div>`;
+  }else{
+    act=`<div class="co-act"><div class="co-big">this clack off has closed</div><p>Start your own and send it to a friend.</p><div class="co-starts">${startBtns()}</div></div>`;
+  }
+  body.innerHTML=`<div class="co-hero"><p class="co-taunt">${escHtml(TAUNTS[ch.taunt]||TAUNTS[0])}</p>
+      <div class="co-by"><b>${escHtml(c.name)}</b> typed <b>${c.wpm} wpm</b> in ${secs}s ${devIcon(c.dev)}</div>
+      <div class="co-meta"><span>⏱ <b>${secs}s</b></span><span>👥 <b>${n}</b> ${n===1?"player":"players"}</span></div></div>
+    ${act}
+    <div class="st-h">standings</div><div class="lb-list">${rows}</div>`;
+  const on=(id,f)=>{const x=$("#"+id);if(x)x.onclick=f;};
+  on("dCopy",e=>copyText(duelUrl(ch.id),e.currentTarget));
+  on("dShare",async e=>{const btn=e.currentTarget,text=`⚔ Clack Off — I typed ${c.wpm} wpm in ${secs}s.\n"${TAUNTS[ch.taunt]}"\nBeat me: ${duelUrl(ch.id)}`;
+    try{if(navigator.share){await navigator.share({title:"Clack Off",text});return;}}catch(err){if(err.name==="AbortError")return;}copyText(text,btn);});
+  on("dRematch",()=>startCo(secs,ch.id));
+  on("dShareRes",e=>shareDuel(ch,e.currentTarget));
+  on("dRace",()=>startDuel(ch));
+  on("dGuest",()=>startDuel(ch,true));
+  on("dClaim",async()=>{if(await claimInline($("#dName").value.trim(),$("#dMsg")))startDuel(ch);});
+  const u=$("#dUrl");if(u)u.onfocus=()=>u.select();
+  wireStarts(body);
+}
+// your clack offs: made or raced, newest activity first
+async function openDuels(){
+  coView={id:null,from:"home"};showDuelView();$("#duelWhen").textContent="";
+  const body=$("#duelBody");
+  const head=`<div class="co-act"><div class="co-big">start a clack off</div>
+    <p>Play a 30s or 60s run, then send the link. Friends race your ghost on the same words for 24 hours.</p>
+    <div class="co-starts">${startBtns()}</div></div><div class="st-h">your clack offs</div>`;
+  if(!joined()){body.innerHTML=head+`<div class="empty">clack offs you make or race will show up here</div>`;wireStarts(body);return;}
+  body.innerHTML=head+`<div class="empty">loading…</div>`;wireStarts(body);
+  let r;try{r=await api("/api/challenges");}catch(e){body.lastElementChild.textContent=e.message;return;}
+  duelCache={at:Date.now(),rows:r.rows};
+  body.lastElementChild.outerHTML=r.rows.length?`<div class="co-list">${r.rows.map(x=>{const fresh=x.players>(SEEN[x.id]||0);
+    return `<button class="co-item" data-id="${x.id}"><span class="t">${x.mine?"<i>your</i> clack off":`vs <i>${escHtml(x.creator||"?")}</i>`} · ${secsOf(x.board)}s${fresh?'<span class="dot" title="new results"></span>':""}</span>
+      <span class="s">${x.players} ${x.players===1?"player":"players"} · ${x.open?closesIn(x.closes):"closed "+ago(x.closes)}</span>
+      <span class="r">${x.my_wpm!=null?`<b>#${x.my_rank}</b>${x.my_wpm} wpm`:"<b>—</b>not raced"}</span></button>`;}).join("")}</div>`
+    :`<div class="empty">no clack offs yet — start one above</div>`;
+  body.querySelectorAll(".co-item").forEach(b=>b.onclick=()=>openDuel(b.dataset.id,"list"));
+}
+// the home card, with a count of new results in your clack offs
+let duelCache={at:0,rows:null};
+function renderDuelCard(){
+  if(!ONLINE_READY)return;
+  const card=$("#duelCard");card.hidden=!API;if(!API)return;
+  const show=()=>{const n=(duelCache.rows||[]).reduce((s,x)=>s+Math.max(0,x.players-(SEEN[x.id]||0)),0);
+    $("#duelNew").hidden=!n;$("#duelNew").textContent=`${n} new`;};
+  show();
+  if(joined()&&Date.now()-duelCache.at>60e3){duelCache.at=Date.now();api("/api/challenges").then(r=>{duelCache.rows=r.rows;show();}).catch(()=>{});}
+}
+$("#clackOffBtn").onclick=()=>{if(LAST_RUN)openCreate(LAST_RUN);};
+$("#clackOffBtn").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#clackOffBtn").click();}};
+$("#coClose").onclick=closeCreate;$("#coScrim").onclick=closeCreate;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#coBox").hidden){e.preventDefault();closeCreate();}});
+$("#duelsBtn").onclick=openDuels;
+$("#duelBack").onclick=closeDuel;
+
 ONLINE_READY=true;
 if(API)$("#boardBtn").hidden=false;
 if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}
@@ -3420,7 +3844,10 @@ kbIn.addEventListener("blur",()=>{if(sRun&&touchOnly())setTimeout(()=>{if(docume
 document.addEventListener("visibilitychange",()=>{if(document.hidden)pauseShooter();});
 
 /* init */
-renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();maybeAskSchool();
+renderOpts();syncLabels();syncSnd();applyTheme();syncMods();updateMods();renderMonths();
+// a clack off link (?c=code) opens straight onto that challenge; otherwise the usual first-visit question
+const CO_LINK=(new URLSearchParams(location.search).get("c")||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+if(CO_LINK&&API){history.replaceState(null,"",location.pathname);openDuel(CO_LINK,"home");}else maybeAskSchool();
 </script>
 </body>
 </html>

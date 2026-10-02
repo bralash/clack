@@ -50,6 +50,11 @@ async function route(req, env) {
   if (p === "/api/scores" && m === "POST") return submit(req, env, await auth(req, env));
   if (p === "/api/board" && m === "GET") return board(env, url, await auth(req, env, false));
   if (p === "/api/sync" && m === "POST") return sync(req, env, await auth(req, env));
+  if (p === "/api/challenges" && m === "POST") return createChallenge(req, env, await auth(req, env));
+  if (p === "/api/challenges" && m === "GET") return myChallenges(env, await auth(req, env));
+  const cm = p.match(/^\/api\/challenges\/([a-z0-9]{4,12})(\/runs)?$/);
+  if (cm && !cm[2] && m === "GET") return json(await challengeView(env, cm[1], await auth(req, env, false)));
+  if (cm && cm[2] && m === "POST") return playChallenge(req, env, cm[1], await auth(req, env));
   if (p.startsWith("/api/admin/")) return admin(req, env, p.slice(11));
   fail(404, "not found");
 }
@@ -142,11 +147,15 @@ async function rename(req, env, u) {
   catch (e) { if (String(e).includes("UNIQUE")) fail(409, "that name is taken"); throw e; }
   return json(publicMe({ ...u, name: clean, renamed: stamp }));
 }
+// Everything an account owns: its runs, its clack offs (and the runs others played on them), the account.
+const deleteAccount = (env, id) => env.DB.batch([
+  env.DB.prepare("DELETE FROM challenge_runs WHERE user_id = ?1 OR challenge_id IN (SELECT id FROM challenges WHERE creator_id = ?1)").bind(id),
+  env.DB.prepare("DELETE FROM challenges WHERE creator_id = ?").bind(id),
+  env.DB.prepare("DELETE FROM scores WHERE user_id = ?").bind(id),
+  env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id),
+]);
 async function removeMe(env, u) {
-  await env.DB.batch([
-    env.DB.prepare("DELETE FROM scores WHERE user_id = ?").bind(u.id),
-    env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id),
-  ]);
+  await deleteAccount(env, u.id);
   return json({ deleted: true });
 }
 
@@ -203,16 +212,19 @@ async function board(env, url, u) {
     else if (range === "week") { lo = today - 6; hi = today; }
     else { lo = 0; hi = 1e9; }
   }
-  const [top, mine, count] = await env.DB.batch([
+  const other = dev === "t" ? "k" : "t";
+  const [top, mine, count, otherCount] = await env.DB.batch([
     env.DB.prepare(`${RANKED} SELECT r.id, r.rank, r.wpm, r.acc, r.created, u.name FROM ranked r JOIN users u ON u.id = r.user_id ORDER BY r.pos LIMIT 50`)
       .bind(b, dev, lo, hi),
     env.DB.prepare(`${RANKED} SELECT r.rank, r.wpm, r.acc, r.created FROM ranked r WHERE r.user_id = ?5`).bind(b, dev, lo, hi, u ? u.id : -1),
     env.DB.prepare(`${RANKED} SELECT COUNT(*) AS n FROM ranked`).bind(b, dev, lo, hi),
+    env.DB.prepare(`${RANKED} SELECT COUNT(*) AS n FROM ranked`).bind(b, other, lo, hi),
   ]);
   return json({
     rows: top.results.map(r => ({ id: r.id, rank: r.rank, name: r.name, wpm: r.wpm, acc: r.acc, at: r.created, me: !!(u && r.name === u.name) })),
     me: u && mine.results[0] ? { ...mine.results[0], name: u.name } : null,
     total: count.results[0].n,
+    counts: { [dev]: count.results[0].n, [other]: otherCount.results[0].n },   // players on each device list, for the tabs
   });
 }
 
@@ -230,6 +242,94 @@ async function sync(req, env, u) {
     if (res.meta.changes) return json({ blob });
   }
   fail(409, "sync conflict — try again");
+}
+
+/* ---------- Clack Off (challenge links) ---------- */
+// A challenge is a 30s / 60s word set (by seed). The creator's verified run becomes the ghost that
+// everyone else races; each player gets one verified run per challenge, for CHALLENGE_HOURS.
+const CHALLENGE_HOURS = 24, TAUNTS = 8;
+const CODE_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";   // no 0/o, 1/l/i lookalikes
+const newChallengeId = () => [...crypto.getRandomValues(new Uint8Array(6))].map(x => CODE_CHARS[x % CODE_CHARS.length]).join("");
+// Head-to-head between two players: challenges they both ran, won on wpm then accuracy.
+async function rivalry(env, me, them) {
+  const r = await env.DB.prepare(`
+    SELECT SUM(CASE WHEN a.wpm > b.wpm OR (a.wpm = b.wpm AND a.acc > b.acc) THEN 1 ELSE 0 END) AS wins,
+           SUM(CASE WHEN b.wpm > a.wpm OR (b.wpm = a.wpm AND b.acc > a.acc) THEN 1 ELSE 0 END) AS losses
+    FROM challenge_runs a JOIN challenge_runs b ON a.challenge_id = b.challenge_id
+    WHERE a.user_id = ? AND b.user_id = ?`).bind(me, them).first();
+  return { wins: r?.wins || 0, losses: r?.losses || 0 };
+}
+async function createChallenge(req, env, u) {
+  await limit(env, "chal:" + u.id, 30);
+  const b = await body(req);
+  if (b.board !== "time30" && b.board !== "time60") fail(400, "clack offs are 30s or 60s runs");
+  const dev = b.dev === "t" ? "t" : "k";
+  const r = scoreRun({ board: b.board, seed: b.seed, keys: b.keys, gaps: b.gaps, dev });
+  if (r.error) fail(422, r.error);
+  const now = Date.now(), taunt = Number.isInteger(b.taunt) && b.taunt >= 0 && b.taunt < TAUNTS ? b.taunt : 0;
+  let id;
+  for (let tries = 0; tries < 5; tries++) {
+    id = newChallengeId();
+    try {
+      await env.DB.prepare("INSERT INTO challenges (id, creator_id, board, seed, taunt, created, closes, rematch_of) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        .bind(id, u.id, b.board, b.seed, taunt, now, now + CHALLENGE_HOURS * 3600e3, typeof b.rematch_of === "string" ? b.rematch_of.slice(0, 12) : null).run();
+      break;
+    } catch (e) { if (!String(e).includes("UNIQUE") || tries === 4) throw e; }   // code already taken: draw another
+  }
+  await env.DB.prepare("INSERT INTO challenge_runs (challenge_id, user_id, dev, wpm, acc, keys, gaps, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    .bind(id, u.id, dev, r.wpm, r.acc, b.keys, JSON.stringify(b.gaps), now).run();
+  return json(await challengeView(env, id, u), 201);
+}
+async function challengeView(env, id, u) {
+  const ch = await env.DB.prepare("SELECT c.*, u.name AS creator_name FROM challenges c JOIN users u ON u.id = c.creator_id WHERE c.id = ? AND c.removed = 0")
+    .bind(id).first();
+  if (!ch) fail(404, "that clack off doesn't exist (or was removed)");
+  const runs = (await env.DB.prepare(`
+    SELECT r.user_id, r.dev, r.wpm, r.acc, r.created, u.name FROM challenge_runs r JOIN users u ON u.id = r.user_id
+    WHERE r.challenge_id = ? AND u.banned = 0 ORDER BY r.wpm DESC, r.acc DESC, r.created ASC`).bind(id).all()).results;
+  const ghost = await env.DB.prepare("SELECT keys, gaps, wpm, acc, dev FROM challenge_runs WHERE challenge_id = ? AND user_id = ?").bind(id, ch.creator_id).first();
+  const now = Date.now(), mine = u ? runs.find(r => r.user_id === u.id) : null;
+  return {
+    id: ch.id, board: ch.board, seed: ch.seed, taunt: ch.taunt, created: ch.created, closes: ch.closes, open: now < ch.closes,
+    rematchOf: ch.rematch_of,
+    creator: { name: ch.creator_name || "(no name)", wpm: ghost?.wpm, acc: ghost?.acc, dev: ghost?.dev, me: !!(u && u.id === ch.creator_id) },
+    ghost: ghost ? { keys: ghost.keys, gaps: JSON.parse(ghost.gaps) } : null,
+    entries: runs.map((r, i) => ({ rank: i + 1, name: r.name || "(no name)", wpm: r.wpm, acc: r.acc, dev: r.dev, at: r.created,
+      creator: r.user_id === ch.creator_id, me: !!(u && r.user_id === u.id) })),
+    mine: mine ? { rank: runs.indexOf(mine) + 1, wpm: mine.wpm, acc: mine.acc } : null,
+    record: u && u.id !== ch.creator_id ? await rivalry(env, u.id, ch.creator_id) : null,
+  };
+}
+async function playChallenge(req, env, id, u) {
+  await limit(env, "chalrun:" + u.id, 60);
+  const ch = await env.DB.prepare("SELECT * FROM challenges WHERE id = ? AND removed = 0").bind(id).first();
+  if (!ch) fail(404, "that clack off doesn't exist (or was removed)");
+  const already = await env.DB.prepare("SELECT 1 FROM challenge_runs WHERE challenge_id = ? AND user_id = ?").bind(id, u.id).first();
+  if (already) return json({ ...(await challengeView(env, id, u)), duplicate: true });
+  if (Date.now() >= ch.closes) fail(410, "this clack off has closed");
+  const b = await body(req), dev = b.dev === "t" ? "t" : "k";
+  const r = scoreRun({ board: ch.board, seed: ch.seed, keys: b.keys, gaps: b.gaps, dev });
+  if (r.error) fail(422, r.error);
+  try {
+    await env.DB.prepare("INSERT INTO challenge_runs (challenge_id, user_id, dev, wpm, acc, keys, gaps, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(id, u.id, dev, r.wpm, r.acc, b.keys, JSON.stringify(b.gaps), Date.now()).run();
+  } catch (e) { if (!String(e).includes("UNIQUE")) throw e; }               // a double-submit: the first one stands
+  return json(await challengeView(env, id, u), 201);
+}
+// Your clack offs (made or played) from the last 14 days, newest activity first.
+async function myChallenges(env, u) {
+  const r = await env.DB.prepare(`
+    SELECT c.id, c.board, c.created, c.closes, c.creator_id = ?1 AS mine, cu.name AS creator,
+      (SELECT COUNT(*) FROM challenge_runs x WHERE x.challenge_id = c.id) AS players,
+      (SELECT MAX(created) FROM challenge_runs x WHERE x.challenge_id = c.id) AS last_run,
+      (SELECT MAX(wpm) FROM challenge_runs x WHERE x.challenge_id = c.id) AS best,
+      me.wpm AS my_wpm,
+      (SELECT COUNT(*) + 1 FROM challenge_runs x WHERE x.challenge_id = c.id AND (x.wpm > me.wpm OR (x.wpm = me.wpm AND x.acc > me.acc))) AS my_rank
+    FROM challenges c JOIN users cu ON cu.id = c.creator_id
+    LEFT JOIN challenge_runs me ON me.challenge_id = c.id AND me.user_id = ?1
+    WHERE c.removed = 0 AND c.created > ?2 AND (c.creator_id = ?1 OR me.id IS NOT NULL)
+    ORDER BY last_run DESC LIMIT 30`).bind(u.id, Date.now() - 14 * DAY).all();
+  return json({ rows: r.results.map(x => ({ ...x, mine: !!x.mine, open: Date.now() < x.closes })) });
 }
 
 /* ---------- admin (admin.html) ---------- */
@@ -309,12 +409,15 @@ async function admin(req, env, action) {
     await logAction(env, req, "release-name", who(u));
     return json({ ok: true });
   }
+  if (action === "remove-challenge") {
+    const r = await env.DB.prepare("UPDATE challenges SET removed = 1 WHERE id = ?").bind(String(b.id || "")).run();
+    if (!r.meta.changes) fail(404, "no such clack off");
+    await logAction(env, req, "remove-challenge", b.id);
+    return json({ ok: true });
+  }
   if (action === "delete-user") {
     const u = await findUser(env, b);
-    await env.DB.batch([
-      env.DB.prepare("DELETE FROM scores WHERE user_id = ?").bind(u.id),
-      env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id),
-    ]);
+    await deleteAccount(env, u.id);
     await logAction(env, req, "delete-user", who(u));
     return json({ ok: true });
   }
@@ -324,7 +427,7 @@ async function admin(req, env, action) {
 async function adminOverview(env) {
   const now = Date.now(), dayStart = (utcDay(now) - 1) * DAY + Date.UTC(2026, 8, 30), week = now - 7 * DAY, today = utcDay(now);
   const one = (sql, ...a) => env.DB.prepare(sql).bind(...a);
-  const [players, runs, byBoard, byDev, perDay, daily, top] = await env.DB.batch([
+  const [players, runs, byBoard, byDev, perDay, daily, top, offs] = await env.DB.batch([
     one(`SELECT COUNT(*) AS total,
            SUM(created >= ?1) AS newToday, SUM(created >= ?2) AS newWeek,
            SUM(last_seen >= ?1) AS activeToday, SUM(last_seen >= ?2) AS activeWeek,
@@ -338,9 +441,11 @@ async function adminOverview(env) {
     one(`SELECT day, COUNT(*) AS n FROM scores WHERE board = 'daily' AND removed = 0 AND day >= ? GROUP BY day ORDER BY day`, today - 13),
     one(`SELECT s.id, s.board, s.dev, s.wpm, s.acc, u.name FROM scores s JOIN users u ON u.id = s.user_id
            WHERE s.created >= ? AND s.removed = 0 ORDER BY s.wpm DESC LIMIT 8`, dayStart),
+    one(`SELECT COUNT(*) AS total, SUM(created >= ?1) AS today, SUM(created >= ?2) AS week,
+           (SELECT COUNT(*) FROM challenge_runs WHERE created >= ?2) AS runsWeek FROM challenges WHERE removed = 0`, dayStart, week),
   ]);
   return json({
-    today, players: players.results[0], runs: runs.results[0],
+    today, players: players.results[0], runs: runs.results[0], clackOffs: offs.results[0],
     byBoard: byBoard.results, byDev: byDev.results, perDay: perDay.results, daily: daily.results, top: top.results,
   });
 }

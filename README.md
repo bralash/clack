@@ -69,6 +69,15 @@ as Macs) and desktops are told apart by the browser's own report, the OS in the 
 - Fully optional: nothing leaves the device until you pick a name, and you can delete your name and scores any time.
 - The stats page can split **keyboard vs phone** runs, so you can compare your speed on each.
 
+### ⚔ Clack Off
+- **Challenge links.** After a 30s or 60s run, press **⚔ clack off**, pick a preset taunt and share the link
+  (`?c=<code>`, with share / WhatsApp / copy). Friends type the exact same words against your **ghost** — your verified
+  run replayed keystroke by keystroke — with live race lanes showing who's ahead.
+- **Group clack offs:** open for 24 hours, one attempt each, with a mini leaderboard of everyone who raced.
+- **Rematch**, a shareable **result card**, and a **win–loss record** against each rival.
+- **Guest play:** claim a name inline on the challenge page, or race without one (the result isn't posted).
+- The home card lists your clack offs and flags **new results**. +10 clacks per clack off, +15 for beating the ghost.
+
 ### Clacks & the store
 - **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
   1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off

@@ -60,6 +60,9 @@ test("scores: verified runs rank, cheats are refused, the daily counts once", op
   assert.ok(bd.body.rows.find(r => r.me));
   const phone = await call("/api/board?b=time60&dev=t&range=today");
   assert.ok(!phone.body.rows.some(r => r.name === "fast_" + tag));
+  // each list says how many are on the other one, so a phone can see the keyboard runs exist
+  assert.equal(phone.body.counts.k, bd.body.total);
+  assert.equal(phone.body.counts.t, phone.body.total);
   // daily: one official run per player per day
   const n = utcDay(), run = typeWords(dailyWords(n));
   const d1 = await call("/api/scores", { method: "POST", code: a.code, body: { board: "daily", day: n, dev: "k", ...run } });
@@ -116,6 +119,43 @@ test("admin page: overview, players, runs, actions and the log", opts, async () 
   for (const a of ["set-name", "unban", "ban", "restore-score", "remove-score"]) assert.ok(log.includes(a), "logged " + a);
   assert.equal((await post("delete-user", { id })).status, 200);
   assert.equal((await get("player?id=" + id)).status, 404);
+});
+
+test("clack off: create, race the ghost, one run each, standings and rivalry", opts, async () => {
+  const a = (await call("/api/register", { method: "POST", body: { name: "chal_a_" + tag } })).body;
+  const b = (await call("/api/register", { method: "POST", body: { name: "chal_b_" + tag } })).body;
+  const c = (await call("/api/register", { method: "POST", body: { name: "chal_c_" + tag } })).body;
+  const seed = 5 + Math.floor(Math.random() * 1e6);
+  const fast = typeWords(timeWords(seed), { gapMin: 70, gapMax: 150, maxMs: 30000 });
+  const slow = typeWords(timeWords(seed), { gapMin: 170, gapMax: 330, maxMs: 30000 });
+  // a robot-timed run can't start a challenge
+  const bot = typeWords(timeWords(seed), { gapMin: 80, gapMax: 80, maxMs: 30000 });
+  assert.equal((await call("/api/challenges", { method: "POST", code: a.code, body: { board: "time30", seed, dev: "k", ...bot } })).status, 422);
+  const made = await call("/api/challenges", { method: "POST", code: a.code, body: { board: "time30", seed, dev: "k", taunt: 2, ...fast } });
+  assert.equal(made.status, 201, JSON.stringify(made.body));
+  const id = made.body.id;
+  assert.match(id, /^[a-z2-9]{6}$/); assert.equal(made.body.creator.me, true); assert.equal(made.body.taunt, 2);
+  // anyone can look (no sign-in): seed + ghost to race
+  const view = (await call("/api/challenges/" + id)).body;
+  assert.equal(view.seed, seed); assert.equal(view.ghost.keys, fast.keys); assert.equal(view.entries.length, 1); assert.equal(view.open, true);
+  // b plays slower, c plays the wrong words; b can't play twice
+  const pb = await call(`/api/challenges/${id}/runs`, { method: "POST", code: b.code, body: { dev: "t", ...slow } });
+  assert.equal(pb.status, 201); assert.equal(pb.body.mine.rank, 2); assert.deepEqual(pb.body.record, { wins: 0, losses: 1 });
+  const again = await call(`/api/challenges/${id}/runs`, { method: "POST", code: b.code, body: { dev: "t", ...fast } });
+  assert.equal(again.body.duplicate, true); assert.equal(again.body.mine.rank, 2, "the first run stands");
+  const wrong = typeWords(timeWords(seed + 1), { maxMs: 30000 });
+  const pc = await call(`/api/challenges/${id}/runs`, { method: "POST", code: c.code, body: { dev: "k", ...wrong } });
+  assert.equal(pc.status, 201); assert.ok(pc.body.mine.wpm < 30, "words that don't match score badly");
+  assert.deepEqual(pc.body.entries.map(e => e.name), ["chal_a_" + tag, "chal_b_" + tag, "chal_c_" + tag]);
+  // a's list shows it with 3 players; b sees it too
+  const mineA = (await call("/api/challenges", { code: a.code })).body.rows.find(r => r.id === id);
+  assert.equal(mineA.players, 3); assert.equal(mineA.mine, true); assert.equal(mineA.my_rank, 1);
+  assert.ok((await call("/api/challenges", { code: b.code })).body.rows.some(r => r.id === id && r.my_rank === 2));
+  // admin can remove it; then it's gone
+  assert.equal((await call("/api/admin/remove-challenge", { method: "POST", body: { id }, admin: "local-admin-key" })).status, 200);
+  assert.equal((await call("/api/challenges/" + id)).status, 404);
+  assert.equal((await call("/api/challenges/nope12")).status, 404);
+  for (const u of [a, b, c]) assert.equal((await call("/api/me", { method: "DELETE", code: u.code })).status, 200);   // deleting cleans up their clack offs
 });
 
 test("sync: two devices add up instead of overwriting", opts, async () => {

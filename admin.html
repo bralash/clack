@@ -204,7 +204,7 @@ $("#refresh").onclick=()=>{show(view);if(view==="players"&&selId)openPlayer(selI
 async function loadOverview(){
   const box=$("#v-overview");box.innerHTML=`<div class="empty">loading…</div>`;
   let o;try{o=await api("overview");}catch(e){box.innerHTML=`<div class="card err">${esc(e.message)}</div>`;return;}
-  const P=o.players,R=o.runs,kpi=(v,l,g)=>`<div class="kpi"><b class="${g?"g":""}">${fmt(v)}</b><span>${l}</span></div>`;
+  const P=o.players,R=o.runs,C=o.clackOffs,kpi=(v,l,g)=>`<div class="kpi"><b class="${g?"g":""}">${fmt(v)}</b><span>${l}</span></div>`;
   // the last 14 days, oldest first, filling in empty days
   const days=[];for(let d=o.today-13;d<=o.today;d++)days.push(d);
   const per=Object.fromEntries(o.perDay.map(x=>[x.day,x])),dly=Object.fromEntries(o.daily.map(x=>[x.day,x.n]));
@@ -218,6 +218,7 @@ async function loadOverview(){
       ${kpi(P.activeToday,"active today")}${kpi(P.activeWeek,"active this week")}
       ${kpi(R.total,"runs, all time",1)}${kpi(R.today,"runs today")}${kpi(R.week,"runs this week")}
       ${kpi(P.banned,"banned")}${kpi(P.nameless,"without a name")}${kpi(R.removed,"runs removed")}
+      ${C?`${kpi(C.total,"clack offs, all time",1)}${kpi(C.today,"clack offs today")}${kpi(C.week,"clack offs this week")}${kpi(C.runsWeek,"clack off races this week")}`:""}
     </div>
     <div class="sec cols">
       <div class="card"><h3>runs per day <small>— last 14 days</small></h3>
@@ -233,7 +234,12 @@ async function loadOverview(){
     <div class="sec"><h3>fastest runs today</h3>
       <div class="tablebox">${o.top.length?`<table><tr><th>player</th><th>board</th><th>device</th><th class="num">wpm</th><th class="num">acc</th></tr>
         ${o.top.map(t=>`<tr><td>${esc(t.name)}</td><td>${BOARD[t.board]}</td><td class="dimt">${DEV[t.dev]}</td><td class="num gold">${t.wpm}</td><td class="num">${t.acc}%</td></tr>`).join("")}</table>`
-        :`<div class="empty">no runs yet today</div>`}</div></div>`;
+        :`<div class="empty">no runs yet today</div>`}</div></div>
+    <div class="sec card"><h3>take down a clack off <small>— paste its link or code</small></h3>
+      <div class="row"><input class="in" id="coId" placeholder="https://…/?c=k7q2mx" autocomplete="off" spellcheck="false"><button class="btn danger" id="coRm">remove</button></div></div>`;
+  $("#coRm").onclick=async()=>{const v=$("#coId").value.trim(),id=((v.match(/[?&]c=([a-z0-9]+)/i)||[])[1]||v).toLowerCase();
+    if(!id||!confirm(`Remove clack off ${id}? Its link stops working for everyone.`))return;
+    try{await act("remove-challenge",{id},"clack off removed");$("#coId").value="";}catch(e){}};
 }
 
 /* ---------- players ---------- */

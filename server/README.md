@@ -16,12 +16,18 @@ Cloudflare Worker with a D1 (SQLite) database.
   the best run per player, top 50, plus your own rank.
 - **Sync:** `POST /api/sync` adds counter deltas (key accuracy, activity, clacks) and merges everything else
   (`src/merge.js`), so devices add up instead of overwriting each other.
+- **Clack Off:** `POST /api/challenges {board: time30|time60, seed, dev, keys, gaps, taunt, rematch_of?}` verifies the
+  creator's run and returns a challenge with a 6-character code, open for 24 hours. `GET /api/challenges/<code>`
+  (public; personalised when signed in) returns the seed, the creator's keystrokes for the ghost, the standings and
+  your win–loss record against the creator. `POST /api/challenges/<code>/runs` races it — one run per player,
+  replayed like any other. `GET /api/challenges` lists the ones you made or raced in the last 14 days.
 - **Admin** (used by [`admin.html`](../admin.html); every request needs the `X-Admin-Key` header, and wrong keys are
   locked out after 10 an hour per IP):
   - reads: `GET /api/admin/overview`, `/players?q=`, `/player?id=`, `/runs?board=&dev=&flagged=1&removed=1`, `/log`
   - actions (`POST`, each written to the `admin_log` table): `remove-score {id}`, `restore-score {id}`,
     `ban {id, ban}`, `set-name {id | from, to}` (any name, including reserved ones such as the owner's handle,
-    without using up the 60-day rename), `release-name {id}`, `delete-user {id}`
+    without using up the 60-day rename), `release-name {id}`, `delete-user {id}`,
+    `remove-challenge {id}` (takes a clack off link down)
 
 ## Admin page
 
