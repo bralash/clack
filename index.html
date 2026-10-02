@@ -1956,19 +1956,25 @@ function renderDaily(){
       <div class="dgrid" title="${clean} of ${r.grid.length} words clean · ${r.acc}% accuracy" aria-label="${clean} of ${r.grid.length} words clean, ${r.acc}% accuracy">${[...r.grid].map(c=>`<i class="${c==="1"?"":"x"}"></i>`).join("")}</div>
       <button class="btn" id="dShare">share</button>`;
     $("#dShare").onclick=()=>openShare(n);
-    const rk=$("#dRank");if(rk)rk.onclick=()=>openBoard("daily");
+    const rk=$("#dRank");if(rk)rk.onclick=()=>{LB.dev=r.dev||"k";openBoard("daily");};
   }
 }
 // "🏆 #3 of 41" chip on the played daily card: from the leaderboard, cached for a minute.
-let dRank={n:0,at:0,txt:""};
+let dRank={n:0,at:0,txt:"",tip:""};
+const DEV_LIST={k:{icon:"⌨",name:"keyboard"},t:{icon:"📱",name:"phone"}};
 function dailyRankHtml(n,r){
   if(!ONLINE_READY||!API)return "";
-  const chip=t=>`<button class="d-rank" id="dRank" title="today's leaderboard">🏆 ${t}</button>`;
+  // keyboard and phone runs are ranked apart, so the chip says which list the rank is on
+  const dev=r.dev||"k",list=DEV_LIST[dev];
+  const chip=t=>`<button class="d-rank" id="dRank" title="${dRank.tip||"today's leaderboard"}">🏆 ${t}</button>`;
   if(!joined())return chip("board");
   if(dRank.n!==n||Date.now()-dRank.at>60e3){
-    dRank={n,at:Date.now(),txt:dRank.n===n?dRank.txt:""};
-    api(`/api/board?b=daily&day=${n}&dev=${r.dev||"k"}`).then(b=>{
-      dRank.txt=b.me?`#${b.me.rank} of ${b.total}`:"board";if(!el.home.hidden)renderDaily();}).catch(()=>{});
+    dRank={n,at:Date.now(),txt:dRank.n===n?dRank.txt:"",tip:dRank.n===n?dRank.tip:""};
+    api(`/api/board?b=daily&day=${n}&dev=${dev}`).then(b=>{
+      const other=b.counts?b.counts[dev==="t"?"k":"t"]:0;
+      dRank.txt=b.me?`#${b.me.rank} of ${b.total} ${list.icon}`:"board";
+      dRank.tip=b.me?`#${b.me.rank} of ${b.total} on the ${list.name} list${other?` · ${other} more on the ${DEV_LIST[dev==="t"?"k":"t"].name} list`:""}`:"";
+      if(!el.home.hidden)renderDaily();}).catch(()=>{});
   }
   return chip(dRank.txt||"board");
 }
@@ -1979,7 +1985,7 @@ setInterval(()=>{if(!el.home.hidden)renderDaily();},30000);   // keep the countd
 let SHW={name:null,rank:null,total:0};
 function shareText(n,r){
   const rows=[];for(let i=0;i<r.grid.length;i+=10)rows.push([...r.grid.slice(i,i+10)].map(c=>c==="1"?"🟩":"🟨").join(""));
-  const who=SHW.name?` · ${SHW.name}`:"",rank=SHW.rank?` · 🏆 #${SHW.rank} of ${SHW.total}`:"";
+  const who=SHW.name?` · ${SHW.name}`:"",rank=SHW.rank?` · 🏆 #${SHW.rank} of ${SHW.total} ${DEV_LIST[r.dev||"k"].icon}`:"";
   return `Clack Daily #${n} ⌨️${who}\n${r.wpm} wpm · ${r.acc}% · ×${r.combo}${rank}\n${rows.join("\n")}\n${SITE}`;
 }
 async function drawShareCard(n,r){
@@ -1995,7 +2001,7 @@ async function drawShareCard(n,r){
   if(SHW.name){                                          // whose run this is, and where it placed
     g.font=F(400,28);g.fillStyle="#6b7078";g.fillText("by ",74,212);
     const bx=74+g.measureText("by ").width;g.font=F(700,28);g.fillStyle="#e7e8ea";g.fillText(SHW.name,bx,212);
-    if(SHW.rank){const rx=bx+g.measureText(SHW.name).width+22,label=`🏆 #${SHW.rank} of ${SHW.total}`;
+    if(SHW.rank){const rx=bx+g.measureText(SHW.name).width+22,label=`🏆 #${SHW.rank} of ${SHW.total} on ${DEV_LIST[r.dev||"k"].name}s`;
       g.font=F(600,22);const rw=g.measureText(label).width+28;
       g.fillStyle="rgba(226,180,37,.12)";g.strokeStyle="#8a7220";g.lineWidth=1.5;
       g.beginPath();g.roundRect?g.roundRect(rx,186,rw,36,18):g.rect(rx,186,rw,36);g.fill();g.stroke();
@@ -3217,10 +3223,10 @@ async function api(path,{method="GET",body,code=ON.code}={}){
 /* ---------- posting runs ---------- */
 function showResBoard(html){const b=$("#rBoard");b.hidden=!html;b.innerHTML=html||"";
   const j=$("#rJoin");if(j)j.onclick=()=>{openBoard($("#rJoin").dataset.b);openAccount();};
-  const v=$("#rView");if(v)v.onclick=()=>openBoard($("#rView").dataset.b);}
+  const v=$("#rView");if(v)v.onclick=()=>{LB.dev=v.dataset.dev;openBoard(v.dataset.b);};}
 const rankLine=(run,r)=>{
   const where=run.board==="daily"?`daily #${run.day}`:`today's ${BOARD_NAME[run.board]}`;
-  return r.rank?`🏆 <b>#${r.rank}</b> of ${r.total} on ${where}${run.dev==="t"?" (phone)":""}`:`posted to ${where}`;
+  return r.rank?`🏆 <b>#${r.rank}</b> of ${r.total} on ${where} (${DEV_LIST[run.dev==="t"?"t":"k"].name})`:`posted to ${where}`;
 };
 async function submitRun(run){return api("/api/scores",{method:"POST",body:run});}
 function postRun(run){
@@ -3234,7 +3240,7 @@ function postRun(run){
   }
   showResBoard("posting to the leaderboard…");
   submitRun(run).then(r=>{
-    showResBoard(`${rankLine(run,r)} <button class="linkbtn" id="rView" data-b="${run.board}">see the board →</button>`);
+    showResBoard(`${rankLine(run,r)} <button class="linkbtn" id="rView" data-b="${run.board}" data-dev="${run.dev==="t"?"t":"k"}">see the board →</button>`);
   }).catch(e=>{
     if(!e.status){ON.pending.push(run);saveOn();showResBoard("offline — this run will be posted next time");}
     else showResBoard(`<span class="bad">not posted: ${escHtml(e.message)}</span>`);
