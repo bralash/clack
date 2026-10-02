@@ -1263,11 +1263,15 @@
         <div class="st-h">power-ups</div>
         <p>Power-ups fall as glowing capsules marked "power-up". <b>Type the name to grab it.</b> Missing one never costs a life.</p>
         <dl class="kv">
-          <dt><span class="pu" style="--c:#7cc8ff">❄ freeze</span></dt><dd>Slows every word — and new ones appearing — to a quarter speed for 5 seconds.</dd>
-          <dt><span class="pu" style="--c:#e2b425">×2 double</span></dt><dd>Double points for 10 seconds. Grabbing freeze or double replaces the one running.</dd>
+          <dt><span class="pu" style="--c:#7cc8ff">❄ freeze</span></dt><dd>Slows every word — and new ones appearing — to a quarter speed for 10 seconds, then eases them back up.</dd>
+          <dt><span class="pu" style="--c:#e2b425">×2 double</span></dt><dd>Double points for 10 seconds.</dd>
+          <dt><span class="pu" style="--c:#c38bff">⚡ chain</span></dt><dd>For 10 seconds, every word you finish zaps the nearest word too, for full points.</dd>
+          <dt><span class="pu" style="--c:#ff8ad8">◦ tiny</span></dt><dd>For 10 seconds, new words are only three or four letters long.</dd>
+          <dt><span class="pu" style="--c:#5be3c4">⟲ rewind</span></dt><dd>Sends every word on screen back up toward the top. Save your skin when it's crowded.</dd>
           <dt><span class="pu" style="--c:#4ee06e">◈ shield</span></dt><dd>Gives back a lost life. At full health it puts a ring around your ship that blocks the next hit.</dd>
           <dt><span class="pu" style="--c:#ff8a3d">✹ boom</span></dt><dd>Saves a bomb. Press <kbd>Space</kbd> to clear every word on screen for full points.</dd>
         </dl>
+        <p>Timed power-ups run side by side, each with its own bar under the score. Grab one that's already running and it gets more time.</p>
       </div>
 
       <div class="st-sec">
@@ -2526,26 +2530,57 @@ let enemies=[],bullets=[],parts=[],target=null;
 let sSpawnT=0,sElapsed=0,sScore=0,sLives=0,sKills=0,sKeysOk=0,sKeysAll=0,sCharsOk=0,diff=null;
 
 /* ---------- power-ups: special falling words; type the power-up's name to collect it ---------- */
+// Every name starts with a different letter, so typing one never locks onto another. secs = a timed effect.
 const PU={
-  freeze:{icon:"❄", col:"#7cc8ff",label:"freeze"},   // slow everything to 25% for 5s
-  boom:  {icon:"✹", col:"#ff8a3d",label:"bomb"},     // stored; Space clears the screen
-  shield:{icon:"◈", col:"#4ee06e",label:"shield"},   // heal a life, or block the next hit
-  double:{icon:"×2",col:"#e2b425",label:"double"}    // double points for 10s
+  freeze:{icon:"❄", col:"#7cc8ff",label:"freeze",secs:10},  // everything falls (and appears) at a quarter speed
+  boom:  {icon:"✹", col:"#ff8a3d",label:"bomb"},            // stored; Space clears the screen
+  shield:{icon:"◈", col:"#4ee06e",label:"shield"},          // heal a life, or block the next hit
+  double:{icon:"×2",col:"#e2b425",label:"double",secs:10},  // double points
+  rewind:{icon:"⟲", col:"#5be3c4",label:"rewind"},          // every word on screen goes back up the field
+  chain: {icon:"⚡", col:"#c38bff",label:"chain",secs:10},   // each word you finish zaps the nearest one too
+  tiny:  {icon:"◦", col:"#ff8ad8",label:"tiny",secs:10},    // new words are only 3–4 letters
 };
-let pwr=null,bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false,sBombBest=0;
+const FREEZE_EASE=1.5;               // freeze's last seconds: words speed back up gradually, not with a jolt
+// fx: the timed effects running, by type ({t: seconds left, dur: bar length}). They run side by side,
+// and grabbing one that's already running adds its time again (up to one and a half times its length).
+let fx={},bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false,sBombBest=0,zaps=[];
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
-const ptsMult=()=>pwr&&pwr.type==="double"?2:1;
+const ptsMult=()=>fx.double?2:1;
+const SHORT_WORDS=WORDS.filter(w=>w.length>=3&&w.length<=4);
+function slowFactor(){const f=fx.freeze;if(!f)return 1;return f.t>=FREEZE_EASE?0.25:0.25+0.75*(1-f.t/FREEZE_EASE);}
+function startFx(t){
+  const s=PU[t].secs,cur=fx[t];
+  if(cur){cur.t=Math.min(cur.t+s,s*1.5);cur.dur=Math.max(cur.dur,cur.t);}else fx[t]={t:s,dur:s};
+}
 function collectPU(en){
   const t=en.pu,p=PU[t];
   STATS.puSeen[t]=1;
   sScore+=15*ptsMult();
   boom(en.x,en.y,p.col);boom(en.x,en.y,p.col);
-  if(t==="freeze"){pwr={type:"freeze",t:5,dur:5};tone("sine",900,260,0.16,0.4);}
-  else if(t==="double"){pwr={type:"double",t:10,dur:10};tone("triangle",700,1400,0.12,0.16);setTimeout(()=>tone("triangle",1000,1700,0.12,0.18),110);}
+  if(p.secs)startFx(t);
+  if(t==="freeze")tone("sine",900,260,0.16,0.4);
+  else if(t==="double"){tone("triangle",700,1400,0.12,0.16);setTimeout(()=>tone("triangle",1000,1700,0.12,0.18),110);}
+  else if(t==="chain"){tone("sawtooth",1200,300,0.05,0.18,2600);tone("square",1800,600,0.03,0.12,3000,0.06);}
+  else if(t==="tiny"){[1200,1500,1800].forEach((f,i)=>tone("sine",f,0,0.08,0.06,0,i*0.05));}
   else if(t==="shield"){ if(sLives>0){sLives--;renderLives();}else shield=true; tone("triangle",480,1050,0.14,0.32); }
   else if(t==="boom"){ if(bombs>=1)detonate(); else {bombs=1;tone("square",220,440,0.07,0.2);} }
+  else if(t==="rewind"){                              // back up the field, keeping their order
+    for(const e of enemies)if(!e.pu)e.y=TOP+(e.y-TOP)*0.35;
+    tone("sine",300,900,0.14,0.35);wave={r:0,life:1,col:p.col};
+  }
   puFlash={type:t,life:1};
   haptic([0,30,30,30]);
+}
+// chain: finishing a word at (x, y) also destroys the nearest other word, for its full points
+function chainZap(x,y){
+  let best=null,bd=Infinity;
+  for(const e of enemies){if(e.pu||e===target)continue;const d=Math.hypot(e.x-x,e.y-y);if(d<bd){bd=d;best=e;}}
+  if(!best)return;
+  sScore+=(10+best.word.length)*ptsMult();sKills++;
+  zaps.push({x1:x,y1:y,x2:best.x,y2:best.y,life:1,seed:Math.random()});
+  boom(best.x,best.y,PU.chain.col);
+  enemies=enemies.filter(e=>e!==best);
+  tone("sawtooth",900,200,0.04,0.12,2400);
 }
 function detonate(){
   const hits=enemies.filter(e=>!e.pu),m=ptsMult();
@@ -2616,7 +2651,7 @@ function spawnEnemy(){
   // Types come from a shuffle bag, so every run of four drops has one of each. If the next
   // type's first letter is already on screen, it waits for a later spawn rather than being swapped.
   sinceLastPu++;
-  const chance=value==="frenzy"?1/8:1/11;
+  const chance=value==="frenzy"?1/7:1/9;
   if(!puDue&&sElapsed>6&&sinceLastPu>4&&!enemies.some(e=>e.pu)&&Math.random()<chance)puDue=true;
   if(puDue&&!enemies.some(e=>e.pu)){
     if(!puBag.length){puBag=Object.keys(PU);for(let i=puBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[puBag[i],puBag[j]]=[puBag[j],puBag[i]];}}
@@ -2628,8 +2663,8 @@ function spawnEnemy(){
       return;
     }
   }
-  let w,tries=0;
-  do{ w=WORDS[Math.floor(Math.random()*WORDS.length)]; tries++; }
+  let w,tries=0;const pool=fx.tiny?SHORT_WORDS:WORDS;     // tiny: short words only
+  do{ w=pool[Math.floor(Math.random()*pool.length)]; tries++; }
   while(taken.has(w[0]) && tries<12);
   enemies.push({word:w,hit:0,x:freeX(w),y:TOP,
     vy:diff.speed*(0.85+Math.random()*0.3)+sElapsed*diff.ramp});
@@ -2661,7 +2696,7 @@ function startShooter(){
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
   sSpawnT=0;sElapsed=0;sScore=0;sLives=0;sKills=0;sKeysOk=0;sKeysAll=0;sCharsOk=0;
-  pwr=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;sBombBest=0;
+  fx={};zaps=[];bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;sBombBest=0;
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#shoot").hidden=false;
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
@@ -2731,7 +2766,8 @@ function shootChar(key){
     sKeysOk++;sCharsOk++;target.hit++;fireBullet(target);click();haptic(5);
     if(target.hit>=target.word.length){
       if(target.pu){collectPU(target);}
-      else{sScore+=(10+target.word.length)*ptsMult();sKills++;boom(target.x,target.y,C.gold);goodBlip();}
+      else{sScore+=(10+target.word.length)*ptsMult();sKills++;boom(target.x,target.y,C.gold);goodBlip();
+        if(fx.chain)chainZap(target.x,target.y);}
       enemies=enemies.filter(x=>x!==target);target=null;
     }
   }else{
@@ -2744,10 +2780,11 @@ function loop(now){
   let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
   sElapsed+=dt;
   // power-up timers
-  if(pwr){pwr.t-=dt;if(pwr.t<=0)pwr=null;}
+  for(const k of Object.keys(fx)){fx[k].t-=dt;if(fx[k].t<=0)delete fx[k];}
   if(wave){wave.r+=950*dt;wave.life-=dt*1.5;if(wave.life<=0)wave=null;}
   if(puFlash){puFlash.life-=dt*1.1;if(puFlash.life<=0)puFlash=null;}
-  const slow=pwr&&pwr.type==="freeze"?0.25:1;      // freeze slows falling and spawning
+  for(let i=zaps.length-1;i>=0;i--){zaps[i].life-=dt*3;if(zaps[i].life<=0)zaps.splice(i,1);}
+  const slow=slowFactor();                           // freeze slows falling and spawning
   // spawn
   sSpawnT+=dt*1000*slow;
   const rate=Math.max(420,diff.spawn-sElapsed*6)/densScale();
@@ -2787,7 +2824,7 @@ function loop(now){
 }
 function draw(){
   cx.clearRect(0,0,W,H);
-  if(pwr&&pwr.type==="freeze"){cx.fillStyle="rgba(124,200,255,.07)";cx.fillRect(0,0,W,H);}
+  if(fx.freeze){cx.fillStyle=`rgba(124,200,255,${(.07*(1-slowFactor())/.75).toFixed(3)})`;cx.fillRect(0,0,W,H);}   // fades as it thaws
   // baseline danger line
   cx.strokeStyle="rgba(209,73,91,.18)";cx.lineWidth=1;
   cx.beginPath();cx.moveTo(0,H-52);cx.lineTo(W,H-52);cx.stroke();
@@ -2795,7 +2832,7 @@ function draw(){
   const sx=W/2,sy=H-40,tNow=performance.now()/1000;
   (SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(cx,sx,sy,tNow);
   if(shield){cx.strokeStyle=hexA(PU.shield.col,.75);cx.lineWidth=2;cx.beginPath();cx.arc(sx,sy-2,SHIP_PX/2+2,0,6.29);cx.stroke();}
-  if(wave){cx.strokeStyle=hexA(PU.boom.col,Math.max(0,wave.life*.8));cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,wave.r,0,6.29);cx.stroke();}
+  if(wave){cx.strokeStyle=hexA(wave.col||PU.boom.col,Math.max(0,wave.life*.8));cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,wave.r,0,6.29);cx.stroke();}
   // bullets (equipped trail)
   const trail=TRAILS[STATS.equip.trail]||TRAILS.tracer;
   for(const b of bullets)trail.draw(cx,b,tNow);
@@ -2837,14 +2874,22 @@ function draw(){
   for(const p of parts){cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.col;
     cx.fillRect(p.x-1.5,p.y-1.5,3,3);}
   cx.globalAlpha=1;
-  // active timed effect: label + draining bar under the score
-  if(pwr){
-    const p=PU[pwr.type],bw=150,bx=W/2-bw/2,by=70;
-    cx.font="600 11px 'JetBrains Mono',monospace";cx.textAlign="center";cx.fillStyle=p.col;
-    cx.fillText(p.icon+" "+p.label.toUpperCase(),W/2,by-10);
-    cx.fillStyle="rgba(255,255,255,.07)";roundRect(bx,by,bw,5,2.5);cx.fill();
-    cx.fillStyle=p.col;roundRect(bx,by,Math.max(5,bw*pwr.t/pwr.dur),5,2.5);cx.fill();
+  // chain lightning: a jagged line from the word you finished to the one it took out
+  for(const z of zaps){
+    cx.strokeStyle=hexA(PU.chain.col,Math.max(0,z.life));cx.lineWidth=2;cx.beginPath();cx.moveTo(z.x1,z.y1);
+    for(let k=1;k<6;k++){const f=k/6,j=(Math.sin((z.seed*50+k)*12.9898)*43758.5453%1)*18;
+      cx.lineTo(z.x1+(z.x2-z.x1)*f+j,z.y1+(z.y2-z.y1)*f-j*.5);}
+    cx.lineTo(z.x2,z.y2);cx.stroke();
   }
+  // timed effects running: a label and a draining bar each, side by side under the score
+  const running=Object.keys(fx);
+  running.forEach((k,i)=>{
+    const p=PU[k],f=fx[k],n=running.length,gap=14,bw=Math.min(n>1?120:150,(W-32-(n-1)*gap)/n),bx=W/2-(n*bw+(n-1)*gap)/2+i*(bw+gap),by=70;
+    cx.font="600 11px 'JetBrains Mono',monospace";cx.textAlign="center";cx.fillStyle=p.col;
+    cx.fillText(bw<100?`${p.icon} ${Math.ceil(f.t)}s`:`${p.icon} ${p.label.toUpperCase()} ${Math.ceil(f.t)}s`,bx+bw/2,by-10);
+    cx.fillStyle="rgba(255,255,255,.07)";roundRect(bx,by,bw,5,2.5);cx.fill();
+    cx.fillStyle=p.col;roundRect(bx,by,Math.max(5,bw*f.t/f.dur),5,2.5);cx.fill();
+  });
   // stored bomb
   if(bombs>0){
     cx.font="600 12px 'JetBrains Mono',monospace";cx.textAlign="left";cx.fillStyle=PU.boom.col;
