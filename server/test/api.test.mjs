@@ -151,6 +151,13 @@ test("clack off: create, race the ghost, one run each, standings and rivalry", o
   const mineA = (await call("/api/challenges", { code: a.code })).body.rows.find(r => r.id === id);
   assert.equal(mineA.players, 3); assert.equal(mineA.mine, true); assert.equal(mineA.my_rank, 1);
   assert.ok((await call("/api/challenges", { code: b.code })).body.rows.some(r => r.id === id && r.my_rank === 2));
+  // new results are other people's runs since you last looked, on any device: a hasn't looked since
+  // b and c raced; b raced before c, and never counts its own run
+  assert.equal(mineA.fresh, 2);
+  assert.equal((await call("/api/challenges", { code: b.code })).body.rows.find(r => r.id === id).fresh, 1);
+  await call("/api/challenges/" + id, { code: a.code });                      // a opens it (say, on the phone)
+  assert.equal((await call("/api/challenges", { code: a.code })).body.rows.find(r => r.id === id).fresh, 0, "seen on every device");
+  assert.equal((await call("/api/challenges", { code: c.code })).body.rows.find(r => r.id === id).fresh, 0, "your own run isn't news");
   // admin can remove it; then it's gone
   assert.equal((await call("/api/admin/remove-challenge", { method: "POST", body: { id }, admin: "local-admin-key" })).status, 200);
   assert.equal((await call("/api/challenges/" + id)).status, 404);

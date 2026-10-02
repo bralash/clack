@@ -289,6 +289,7 @@ async function challengeView(env, id, u) {
     WHERE r.challenge_id = ? AND u.banned = 0 ORDER BY r.wpm DESC, r.acc DESC, r.created ASC`).bind(id).all()).results;
   const ghost = await env.DB.prepare("SELECT keys, gaps, wpm, acc, dev FROM challenge_runs WHERE challenge_id = ? AND user_id = ?").bind(id, ch.creator_id).first();
   const now = Date.now(), mine = u ? runs.find(r => r.user_id === u.id) : null;
+  if (mine) await env.DB.prepare("UPDATE challenge_runs SET seen = ? WHERE challenge_id = ? AND user_id = ?").bind(now, id, u.id).run();
   return {
     id: ch.id, board: ch.board, seed: ch.seed, taunt: ch.taunt, created: ch.created, closes: ch.closes, open: now < ch.closes,
     rematchOf: ch.rematch_of,
@@ -324,6 +325,8 @@ async function myChallenges(env, u) {
       (SELECT MAX(created) FROM challenge_runs x WHERE x.challenge_id = c.id) AS last_run,
       (SELECT MAX(wpm) FROM challenge_runs x WHERE x.challenge_id = c.id) AS best,
       me.wpm AS my_wpm,
+      (SELECT COUNT(*) FROM challenge_runs x WHERE x.challenge_id = c.id AND x.user_id != ?1
+         AND x.created > COALESCE(me.seen, me.created)) AS fresh,
       (SELECT COUNT(*) + 1 FROM challenge_runs x WHERE x.challenge_id = c.id AND (x.wpm > me.wpm OR (x.wpm = me.wpm AND x.acc > me.acc))) AS my_rank
     FROM challenges c JOIN users cu ON cu.id = c.creator_id
     LEFT JOIN challenge_runs me ON me.challenge_id = c.id AND me.user_id = ?1

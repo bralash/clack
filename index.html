@@ -3555,10 +3555,10 @@ function closesIn(ms){const m=Math.round((ms-Date.now())/60000);return m<=0?"clo
 function duelHead(d,name){name=`<b>${escHtml(name)}</b>`;
   return d>0?`🏆 you beat ${name} by ${d} wpm`:d<0?`😈 ${name} wins by ${-d} wpm`:`🤝 dead even with ${name}`;}
 async function copyText(t,btn){try{await navigator.clipboard.writeText(t);if(btn)btn.textContent="copied ✓";}catch(e){if(btn)btn.textContent="couldn't copy";}}
-// what's new since you last looked: players per clack off
-const SEEN_KEY="clack_duels_seen";
-let SEEN=(()=>{try{return JSON.parse(localStorage.getItem(SEEN_KEY))||{};}catch(e){return{};}})();
-function seenDuel(id,n){SEEN[id]=Math.max(SEEN[id]||0,n);try{localStorage.setItem(SEEN_KEY,JSON.stringify(SEEN));}catch(e){}duelCache.at=0;}
+// What's new: the server counts other people's runs since you last opened a clack off (on any device),
+// and opening one marks it seen, so the home card just has to fetch the list again.
+function seenDuel(){duelCache.at=0;}
+try{localStorage.removeItem("clack_duels_seen");}catch(e){}       // the old per-device record
 
 // The ghost: the challenger's run replayed with the test's own rules (same as server/src/engine.js),
 // as [time ms, words done, correct chars] points.
@@ -3785,7 +3785,7 @@ async function openDuels(){
   body.innerHTML=head+`<div class="empty">loading…</div>`;wireStarts(body);
   let r;try{r=await api("/api/challenges");}catch(e){body.lastElementChild.textContent=e.message;return;}
   duelCache={at:Date.now(),rows:r.rows};
-  body.lastElementChild.outerHTML=r.rows.length?`<div class="co-list">${r.rows.map(x=>{const fresh=x.players>(SEEN[x.id]||0);
+  body.lastElementChild.outerHTML=r.rows.length?`<div class="co-list">${r.rows.map(x=>{const fresh=x.fresh>0;
     return `<button class="co-item" data-id="${x.id}"><span class="t">${x.mine?"<i>your</i> clack off":`vs <i>${escHtml(x.creator||"?")}</i>`} · ${secsOf(x.board)}s${fresh?'<span class="dot" title="new results"></span>':""}</span>
       <span class="s">${x.players} ${x.players===1?"player":"players"} · ${x.open?closesIn(x.closes):"closed "+ago(x.closes)}</span>
       <span class="r">${x.my_wpm!=null?`<b>#${x.my_rank}</b>${x.my_wpm} wpm`:"<b>—</b>not raced"}</span></button>`;}).join("")}</div>`
@@ -3797,7 +3797,7 @@ let duelCache={at:0,rows:null};
 function renderDuelCard(){
   if(!ONLINE_READY)return;
   const card=$("#duelCard");card.hidden=!API;if(!API)return;
-  const show=()=>{const n=(duelCache.rows||[]).reduce((s,x)=>s+Math.max(0,x.players-(SEEN[x.id]||0)),0);
+  const show=()=>{const n=(duelCache.rows||[]).reduce((s,x)=>s+(x.fresh||0),0);
     $("#duelNew").hidden=!n;$("#duelNew").textContent=`${n} new`;};
   show();
   if(joined()&&Date.now()-duelCache.at>60e3){duelCache.at=Date.now();api("/api/challenges").then(r=>{duelCache.rows=r.rows;show();}).catch(()=>{});}
