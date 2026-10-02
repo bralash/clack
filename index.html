@@ -1267,7 +1267,7 @@
           <dt><span class="pu" style="--c:#e2b425">×2 double</span></dt><dd>Double points for 10 seconds.</dd>
           <dt><span class="pu" style="--c:#c38bff">⚡ chain</span></dt><dd>For 10 seconds, every word you finish zaps the nearest word too, for full points.</dd>
           <dt><span class="pu" style="--c:#ff8ad8">◦ tiny</span></dt><dd>For 10 seconds, new words are only three or four letters long.</dd>
-          <dt><span class="pu" style="--c:#5be3c4">⟲ rewind</span></dt><dd>Sends every word on screen back up toward the top. Save your skin when it's crowded.</dd>
+          <dt><span class="pu" style="--c:#5be3c4">⟲ rewind</span></dt><dd>Time runs backwards for 3 seconds: every word on screen glides back up to near the top, and no new words appear. Save it for when the screen is crowded.</dd>
           <dt><span class="pu" style="--c:#4ee06e">◈ shield</span></dt><dd>Gives back a lost life. At full health it puts a ring around your ship that blocks the next hit.</dd>
           <dt><span class="pu" style="--c:#ff8a3d">✹ boom</span></dt><dd>Saves a bomb. Press <kbd>Space</kbd> to clear every word on screen for full points.</dd>
         </dl>
@@ -2536,13 +2536,15 @@ const PU={
   boom:  {icon:"✹", col:"#ff8a3d",label:"bomb"},            // stored; Space clears the screen
   shield:{icon:"◈", col:"#4ee06e",label:"shield"},          // heal a life, or block the next hit
   double:{icon:"×2",col:"#e2b425",label:"double",secs:10},  // double points
-  rewind:{icon:"⟲", col:"#5be3c4",label:"rewind"},          // every word on screen goes back up the field
+  rewind:{icon:"⟲", col:"#5be3c4",label:"rewind",secs:3},   // every word glides back up the field; nothing new appears
   chain: {icon:"⚡", col:"#c38bff",label:"chain",secs:10},   // each word you finish zaps the nearest one too
   tiny:  {icon:"◦", col:"#ff8ad8",label:"tiny",secs:10},    // new words are only 3–4 letters
 };
 const FREEZE_EASE=1.5;               // freeze's last seconds: words speed back up gradually, not with a jolt
 // fx: the timed effects running, by type ({t: seconds left, dur: bar length}). They run side by side,
 // and grabbing one that's already running adds its time again (up to one and a half times its length).
+const REWIND_S=3,REWIND_KEEP=0.12;   // rewound words take 3s to glide back up, to 12% of the way down
+let sweep=null;                      // rewind's line rising from the base to the top
 let fx={},bombs=0,shield=false,wave=null,puFlash=null,sinceLastPu=0,puBag=[],puDue=false,sBombBest=0,zaps=[];
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
 const ptsMult=()=>fx.double?2:1;
@@ -2564,9 +2566,10 @@ function collectPU(en){
   else if(t==="tiny"){[1200,1500,1800].forEach((f,i)=>tone("sine",f,0,0.08,0.06,0,i*0.05));}
   else if(t==="shield"){ if(sLives>0){sLives--;renderLives();}else shield=true; tone("triangle",480,1050,0.14,0.32); }
   else if(t==="boom"){ if(bombs>=1)detonate(); else {bombs=1;tone("square",220,440,0.07,0.2);} }
-  else if(t==="rewind"){                              // back up the field, keeping their order
-    for(const e of enemies)if(!e.pu)e.y=TOP+(e.y-TOP)*0.35;
-    tone("sine",300,900,0.14,0.35);wave={r:0,life:1,col:p.col};
+  else if(t==="rewind"){                              // words glide back up the field, keeping their order
+    for(const e of enemies)if(!e.pu)e.rw={from:e.y,to:TOP+(e.y-TOP)*REWIND_KEEP,t:0};
+    sweep={y:H-52,life:1};
+    tone("sawtooth",160,1300,0.035,REWIND_S*.9,1600);tone("sine",240,1000,0.10,REWIND_S*.8);   // tape spinning back
   }
   puFlash={type:t,life:1};
   haptic([0,30,30,30]);
@@ -2696,7 +2699,7 @@ function startShooter(){
   STATS.modes.shoot=1;saveStats();
   enemies=[];bullets=[];parts=[];target=null;
   sSpawnT=0;sElapsed=0;sScore=0;sLives=0;sKills=0;sKeysOk=0;sKeysAll=0;sCharsOk=0;
-  fx={};zaps=[];bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;sBombBest=0;
+  fx={};zaps=[];sweep=null;bombs=0;shield=false;wave=null;puFlash=null;sinceLastPu=0;puBag=[];puDue=false;sBombBest=0;
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=true;$("#shoot").hidden=false;
   $("#pbBadge").hidden=true;
   $("#sScore").textContent="0";$("#sHint").style.opacity="1";
@@ -2786,12 +2789,17 @@ function loop(now){
   for(let i=zaps.length-1;i>=0;i--){zaps[i].life-=dt*3;if(zaps[i].life<=0)zaps.splice(i,1);}
   const slow=slowFactor();                           // freeze slows falling and spawning
   // spawn
-  sSpawnT+=dt*1000*slow;
+  if(!fx.rewind)sSpawnT+=dt*1000*slow;               // nothing new appears while time runs backwards
   const rate=Math.max(420,diff.spawn-sElapsed*6)/densScale();
   if(sSpawnT>=rate){sSpawnT=0;spawnEnemy();}
   // move enemies (scaled to the playfield height, see fallScale)
   const fall=fallScale();
-  for(const en of enemies){en.y+=en.vy*dt*slow*fall;}
+  for(const en of enemies){
+    if(en.rw){                                         // rewinding: ease back up, no falling meanwhile
+      en.rw.t=Math.min(1,en.rw.t+dt/REWIND_S);const p=en.rw.t,k=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;   // ease in and out
+      en.y=en.rw.from+(en.rw.to-en.rw.from)*k;if(en.rw.t>=1)delete en.rw;continue;}
+    en.y+=en.vy*dt*slow*fall;}
+  if(sweep){sweep.life-=dt/REWIND_S;sweep.y=TOP+(H-52-TOP)*Math.max(0,sweep.life);if(sweep.life<=0)sweep=null;}
   // no overtaking: a word that catches up with one below it in the same column waits behind it
   const halfW=e=>((e.pu?e.word.length+3:e.word.length)*10.4+18)/2;
   const byDepth=enemies.slice().sort((a,b)=>b.y-a.y);
@@ -2836,6 +2844,17 @@ function draw(){
   // bullets (equipped trail)
   const trail=TRAILS[STATS.equip.trail]||TRAILS.tracer;
   for(const b of bullets)trail.draw(cx,b,tNow);
+  // rewind: the line sweeping up, and a fading trail under each word back to where it was
+  if(sweep){
+    const g=cx.createLinearGradient(0,sweep.y,0,sweep.y+60);g.addColorStop(0,hexA(PU.rewind.col,.22*sweep.life+.08));g.addColorStop(1,hexA(PU.rewind.col,0));
+    cx.fillStyle=g;cx.fillRect(0,sweep.y,W,60);
+    cx.strokeStyle=hexA(PU.rewind.col,.9);cx.lineWidth=2;cx.beginPath();cx.moveTo(0,sweep.y);cx.lineTo(W,sweep.y);cx.stroke();
+  }
+  for(const en of enemies)if(en.rw){
+    const a=1-en.rw.t,g=cx.createLinearGradient(0,en.y+12,0,en.rw.from+12);
+    g.addColorStop(0,hexA(PU.rewind.col,.55*a+.1));g.addColorStop(1,hexA(PU.rewind.col,0));
+    cx.strokeStyle=g;cx.lineWidth=3;cx.lineCap="round";cx.beginPath();cx.moveTo(en.x,en.y+12);cx.lineTo(en.x,en.rw.from+12);cx.stroke();cx.lineCap="butt";
+  }
   // enemies
   cx.font="600 17px 'JetBrains Mono',monospace";
   for(const en of enemies){
@@ -2865,7 +2884,7 @@ function draw(){
     cx.textAlign="left";
     cx.fillStyle=locked?C.goldDim:C.faint;
     cx.fillText(done,startX,en.y);
-    cx.fillStyle=locked?C.gold:C.text;
+    cx.fillStyle=locked?C.gold:en.rw?PU.rewind.col:C.text;
     cx.fillText(rest,startX+wDone,en.y);
     cx.textAlign="center";
   }

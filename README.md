@@ -16,7 +16,7 @@ A minimalist typing test — inspired by the Bemonkey iOS app and built as a sin
   - **Power-ups** fall as glowing capsules — type the name to grab it:
     `freeze` slows everything to a quarter speed for 10s (easing back at the end) · `double` doubles points for 10s ·
     `chain` makes every kill zap the nearest word too, for 10s · `tiny` spawns only 3–4 letter words for 10s ·
-    `rewind` sends every word back up the field · `shield` restores a life or blocks the next hit ·
+    `rewind` glides every word back up the field over 3s, with nothing new appearing · `shield` restores a life or blocks the next hit ·
     `boom` stores a bomb you set off with **Space** to clear the screen.
     Timed power-ups run side by side, and grabbing a running one adds time. Missing a power-up never costs a life.
   - **On phones** the game fits above the on-screen keyboard (via the visual viewport), keeps the same fall time on a
