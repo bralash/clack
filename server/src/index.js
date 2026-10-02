@@ -243,6 +243,21 @@ async function sync(req, env, u) {
   }
   fail(409, "sync conflict — try again");
 }
+// Add clacks to an account's synced balance (never below 0) and note the gift: the last 20 are kept as
+// blob.gifts [{id, amount, note, at}], which devices announce once after they sync.
+async function giveClacks(env, userId, amount, note) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const row = await env.DB.prepare("SELECT blob, blob_ver FROM users WHERE id = ?").bind(userId).first();
+    let blob = {}; try { blob = JSON.parse(row.blob || "{}") || {}; } catch { blob = {}; }
+    blob.clacks = Math.max(0, (Number(blob.clacks) || 0) + amount);
+    const at = Date.now();
+    blob.gifts = [...(Array.isArray(blob.gifts) ? blob.gifts : []), { id: at.toString(36) + Math.random().toString(36).slice(2, 6), amount, note, at }].slice(-20);
+    const res = await env.DB.prepare("UPDATE users SET blob = ?, blob_ver = blob_ver + 1 WHERE id = ? AND blob_ver = ?")
+      .bind(JSON.stringify(blob), userId, row.blob_ver).run();
+    if (res.meta.changes) return blob.clacks;
+  }
+  fail(409, "the account was syncing — try again");
+}
 
 /* ---------- Clack Off (challenge links) ---------- */
 // A challenge is a 30s / 60s word set (by seed). The creator's verified run becomes the ghost that
@@ -407,6 +422,15 @@ async function admin(req, env, action) {
     await env.DB.prepare("UPDATE users SET name = ? WHERE id = ?").bind(to, u.id).run();
     await logAction(env, req, "set-name", who(u), { to });
     return json({ ok: true, name: to });
+  }
+  if (action === "grant-clacks") {
+    // Gift (or, with a negative amount, take back) clacks. They land in the synced balance, and the gift
+    // is kept on the account so the player's devices can say where they came from. Coupons can reuse giveClacks.
+    const amount = Math.round(+b.amount), note = String(b.note || "").trim().slice(0, 60);
+    if (!Number.isFinite(amount) || !amount || Math.abs(amount) > 100000) fail(400, "an amount from -100,000 to 100,000");
+    const u = await findUser(env, b), clacks = await giveClacks(env, u.id, amount, note || null);
+    await logAction(env, req, "grant-clacks", who(u), { amount, note: note || undefined, balance: clacks });
+    return json({ ok: true, clacks });
   }
   if (action === "release-name") {
     const u = await findUser(env, b);

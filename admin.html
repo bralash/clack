@@ -274,13 +274,17 @@ async function openPlayer(id){
       <h3 style="margin:0">actions</h3>
       <div class="row"><input class="in" id="newName" placeholder="new name (reserved names allowed)" value="${esc(u.name||"")}" maxlength="16" spellcheck="false">
         <button class="btn" id="aRename">rename</button></div>
+      <div class="row"><input class="in" id="gAmount" type="number" placeholder="clacks, e.g. 1000" step="1" style="max-width:150px">
+        <input class="in" id="gNote" placeholder="note they'll see (optional)" maxlength="60" spellcheck="false">
+        <button class="btn primary" id="aGive">give clacks</button></div>
       <div class="row">
         <button class="btn ${u.banned?"":"danger"}" id="aBan">${u.banned?"unban":"ban from the boards"}</button>
         <button class="btn" id="aRelease" ${u.name?"":"disabled"}>release name</button>
       </div>
       <div class="row"><input class="in" id="delConfirm" placeholder="type ${esc(label)} to delete" spellcheck="false">
         <button class="btn danger" id="aDelete" disabled>delete account</button></div>
-      <p class="muted" style="font-size:11px">Ban hides every run from the boards. Release frees the name for anyone. Delete removes the account and all its runs, for good.</p>
+      <p class="muted" style="font-size:11px">Clacks land the next time their device syncs, with a 🎁 message and your note
+        (a negative amount takes clacks back). Ban hides every run from the boards. Release frees the name for anyone. Delete removes the account and all its runs, for good.</p>
     </div>
     <div class="card" style="padding:0;overflow:auto">
       <h3 style="margin:14px 16px 4px">recent runs <small class="dimt">— ${d.runs.length}</small></h3>
@@ -289,6 +293,11 @@ async function openPlayer(id){
   const reload=()=>{openPlayer(id);if(view==="players")loadPlayers();};
   $("#aRename").onclick=async()=>{const to=$("#newName").value.trim();if(!to||to===u.name)return;
     try{await act("set-name",{id,to},`renamed to ${to}`);reload();}catch(e){}};
+  $("#aGive").onclick=async()=>{const amount=Math.round(+$("#gAmount").value),note=$("#gNote").value.trim();
+    if(!amount)return toast("enter an amount",true);
+    if(!confirm(`${amount>0?"Give":"Take"} ${fmt(Math.abs(amount))} clacks ${amount>0?"to":"from"} ${label}?`))return;
+    try{const r=await act("grant-clacks",{id,amount,note},"");
+      toast(`${amount>0?"gave":"took"} ${fmt(Math.abs(amount))} clacks · ${label} now has ${fmt(r.clacks)}`);reload();}catch(e){}};
   $("#aBan").onclick=async()=>{try{await act("ban",{id,ban:!u.banned},u.banned?`${label} unbanned`:`${label} banned`);reload();}catch(e){}};
   $("#aRelease").onclick=async()=>{if(!confirm(`Free the name "${u.name}"? The account keeps its runs but has no name until it picks one.`))return;
     try{await act("release-name",{id},`released ${u.name}`);reload();}catch(e){}};

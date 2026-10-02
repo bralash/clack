@@ -27,7 +27,9 @@ Cloudflare Worker with a D1 (SQLite) database.
   - actions (`POST`, each written to the `admin_log` table): `remove-score {id}`, `restore-score {id}`,
     `ban {id, ban}`, `set-name {id | from, to}` (any name, including reserved ones such as the owner's handle,
     without using up the 60-day rename), `release-name {id}`, `delete-user {id}`,
-    `remove-challenge {id}` (takes a clack off link down)
+    `remove-challenge {id}` (takes a clack off link down), `grant-clacks {id | from, amount, note?}` (adds to the
+    synced balance, never below 0; the gift is kept in the account's `gifts` list and each device shows a 🎁 message
+    after its next sync)
 
 ## Admin page
 

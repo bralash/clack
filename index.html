@@ -3513,6 +3513,11 @@ async function syncNow(){
     STATS.clacks=(blob.clacks||0)+extra.clacks;
     STATS.freezes=Math.max(0,(blob.freezes||0)+extra.freezes);
     mergeSets(STATS,blob);
+    // clacks gifted to the account (admin, later coupons): say so once on each device, for gifts since its last sync
+    const since=ON.giftAt??ON.syncedAt??Date.now(),gifts=(Array.isArray(blob.gifts)?blob.gifts:[]).filter(x=>x&&x.at>since&&x.amount);
+    ON.giftAt=Math.max(since,...gifts.map(x=>x.at));
+    for(const x of gifts)showAchievement({label:x.amount>0?"a gift for you":"balance adjusted",
+      name:`${x.amount>0?"+":"−"}${fmtCk(Math.abs(x.amount))} clacks${x.note?" · "+x.note:""}`,html:'<div class="tt-ice">🎁</div>'});
     ON.base={keys:blob.keys||{},data:blob.data||{},clacks:blob.clacks||0,freezes:blob.freezes||0};ON.syncedAt=Date.now();
     try{localStorage.setItem(SKEY,JSON.stringify(STATS));localStorage.setItem(KEY,JSON.stringify(DATA));}catch(e){}
     saveOn();updateBalance();

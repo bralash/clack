@@ -117,6 +117,16 @@ test("admin page: overview, players, runs, actions and the log", opts, async () 
   assert.equal((await post("set-name", { id, to: "adm2_" + tag })).body.name, "adm2_" + tag);
   const log = (await get("log")).body.rows.slice(0, 6).map(r => r.action);
   for (const a of ["set-name", "unban", "ban", "restore-score", "remove-score"]) assert.ok(log.includes(a), "logged " + a);
+  // gifting clacks: lands in the synced balance with a note the devices can show; can't go below 0
+  await call("/api/sync", { method: "POST", code: u.code, body: { delta: { clacks: 50 }, sets: {} } });
+  assert.equal((await post("grant-clacks", { id, amount: 1000, note: "for the ad" })).body.clacks, 1050);
+  const synced = (await call("/api/sync", { method: "POST", code: u.code, body: { delta: { clacks: 5 }, sets: {} } })).body.blob;
+  assert.equal(synced.clacks, 1055, "the gift and new earnings add up");
+  assert.equal(synced.gifts.at(-1).amount, 1000); assert.equal(synced.gifts.at(-1).note, "for the ad");
+  assert.equal((await post("grant-clacks", { id, amount: -5000 })).body.clacks, 0, "never below 0");
+  assert.equal((await post("grant-clacks", { id, amount: 0 })).status, 400);
+  assert.equal((await post("grant-clacks", { id, amount: 1e6 })).status, 400);
+  assert.equal((await get("log")).body.rows[0].action, "grant-clacks");
   assert.equal((await post("delete-user", { id })).status, 200);
   assert.equal((await get("player?id=" + id)).status, 404);
 });
