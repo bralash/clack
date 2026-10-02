@@ -82,10 +82,16 @@ as Macs) and desktops are told apart by the browser's own report, the OS in the 
 - **Clacks** are earned by playing: ~1 per 25 correct characters in a typing run (15s / 10 words minimum),
   1 per 20 shooter points, +20 for the daily (plus a daily-streak bonus), +15 for a new personal best, and a one-off
   reward for every badge.
-- The **store** sells 3D-rendered shooter **ships** (Dart, Stealth Wing, Saucer, Pixel, Comet, Obsidian; the art is cut
-  from `brand/ships.png` into `brand/ships/` by `server/scripts/cut-ships.mjs`) and bullet **trails**
-  (Dotted, Laser, Plasma, Ember, Rainbow), each with a live animated preview. Some also need a badge.
-  Everything is cosmetic — nothing changes your score.
+- The **store** has three tabs, each item with a live preview. Some also need a badge, and everything is cosmetic —
+  nothing changes your score:
+  - **typing:** **sound packs** for every key (Thock, Clicky, Bubble, Typewriter, Arcade), synthesised with Web Audio,
+    with a ▶ listen button.
+  - **shooter:** 3D-rendered **ships** (Dart, Stealth Wing, Saucer, Pixel, Comet, Obsidian; the art is cut from
+    `brand/ships.png` into `brand/ships/` by `server/scripts/cut-ships.mjs`) and bullet **trails**
+    (Dotted, Laser, Plasma, Ember, Rainbow).
+  - **you:** the **streak freeze** (200 clacks, hold up to 2, spent by itself when you miss a day), **ghost skins**
+    that everyone racing your clack offs sees, and **share card frames** for the daily and clack off cards
+    (Paper, Neon, Blueprint, Gilded, Kente).
 
 ### Polish
 - **Light and dark** themes.

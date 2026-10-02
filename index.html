@@ -338,6 +338,8 @@
   .strip-week i.l3{background:var(--green-3);}.strip-week i.l4{background:var(--green-4);}
   .strip-week i.today{box-shadow:0 0 0 2px var(--gold);}
   .strip-week i.future{background:none;box-shadow:inset 0 0 0 1px var(--line);}
+  .strip-week i.frozen{background:rgba(124,200,255,.28);box-shadow:inset 0 0 0 1px rgba(124,200,255,.55);}
+  .strip-streak .frz{color:#7cc8ff;margin-left:4px;}
   .strip-week span{text-align:center;font-size:11px;color:var(--text-dim);line-height:1;}
   .strip-week span.today{color:var(--gold);}
   .strip-month{display:flex;flex-direction:column;gap:7px;align-items:flex-end;justify-self:end;text-align:right;}
@@ -469,6 +471,13 @@
   .it-act[disabled]{cursor:default;opacity:.7;}
   .it-act[disabled]:hover{border-color:var(--line);color:var(--text);}
   .item.equipped .it-act{color:var(--gold);}
+  .store-sec{margin-top:22px;}
+  .store-sec:first-child{margin-top:4px;}
+  .store-h{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .store-sub{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin:0 0 12px;}
+  .it-name{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  .it-listen{padding:0;font-size:11px;color:var(--gold);white-space:nowrap;}
+  .it-have{font-size:11px;font-weight:400;color:var(--text-dim);}
 
   /* ---------- DAILY CARD (home) ---------- */
   .daily{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap;
@@ -600,6 +609,7 @@
   .toast .tt-emblem svg{width:100%;height:100%;display:block;overflow:visible;}
   .toast .tt-l{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;
     text-transform:uppercase;color:var(--gold);}
+  .toast .tt-ice{font-size:32px;line-height:44px;text-align:center;}
   .toast .tt-n{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-top:3px;}
   @media (prefers-reduced-motion:reduce){.toast{transition:opacity .3s;}}
 
@@ -620,9 +630,9 @@
   .lane.ghost .who{color:var(--text-dim);}
   .lane .track{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;}
   .lane .track i{display:block;height:100%;width:0;border-radius:999px;background:var(--gold);transition:width .25s linear;}
-  .lane.ghost .track i{background:#b39cff;opacity:.85;}
+  .lane.ghost .track i{background:var(--ghost,#b39cff);opacity:.85;}
   .lane b{color:var(--gold);text-align:right;font-variant-numeric:tabular-nums;}
-  .lane.ghost b{color:#b39cff;}
+  .lane.ghost b{color:var(--ghost,#b39cff);}
   .race-gap{font-size:11px;color:var(--text-dim);text-align:center;min-height:14px;}
   #app.short .race{margin-top:2px;gap:5px;}
   /* the clack off screen */
@@ -832,7 +842,7 @@
         </div>
         <!-- progress at a glance; the full activity heatmap lives on the stats page -->
         <button class="strip" id="strip" aria-label="your activity — open stats">
-          <span class="strip-streak"><b id="tStreak">0</b><span>day streak</span></span>
+          <span class="strip-streak"><b id="tStreak">0</b><span>day streak<span id="tFreeze"></span></span></span>
           <span class="strip-week" id="stripWeek"></span>
           <span class="strip-month"><span><b id="tWords">0</b> words</span><span><b id="tTime">0m</b> this month</span></span>
         </button>
@@ -1128,13 +1138,14 @@
           <div class="store-bal"><span class="ck-slot"></span><span class="balN">0</span></div>
         </div>
         <div class="st-sec">
-          <p class="store-lead">Spend the clacks you earn by playing. Everything here is cosmetic — it changes how the shooter looks, never your score.</p>
+          <p class="store-lead">Spend the clacks you earn by playing. Nothing here changes your score — it's all about how Clack looks and sounds.</p>
           <div class="modebar store-tabs" role="tablist" aria-label="store sections">
-            <button class="mchip stab" data-tab="ship" role="tab">▲ ships</button>
-            <button class="mchip stab" data-tab="trail" role="tab">⋯ trails</button>
+            <button class="mchip stab" data-tab="typing" role="tab">♪ typing</button>
+            <button class="mchip stab" data-tab="shooter" role="tab">▲ shooter</button>
+            <button class="mchip stab" data-tab="you" role="tab">✦ you</button>
           </div>
           <div class="store-note" id="storeNote" aria-live="polite"></div>
-          <div class="store-grid" id="storeGrid"></div>
+          <div id="storeGrid"></div>
         </div>
       </div>
     </div>
@@ -1275,8 +1286,16 @@
         <p><b>Clacks</b> are Clack's currency. You earn them by playing: about 1 for every 25 correct characters in a typing run
           (runs need at least 15 seconds or 10 words), 1 per 20 shooter points, <b>+20</b> for the daily with a bonus for your
           daily streak, <b>+15</b> for a new personal best, and a one-off reward for every badge.</p>
-        <p>Spend them in the <b>store</b> on new shooter <b>ships</b> and bullet <b>trails</b>. A few items also need a badge
-          before you can buy them. Everything is cosmetic — nothing you buy changes your score.</p>
+        <p>Spend them in the <b>store</b>:</p>
+        <dl class="kv">
+          <dt>♪ sound packs</dt><dd>Change how every key sounds: thock, clicky, bubble, typewriter or arcade. Press <b>▶ listen</b> to try one first.</dd>
+          <dt>▲ ships &amp; trails</dt><dd>New ships and bullet trails for the shooter.</dd>
+          <dt>🧊 streak freeze</dt><dd>Miss a day and your day streak survives. It's used by itself, you can hold two, and
+            the day shows up icy blue on the home screen.</dd>
+          <dt>👻 ghost skins</dt><dd>How your ghost looks to friends racing your clack offs: a robot, a shark, an alien, on fire, or royalty.</dd>
+          <dt>▣ card frames</dt><dd>The frame on your daily and clack off result images: paper, neon, blueprint, gilded or kente.</dd>
+        </dl>
+        <p>A few items also need a badge before you can buy them. Everything is cosmetic — nothing you buy changes your score.</p>
       </div>
 
       <div class="st-sec">
@@ -1360,10 +1379,30 @@ function fmtTime(s){if(s>=3600)return Math.round(s/3600)+"h";if(s>=60)return Mat
 function fmtNum(n){return n.toLocaleString("en-US");}
 function level(w){if(!w)return 0;if(w<60)return 1;if(w<140)return 2;if(w<240)return 3;return 4;}
 
+// Days in a row with practice. Today doesn't break it until it's over, and a day a streak freeze
+// covered keeps it going without adding to it.
+const practised=d=>{const r=DATA[dayKey(d)];return !!(r&&r.words>0);};
+const frozenDay=d=>!!(STATS.frozen&&STATS.frozen[dayKey(d)]);
 function currentStreak(){
   let s=0;const dt=new Date();
-  for(;;){const r=DATA[dayKey(dt)];if(r&&r.words>0){s++;dt.setDate(dt.getDate()-1);}else break;}
+  if(!practised(dt)&&!frozenDay(dt))dt.setDate(dt.getDate()-1);
+  for(;;){if(practised(dt))s++;else if(!frozenDay(dt))break;dt.setDate(dt.getDate()-1);}
   return s;
+}
+// Streak freezes are spent by themselves: if whole days were missed since you last practised and you
+// hold enough freezes to cover them all, they're used and the streak carries on. Signed in, this runs
+// after a sync, so two devices don't both spend one for the same day.
+function applyFreezes(){
+  if(!STATS.freezes)return;
+  const d=new Date();d.setDate(d.getDate()-1);const missed=[];
+  while(!practised(d)&&!frozenDay(d)&&missed.length<=STATS.freezes){missed.push(dayKey(d));d.setDate(d.getDate()-1);}
+  if(!missed.length||missed.length>STATS.freezes||!(practised(d)||frozenDay(d)))return;   // nothing missed, too much, or no streak
+  for(const k of missed)STATS.frozen[k]=1;
+  STATS.freezes-=missed.length;saveStats();
+  const s=currentStreak();
+  showAchievement({label:missed.length===1?"streak freeze used":`${missed.length} streak freezes used`,
+    name:`your ${s}-day streak is safe`,html:'<div class="tt-ice">🧊</div>'});
+  if(!el.home.hidden)renderMonths();
 }
 
 /* ---------- heatmap: horizontal contribution graph (GitHub-style) ---------- */
@@ -1415,14 +1454,15 @@ function renderMonths(){
   let sq="",lt="";
   for(let i=0;i<7;i++){
     const d=new Date(mon);d.setDate(mon.getDate()+i);
-    const rec=DATA[dayKey(d)],w=rec?rec.words:0,today=d.getTime()===now.getTime(),future=d>now;
-    const tip=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+(future?"":` · ${w?fmtNum(w)+" words":"no practice"}`);
-    sq+=`<i class="${future?"future":"l"+level(w)}${today?" today":""}" title="${tip}"></i>`;
+    const rec=DATA[dayKey(d)],w=rec?rec.words:0,today=d.getTime()===now.getTime(),future=d>now,ice=!w&&frozenDay(d);
+    const tip=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+(future?"":` · ${w?fmtNum(w)+" words":ice?"🧊 streak freeze":"no practice"}`);
+    sq+=`<i class="${future?"future":ice?"frozen":"l"+level(w)}${today?" today":""}" title="${tip}"></i>`;
     lt+=`<span class="${today?"today":""}">${"MTWTFSS"[i]}</span>`;
   }
   $("#stripWeek").innerHTML=sq+lt;
   const t=monthTotals(now.getFullYear(),now.getMonth()),streak=currentStreak();
   $("#tStreak").textContent=streak;
+  $("#tFreeze").innerHTML=STATS.freezes?`<span class="frz" title="${STATS.freezes} streak ${STATS.freezes===1?"freeze":"freezes"} — used by itself if you miss a day">🧊${STATS.freezes}</span>`:"";
   $("#tWords").textContent=fmtNum(t.words);
   $("#tTime").textContent=fmtTime(t.time);
   renderDaily();renderDuelCard();updateBalance();
@@ -1502,8 +1542,9 @@ function ac(){
   if(AC&&AC.state==="suspended"){try{AC.resume();}catch(e){}}
   return AC;
 }
-function tone(type,f0,f1,peak,dur,filterHz){
-  if(!soundOn)return;const c=ac();if(!c)return;const t=c.currentTime;
+let sndPreview=false;                   // the store's "listen" button plays even with sound off
+function tone(type,f0,f1,peak,dur,filterHz,delay=0){
+  if(!soundOn&&!sndPreview)return;const c=ac();if(!c)return;const t=c.currentTime+delay;
   const o=c.createOscillator(),g=c.createGain();
   o.type=type;o.frequency.setValueAtTime(f0,t);
   if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur*0.7);
@@ -1514,9 +1555,50 @@ function tone(type,f0,f1,peak,dur,filterHz){
   if(filterHz){const f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=filterHz;o.connect(f);node=f;}
   node.connect(g).connect(c.destination);o.start(t);o.stop(t+dur+0.02);
 }
-function click(){ tone("triangle",1500,620,0.13,0.05); }         // soft mechanical tick
-function thud(){ tone("sine",155,68,0.28,0.19,300); }            // dull low thud
-function goodBlip(){ tone("triangle",860,1300,0.10,0.13); }      // subtle "nailed it"
+// a short burst of filtered noise: the "body" of a key hit, which tones alone can't make
+let NOISE=null;
+function burst(type,hz,q,peak,dur,delay=0){
+  if(!soundOn&&!sndPreview)return;const c=ac();if(!c)return;
+  if(!NOISE){const n=c.sampleRate/2;NOISE=c.createBuffer(1,n,c.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;}
+  const t=c.currentTime+delay,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+  s.buffer=NOISE;f.type=type;f.frequency.value=hz;f.Q.value=q;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  s.connect(f).connect(g).connect(c.destination);s.start(t,Math.random()*0.4);s.stop(t+dur+0.02);
+}
+// Sound packs (sold in the store): tick = a right key, miss = a wrong one, word = a clean word.
+const SOUNDS={
+  classic:{name:"Classic",price:0,desc:"The soft tick Clack started with.",
+    tick(){tone("triangle",1500,620,0.13,0.05);},miss(){tone("sine",155,68,0.28,0.19,300);},word(){tone("triangle",860,1300,0.10,0.13);}},
+  thock:{name:"Thock",price:250,desc:"Deep and muted, like a heavy linear board.",
+    tick(){burst("lowpass",650,1,0.55,0.05);tone("sine",200,95,0.16,0.06);},
+    miss(){burst("lowpass",280,1,0.7,0.13);tone("sine",105,48,0.3,0.2,220);},
+    word(){tone("sine",330,0,0.06,0.18);tone("sine",495,0,0.05,0.2,0,0.035);}},
+  clicky:{name:"Clicky",price:300,desc:"A crisp blue-switch click, down and back up.",
+    tick(){burst("highpass",3200,0.8,0.3,0.02);tone("square",2600,1900,0.025,0.02,4500);burst("highpass",2600,0.8,0.12,0.015,0.032);},
+    miss(){burst("bandpass",850,2,0.45,0.09);tone("square",170,110,0.05,0.11,900);},
+    word(){tone("triangle",1800,2500,0.06,0.07);}},
+  bubble:{name:"Bubble",price:350,desc:"Every key is a little pop.",
+    tick(){tone("sine",360+Math.random()*140,980,0.17,0.06);},
+    miss(){tone("sine",250,120,0.24,0.17);},
+    word(){tone("sine",620,1250,0.10,0.07);tone("sine",820,1650,0.08,0.07,0,0.07);}},
+  typewriter:{name:"Typewriter",price:400,desc:"Hammer strikes, and a bell for every clean word.",
+    tick(){burst("bandpass",1700,1.2,0.6,0.035);tone("sine",140,90,0.12,0.04);},
+    miss(){burst("lowpass",480,1,0.55,0.11);burst("bandpass",1200,3,0.25,0.05,0.045);},
+    word(){tone("sine",2093,0,0.05,0.5);tone("sine",4186,0,0.018,0.32);}},
+  arcade:{name:"Arcade",price:500,req:"kills50",desc:"8-bit bleeps. Unlocks with Survivor.",
+    tick(){tone("square",880,0,0.03,0.03,5000);},
+    miss(){tone("square",130,62,0.07,0.17,1500);},
+    word(){[660,880,1320].forEach((f,i)=>tone("square",f,0,0.028,0.05,5000,i*0.045));}},
+};
+const pack=()=>SOUNDS[STATS.equip&&STATS.equip.sound]||SOUNDS.classic;
+function click(){ pack().tick(); }
+function thud(){ pack().miss(); }
+function goodBlip(){ pack().word(); }
+function previewPack(id){                // a few keys, a mistake, a fixed word
+  const p=SOUNDS[id]||SOUNDS.classic;sndPreview=true;ac();
+  [0,110,200,330,430,560,690,780,900].forEach((ms,i)=>setTimeout(()=>{(i===4?p.miss:i===8?p.word:p.tick).call(p);},ms));
+  setTimeout(()=>{sndPreview=false;},1100);
+}
 function haptic(ms){ if(soundOn&&navigator.vibrate){try{navigator.vibrate(ms);}catch(e){}} }
 
 function syncSnd(){const b=$("#sndBtn");b.classList.toggle("on",soundOn);b.textContent=soundOn?"♪ sound on":"♪ sound off";}
@@ -1623,7 +1705,8 @@ function nextToast(){
   if(!toastQueue.length){toastActive=false;return;}
   toastActive=true;
   const b=toastQueue.shift(),t=$("#toast");
-  $("#ttEmblem").innerHTML=emblem(b,true);$("#ttName").textContent=b.name;
+  $("#ttEmblem").innerHTML=b.html||emblem(b,true);$("#ttName").textContent=b.name;
+  $("#toast .tt-l").textContent=b.label||"achievement unlocked";
   t.classList.remove("show");void t.offsetWidth;t.classList.add("show");
   fanfare();haptic([0,40,40,40]);
   clearTimeout(toastTimer);
@@ -1645,8 +1728,12 @@ const CK='<svg class="ck" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="
 const BADGE_REWARD={first:25,wpm40:25,wpm60:40,fast80:60,wpm100:100,wpm120:150,clean:40,streak7:80,words1k:60,
   combo10:40,modes:40,kill1:25,bomb5:60,collect:60,kills50:80,frenzy:120};
 STATS.clacks=STATS.clacks||0;
-STATS.owned=STATS.owned||{ship:{arrow:1},trail:{tracer:1}};
-STATS.equip=STATS.equip||{ship:"arrow",trail:"tracer"};
+// what you own per store section, and what's in use; each section has one free item
+const FREE={ship:"arrow",trail:"tracer",sound:"classic",ghost:"ghost",frame:"classic"};
+STATS.owned=STATS.owned||{};STATS.equip=STATS.equip||{};
+for(const [k,id] of Object.entries(FREE)){STATS.owned[k]=STATS.owned[k]||{};STATS.owned[k][id]=1;if(!STATS.equip[k])STATS.equip[k]=id;}
+STATS.freezes=STATS.freezes||0;STATS.frozen=STATS.frozen||{};      // streak freezes held, and the days they covered
+const FREEZE_PRICE=200,FREEZE_MAX=2;
 const fmtCk=n=>n.toLocaleString("en-US");
 function updateBalance(){document.querySelectorAll(".balN").forEach(e=>e.textContent=fmtCk(STATS.clacks));}
 function awardClacks(parts){
@@ -1730,9 +1817,70 @@ const TRAILS={
     g.strokeStyle=`hsl(${((t||0)*240+b.seed*360)%360},90%,65%)`;g.lineWidth=3;g.lineCap="round";
     g.beginPath();g.moveTo(x0,y0);g.lineTo(x,y);g.stroke();g.lineCap="butt";}}
 };
-const CATALOG={ship:SHIPS,trail:TRAILS};
+/* ghost skins: how your ghost looks to everyone racing your clack offs (saved with each clack off) */
+const GHOSTS={
+  ghost:{name:"Ghost",price:0,icon:"👻",color:"#b39cff",desc:"The classic. Spooky, a little purple."},
+  robot:{name:"Robot",price:300,icon:"🤖",color:"#7cc8ff",desc:"Types like a machine. (It isn't one — every run is checked.)"},
+  shark:{name:"Shark",price:350,icon:"🦈",color:"#4aa8ff",desc:"Smells a typo from a mile away."},
+  alien:{name:"Alien",price:400,icon:"👽",color:"#4ee06e",desc:"Came a very long way to beat you."},
+  fire:{name:"On Fire",price:500,icon:"🔥",color:"#ff8a3d",desc:"Leaves scorch marks on the lane."},
+  crown:{name:"Royalty",price:800,req:"wpm100",icon:"👑",color:"#e2b425",desc:"For the 100 wpm club. Unlocks with Blur."},
+};
+const skinOf=id=>GHOSTS[id]||GHOSTS.ghost;
 
-let storeTab="ship",storeRaf=0;
+/* share card frames: the look of the daily and clack off result images. pal = the card's colours;
+   under() draws on the background, over() on top of everything (borders). Cards are 1200×630. */
+const FRAMES={
+  classic:{name:"Classic",price:0,desc:"Dark and simple.",
+    pal:{bg:"#0f1012",fg:"#e7e8ea",dim:"#5c6066",mute:"#6b7078",acc:"#e2b425",acc2:"#b39024",lose:"#8b8f96",good:"#4ee06e",warn:"#e2b425",chip:"rgba(226,180,37,.12)",chipLine:"#8a7220"},
+    over(g,W,H){g.strokeStyle="#26292e";g.lineWidth=2;g.strokeRect(1,1,W-2,H-2);}},
+  paper:{name:"Paper",price:200,desc:"Cream stock and ruled lines, like a notebook.",
+    pal:{bg:"#f4efe3",fg:"#23211c",dim:"#9a9384",mute:"#7a7466",acc:"#a87a0b",acc2:"#8a6a10",lose:"#9a9384",good:"#3f9b4f",warn:"#d6a51e",chip:"rgba(168,122,11,.1)",chipLine:"#c9a44a"},
+    under(g,W,H){g.strokeStyle="#e4dccb";g.lineWidth=1.5;for(let y=66;y<H;y+=44){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+      g.strokeStyle="#e8b4b0";g.lineWidth=2;g.beginPath();g.moveTo(52,0);g.lineTo(52,H);g.stroke();},
+    over(g,W,H){g.strokeStyle="#d9d0bd";g.lineWidth=2;g.strokeRect(1,1,W-2,H-2);}},
+  neon:{name:"Neon",price:250,desc:"Pink and cyan glow, straight off the strip.",
+    pal:{bg:"#0b0716",fg:"#f6eeff",dim:"#6d5c8f",mute:"#8a7aa8",acc:"#ff4fd8",acc2:"#7cf0ff",lose:"#8a7aa8",good:"#7cf0ff",warn:"#ff4fd8",chip:"rgba(255,79,216,.12)",chipLine:"#ff4fd8"},
+    under(g,W,H){for(const [x,y,c] of [[160,90,"255,79,216"],[W-160,H-90,"124,240,255"]]){const r=g.createRadialGradient(x,y,0,x,y,520);
+      r.addColorStop(0,`rgba(${c},.16)`);r.addColorStop(1,`rgba(${c},0)`);g.fillStyle=r;g.fillRect(0,0,W,H);}},
+    over(g,W,H){const rr=(x,y,w,h,r)=>{g.beginPath();g.roundRect?g.roundRect(x,y,w,h,r):g.rect(x,y,w,h);g.stroke();};
+      g.save();g.shadowBlur=22;g.shadowColor="#ff4fd8";g.strokeStyle="#ff4fd8";g.lineWidth=3;rr(14,14,W-28,H-28,24);
+      g.shadowColor="#7cf0ff";g.strokeStyle="#7cf0ff";g.lineWidth=1.5;rr(25,25,W-50,H-50,16);g.restore();}},
+  blueprint:{name:"Blueprint",price:300,desc:"Drafted in white on engineer's blue.",
+    pal:{bg:"#123a6b",fg:"#f1f7ff",dim:"#7fa3cf",mute:"#a3c0e3",acc:"#ffffff",acc2:"#bcd6f5",lose:"#7fa3cf",good:"#9ff0c0",warn:"#ffd36b",chip:"rgba(255,255,255,.1)",chipLine:"#bcd6f5"},
+    under(g,W,H){for(let x=0;x<=W;x+=30){g.strokeStyle=x%150?"rgba(255,255,255,.06)":"rgba(255,255,255,.13)";g.lineWidth=1;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}
+      for(let y=0;y<=H;y+=30){g.strokeStyle=y%150?"rgba(255,255,255,.06)":"rgba(255,255,255,.13)";g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}},
+    over(g,W,H){g.strokeStyle="#bcd6f5";g.lineWidth=1.5;g.strokeRect(18,18,W-36,H-36);
+      for(const [x,y] of [[18,18],[W-18,18],[18,H-18],[W-18,H-18]]){g.beginPath();g.moveTo(x-12,y);g.lineTo(x+12,y);g.moveTo(x,y-12);g.lineTo(x,y+12);g.stroke();}}},
+  gilded:{name:"Gilded",price:400,desc:"A double gold border with corner jewels.",
+    pal:{bg:"#110e07",fg:"#f4ead0",dim:"#6f6550",mute:"#8f8468",acc:"#e8bd3c",acc2:"#c79a26",lose:"#8f8468",good:"#e8bd3c",warn:"#8a7220",chip:"rgba(232,189,60,.12)",chipLine:"#c79a26"},
+    under(g,W,H){const r=g.createLinearGradient(0,0,0,H);r.addColorStop(0,"rgba(232,189,60,.07)");r.addColorStop(1,"rgba(232,189,60,0)");g.fillStyle=r;g.fillRect(0,0,W,H);},
+    over(g,W,H){g.strokeStyle="#e8bd3c";g.lineWidth=2.5;g.strokeRect(16,16,W-32,H-32);g.strokeStyle="#8a7220";g.lineWidth=1;g.strokeRect(25,25,W-50,H-50);
+      g.fillStyle="#e8bd3c";for(const [x,y] of [[16,16],[W-16,16],[16,H-16],[W-16,H-16]]){g.beginPath();g.moveTo(x,y-10);g.lineTo(x+10,y);g.lineTo(x,y+10);g.lineTo(x-10,y);g.closePath();g.fill();}}},
+  kente:{name:"Kente",price:450,desc:"A woven border in gold, green and red.",
+    pal:{bg:"#0f0d08",fg:"#f4ead0",dim:"#6f6550",mute:"#8f8468",acc:"#e2b425",acc2:"#c79a26",lose:"#8f8468",good:"#2fa35a",warn:"#d2452f",chip:"rgba(226,180,37,.12)",chipLine:"#c79a26"},
+    over(g,W,H){const B=22,L=44,cols=["#e2b425","#1f7a3a","#e2b425","#c0392b","#111"];
+      const block=(x,y,w,h,i,horiz)=>{g.fillStyle=cols[i%cols.length];g.fillRect(x,y,w,h);g.fillStyle="rgba(0,0,0,.35)";   // the weave: thin dark threads
+        for(let k=1;k<4;k++)horiz?g.fillRect(x,y+k*h/4-1,w,2):g.fillRect(x+k*w/4-1,y,2,h);};
+      for(let i=0,x=0;x<W;i++,x+=L){block(x,0,L,B,i,true);block(x,H-B,L,B,i+2,true);}
+      for(let i=0,y=B;y<H-B;i++,y+=L){block(0,y,B,Math.min(L,H-B-y),i+1,false);block(W-B,y,B,Math.min(L,H-B-y),i+3,false);}
+      g.strokeStyle="#e2b425";g.lineWidth=1;g.strokeRect(B+6,B+6,W-2*B-12,H-2*B-12);}},
+};
+const frameOf=id=>FRAMES[id]||FRAMES.classic;
+
+const CATALOG={ship:SHIPS,trail:TRAILS,sound:SOUNDS,ghost:GHOSTS,frame:FRAMES};
+// The store's tabs, each a list of sections: [section, title, line under the title]
+const STORE_TABS={
+  typing:[["sound","sound packs","How every key sounds — in tests, the daily, clack offs and lessons."]],
+  shooter:[["ship","ships",""],["trail","trails",""]],
+  you:[["freeze","streak freeze","Miss a day and your streak survives."],
+    ["ghost","ghost skins","What friends see when they race your clack offs."],
+    ["frame","share card frames","The frame on your daily and clack off result cards."]],
+};
+// a keycap and its sound, for the sound pack previews
+const SND_LOOK={classic:["#e2b425","tick"],thock:["#a08c66","thock"],clicky:["#7cc8ff","click"],bubble:["#ff8ad8","pop"],typewriter:["#d9cfb8","clack"],arcade:["#4ee06e","bleep"]};
+
+let storeTab="typing",storeRaf=0;
 function itemState(kind,id){
   const it=CATALOG[kind][id];
   if(STATS.equip[kind]===id)return "equipped";
@@ -1740,47 +1888,91 @@ function itemState(kind,id){
   if(it.req&&!STATS.badges[it.req])return "locked";
   return STATS.clacks>=it.price?"buyable":"short";
 }
+function itemHtml(kind,id,it){
+  const s=itemState(kind,id),need=it.req&&BADGES.find(b=>b.id===it.req),d=`data-kind="${kind}" data-id="${id}"`;
+  const act = s==="equipped"?`<button class="btn it-act" disabled>${kind==="sound"?"in use ✓":"equipped ✓"}</button>`
+    : s==="owned"?`<button class="btn it-act" data-act="equip" ${d}>${kind==="sound"?"use":"equip"}</button>`
+    : s==="locked"?`<button class="btn it-act" disabled>🔒 earn ${need?need.name:"a badge"}</button>`
+    : s==="buyable"?`<button class="btn primary it-act" data-act="buy" ${d}>buy · ${CK}${fmtCk(it.price)}</button>`
+    : `<button class="btn it-act" disabled>${CK}${fmtCk(it.price)} · need ${fmtCk(it.price-STATS.clacks)}</button>`;
+  const listen=kind==="sound"?`<button class="linkbtn it-listen" data-act="listen" ${d}>▶ listen</button>`:"";
+  return `<div class="item ${s}"><canvas class="it-prev" ${d} width="300" height="180" aria-hidden="true"></canvas>
+    <div class="it-name">${it.name}${listen}</div><div class="it-desc">${it.desc}</div>${act}</div>`;
+}
+function freezeHtml(){
+  const n=STATS.freezes,act=n>=FREEZE_MAX?`<button class="btn it-act" disabled>you hold the most · ${n} of ${FREEZE_MAX}</button>`
+    :STATS.clacks>=FREEZE_PRICE?`<button class="btn primary it-act" data-act="freeze">buy · ${CK}${FREEZE_PRICE}</button>`
+    :`<button class="btn it-act" disabled>${CK}${FREEZE_PRICE} · need ${fmtCk(FREEZE_PRICE-STATS.clacks)}</button>`;
+  return `<div class="item ${n?"owned":""}"><canvas class="it-prev" data-kind="freeze" width="300" height="180" aria-hidden="true"></canvas>
+    <div class="it-name">Streak freeze<span class="it-have">${n} of ${FREEZE_MAX}</span></div>
+    <div class="it-desc">Used up by itself when you miss a day, so your day streak carries on. You can hold ${FREEZE_MAX}.</div>${act}</div>`;
+}
+// frame previews are a real card, drawn once and kept
+const frameThumbs={};
+async function frameThumb(id){
+  if(!frameThumbs[id])frameThumbs[id]=drawShareCard(dailyNo(),{wpm:87,acc:98,combo:14,time:31,grid:"111110111111111111111111011111",dev:"k"},
+    id,{name:joined()?ON.name:"you",rank:3,total:41});
+  return frameThumbs[id];
+}
+function drawPreview(c,t){
+  const g=c.getContext("2d"),kind=c.dataset.kind,id=c.dataset.id;g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,150,90);
+  if(kind==="ship"){g.translate(75,47);g.scale(1.3,1.3);SHIPS[id].draw(g,0,0,t);}   // shown larger so details read
+  else if(kind==="trail"){
+    g.font="600 12px 'JetBrains Mono',monospace";g.textAlign="center";g.fillStyle="#e7e8ea";g.fillText("clack",75,16);
+    for(let k=0;k<3;k++){const life=1-(((t*1.6)+k/3)%1);TRAILS[id].draw(g,{x:75,y:38,tx:75,ty:20,life,seed:k*.37},t);}
+    g.save();g.translate(75,61);g.scale(.85,.85);(SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(g,0,0,t);g.restore();
+  }else if(kind==="sound"){                       // a keycap going down, with its sound coming off it
+    const [col,word]=SND_LOOK[id]||SND_LOOK.classic,ph=(t*1.4+id.length*.13)%1,down=ph<.12?3:0;
+    g.fillStyle="#1d2025";g.beginPath();g.roundRect?g.roundRect(52,30+down,46,40,8):g.rect(52,30+down,46,40);g.fill();
+    g.fillStyle="#2a2e35";g.beginPath();g.roundRect?g.roundRect(55,30+down,40,32,7):g.rect(55,30+down,40,32);g.fill();
+    g.strokeStyle=col;g.lineWidth=1.5;g.globalAlpha=.9;g.beginPath();g.roundRect?g.roundRect(55,30+down,40,32,7):g.rect(55,30+down,40,32);g.stroke();
+    for(let k=0;k<3;k++){const a=Math.max(0,1-ph*2.2-k*.25);g.globalAlpha=a;g.beginPath();g.arc(75,46,28+k*9+ph*16,-Math.PI*.8,-Math.PI*.2);g.stroke();}
+    g.globalAlpha=1;g.font="600 10px 'JetBrains Mono',monospace";g.textAlign="center";g.fillStyle=col;g.fillText(word,75,50+down);
+  }else if(kind==="ghost"){                       // two race lanes: you, and this ghost pulling ahead
+    const sk=GHOSTS[id],p=(t*.35)%1,you=.15+p*.62,gh=.15+p*.72;
+    g.font="600 10px 'JetBrains Mono',monospace";g.textAlign="left";
+    const lane=(y,label,w,col,icon)=>{g.fillStyle="#c9ccd1";g.fillText(label,12,y+4);
+      g.fillStyle="#1d2025";g.beginPath();g.roundRect?g.roundRect(44,y-3,94,6,3):g.rect(44,y-3,94,6);g.fill();
+      g.fillStyle=col;g.beginPath();g.roundRect?g.roundRect(44,y-3,94*w,6,3):g.rect(44,y-3,94*w,6);g.fill();
+      if(icon){g.font="15px serif";g.textAlign="center";g.fillText(icon,44+94*w,y-8);g.font="600 10px 'JetBrains Mono',monospace";g.textAlign="left";}};
+    lane(36,"you",you,"#e2b425");lane(66,"ghost",gh,sk.color,sk.icon);
+  }else if(kind==="freeze"){
+    g.textAlign="center";g.font="34px serif";g.fillText("🧊",75,50+Math.sin(t*2)*2);
+    g.font="600 10px 'JetBrains Mono',monospace";g.fillStyle="#7cc8ff";const s=currentStreak();g.fillText(s?`${s}-day streak · safe`:"your streak · safe",75,76);
+  }
+}
 function renderStore(){
   updateBalance();
   document.querySelectorAll(".stab").forEach(b=>{const on=b.dataset.tab===storeTab;b.classList.toggle("active",on);b.setAttribute("aria-selected",on);});
-  const items=CATALOG[storeTab];
-  $("#storeGrid").innerHTML=Object.entries(items).map(([id,it])=>{
-    const s=itemState(storeTab,id);
-    const need=it.req&&BADGES.find(b=>b.id===it.req);
-    const act = s==="equipped"?`<button class="btn it-act" disabled>equipped ✓</button>`
-      : s==="owned"?`<button class="btn it-act" data-act="equip" data-id="${id}">equip</button>`
-      : s==="locked"?`<button class="btn it-act" disabled>🔒 earn ${need?need.name:"a badge"}</button>`
-      : s==="buyable"?`<button class="btn primary it-act" data-act="buy" data-id="${id}">buy · ${CK}${fmtCk(it.price)}</button>`
-      : `<button class="btn it-act" disabled>${CK}${fmtCk(it.price)} · need ${fmtCk(it.price-STATS.clacks)}</button>`;
-    return `<div class="item ${s}"><canvas class="it-prev" data-id="${id}" width="300" height="180" aria-hidden="true"></canvas>
-      <div class="it-name">${it.name}</div><div class="it-desc">${it.desc}</div>${act}</div>`;
-  }).join("");
+  $("#storeGrid").innerHTML=STORE_TABS[storeTab].map(([kind,title,sub])=>`<div class="store-sec">
+      <div class="store-h">${title}</div>${sub?`<p class="store-sub">${sub}</p>`:""}
+      <div class="store-grid">${kind==="freeze"?freezeHtml():Object.entries(CATALOG[kind]).map(([id,it])=>itemHtml(kind,id,it)).join("")}</div></div>`).join("");
   cancelAnimationFrame(storeRaf);
-  const cvs=[...document.querySelectorAll("#storeGrid .it-prev")];
+  const all=[...document.querySelectorAll("#storeGrid .it-prev")],live=all.filter(c=>c.dataset.kind!=="frame");
+  for(const c of all.filter(c=>c.dataset.kind==="frame"))frameThumb(c.dataset.id).then(card=>{   // fit the 1200×630 card in
+    const g=c.getContext("2d"),h=300*card.height/card.width;g.clearRect(0,0,300,180);g.drawImage(card,0,(180-h)/2,300,h);});
   const loopPrev=now=>{                               // animated previews, only while the store is open
     if($("#store").hidden)return;
-    const t=now/1000;
-    for(const c of cvs){
-      const g=c.getContext("2d");g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,150,90);
-      const id=c.dataset.id;
-      if(storeTab==="ship"){g.translate(75,47);g.scale(1.3,1.3);SHIPS[id].draw(g,0,0,t);}   // shown larger so details read
-      else{
-        g.font="600 12px 'JetBrains Mono',monospace";g.textAlign="center";g.fillStyle="#e7e8ea";g.fillText("clack",75,16);
-        for(let k=0;k<3;k++){const life=1-(((t*1.6)+k/3)%1);TRAILS[id].draw(g,{x:75,y:38,tx:75,ty:20,life,seed:k*.37},t);}
-        g.save();g.translate(75,61);g.scale(.85,.85);(SHIPS[STATS.equip.ship]||SHIPS.arrow).draw(g,0,0,t);g.restore();
-      }
-    }
+    for(const c of live)drawPreview(c,now/1000);
     storeRaf=requestAnimationFrame(loopPrev);
   };
   storeRaf=requestAnimationFrame(loopPrev);
 }
-function storeAction(act,id){
-  const it=CATALOG[storeTab][id];
-  if(act==="buy"){
-    if(itemState(storeTab,id)!=="buyable")return;
-    STATS.clacks-=it.price;STATS.owned[storeTab][id]=1;STATS.equip[storeTab]=id;saveStats();
-    $("#storeNote").textContent=`${it.name} is yours — equipped`;fanfare();haptic([0,30,30,30]);
-  }else if(act==="equip"){STATS.equip[storeTab]=id;saveStats();$("#storeNote").textContent=`${it.name} equipped`;click();}
+function storeAction(act,id,kind){
+  const note=$("#storeNote");
+  if(act==="listen"){previewPack(id);return;}
+  if(act==="freeze"){
+    if(STATS.freezes>=FREEZE_MAX||STATS.clacks<FREEZE_PRICE)return;
+    STATS.clacks-=FREEZE_PRICE;STATS.freezes++;saveStats();
+    note.textContent=`🧊 streak freeze bought — you hold ${STATS.freezes} of ${FREEZE_MAX}`;fanfare();haptic([0,30,30,30]);
+  }else{
+    const it=CATALOG[kind][id],what=kind==="sound"?"in use":"equipped";
+    if(act==="buy"){
+      if(itemState(kind,id)!=="buyable")return;
+      STATS.clacks-=it.price;STATS.owned[kind][id]=1;STATS.equip[kind]=id;saveStats();
+      note.textContent=`${it.name} is yours — ${what}`;fanfare();haptic([0,30,30,30]);
+    }else if(act==="equip"){STATS.equip[kind]=id;saveStats();note.textContent=`${it.name} ${what}`;click();}
+  }
   renderStore();
 }
 function openStore(){
@@ -1988,39 +2180,43 @@ function shareText(n,r){
   const who=SHW.name?` · ${SHW.name}`:"",rank=SHW.rank?` · 🏆 #${SHW.rank} of ${SHW.total} ${DEV_LIST[r.dev||"k"].icon}`:"";
   return `Clack Daily #${n} ⌨️${who}\n${r.wpm} wpm · ${r.acc}% · ×${r.combo}${rank}\n${rows.join("\n")}\n${SITE}`;
 }
-async function drawShareCard(n,r){
+// The card's background and border come from your share card frame (the store); fid picks another.
+async function drawShareCard(n,r,fid,who){
   try{await document.fonts.load("700 180px 'JetBrains Mono'");await document.fonts.load("400 24px 'JetBrains Mono'");}catch(e){}
   const W2=1200,H2=630,c=document.createElement("canvas");c.width=W2;c.height=H2;const g=c.getContext("2d");
-  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`;
-  g.fillStyle="#0f1012";g.fillRect(0,0,W2,H2);
-  g.strokeStyle="#26292e";g.lineWidth=2;g.strokeRect(1,1,W2-2,H2-2);
+  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`,fr=frameOf(fid||STATS.equip.frame),P=fr.pal;who=who||SHW;
+  g.fillStyle=P.bg;g.fillRect(0,0,W2,H2);if(fr.under)fr.under(g,W2,H2);
   // wordmark + eyebrow
-  g.textBaseline="alphabetic";g.font=F(700,52);g.fillStyle="#5c6066";g.fillText("cl",72,112);
-  g.fillStyle="#e2b425";g.fillText("ack",72+g.measureText("cl").width,112);
-  g.font=F(600,22);g.fillStyle="#b39024";g.fillText(`DAILY #${n}  ·  ${dailyDate(n).toUpperCase()}`,74,160);
-  if(SHW.name){                                          // whose run this is, and where it placed
-    g.font=F(400,28);g.fillStyle="#6b7078";g.fillText("by ",74,212);
-    const bx=74+g.measureText("by ").width;g.font=F(700,28);g.fillStyle="#e7e8ea";g.fillText(SHW.name,bx,212);
-    if(SHW.rank){const rx=bx+g.measureText(SHW.name).width+22,label=`🏆 #${SHW.rank} of ${SHW.total} on ${DEV_LIST[r.dev||"k"].name}s`;
-      g.font=F(600,22);const rw=g.measureText(label).width+28;
-      g.fillStyle="rgba(226,180,37,.12)";g.strokeStyle="#8a7220";g.lineWidth=1.5;
+  g.textBaseline="alphabetic";g.font=F(700,52);g.fillStyle=P.dim;g.fillText("cl",72,112);
+  g.fillStyle=P.acc;g.fillText("ack",72+g.measureText("cl").width,112);
+  g.font=F(600,22);g.fillStyle=P.acc2;g.fillText(`DAILY #${n}  ·  ${dailyDate(n).toUpperCase()}`,74,160);
+  if(who.name){                                          // whose run this is, and where it placed
+    g.font=F(400,28);g.fillStyle=P.mute;g.fillText("by ",74,212);
+    const bx=74+g.measureText("by ").width;g.font=F(700,28);g.fillStyle=P.fg;g.fillText(who.name,bx,212);
+    if(who.rank){const rx=bx+g.measureText(who.name).width+22,L=DEV_LIST[r.dev||"k"],rk=`#${who.rank} of ${who.total}`;
+      // the longest wording that stays clear of the word grid (it starts at x 638)
+      g.font=F(600,22);const fits=s=>rx+g.measureText(s).width+28<=620;
+      const label=[`🏆 ${rk} on ${L.name}s`,`🏆 ${rk} ${L.icon}`,`${rk} ${L.icon}`].find(fits)||(g.font=F(600,17),`${rk} ${L.icon}`);
+      const rw=g.measureText(label).width+28;
+      g.fillStyle=P.chip;g.strokeStyle=P.chipLine;g.lineWidth=1.5;
       g.beginPath();g.roundRect?g.roundRect(rx,186,rw,36,18):g.rect(rx,186,rw,36);g.fill();g.stroke();
-      g.fillStyle="#e2b425";g.fillText(label,rx+14,211);}
+      g.fillStyle=P.acc;g.fillText(label,rx+14,211);}
   }
   // big wpm
-  g.font=F(700,190);g.fillStyle="#e2b425";g.fillText(String(r.wpm),62,392);
-  const nw=g.measureText(String(r.wpm)).width;g.font=F(600,38);g.fillStyle="#5c6066";g.fillText("wpm",78+nw,392);
+  g.font=F(700,190);g.fillStyle=P.acc;g.fillText(String(r.wpm),62,392);
+  const nw=g.measureText(String(r.wpm)).width;g.font=F(600,38);g.fillStyle=P.dim;g.fillText("wpm",78+nw,392);
   // stats line
   g.font=F(400,28);let x=74;const bits=[[r.acc+"%"," accuracy"],["×"+r.combo," best combo"],[r.time+"s"," time"]];
-  for(const [v,l] of bits){g.fillStyle="#e7e8ea";g.fillText(v,x,462);x+=g.measureText(v).width;g.fillStyle="#6b7078";g.fillText(l,x,462);x+=g.measureText(l).width+40;}
+  for(const [v,l] of bits){g.fillStyle=P.fg;g.fillText(v,x,462);x+=g.measureText(v).width;g.fillStyle=P.mute;g.fillText(l,x,462);x+=g.measureText(l).width+40;}
   // word grid: one square per word
   const sz=40,gap=10,cols=10,gx=W2-72-(cols*sz+(cols-1)*gap),gy=210;
-  g.font=F(600,18);g.fillStyle="#6b7078";g.fillText(`${[...r.grid].filter(ch=>ch==="1").length} / ${r.grid.length} clean words`,gx,gy-18);
+  g.font=F(600,18);g.fillStyle=P.mute;g.fillText(`${[...r.grid].filter(ch=>ch==="1").length} / ${r.grid.length} clean words`,gx,gy-18);
   [...r.grid].forEach((ch,i)=>{const cx2=gx+(i%cols)*(sz+gap),cy2=gy+Math.floor(i/cols)*(sz+gap);
-    g.fillStyle=ch==="1"?"#4ee06e":"#e2b425";g.beginPath();g.roundRect?g.roundRect(cx2,cy2,sz,sz,8):g.rect(cx2,cy2,sz,sz);g.fill();});
+    g.fillStyle=ch==="1"?P.good:P.warn;g.beginPath();g.roundRect?g.roundRect(cx2,cy2,sz,sz,8):g.rect(cx2,cy2,sz,sz);g.fill();});
   // footer
-  g.font=F(400,24);g.fillStyle="#5c6066";g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
-  g.font=F(600,24);g.fillStyle="#e2b425";const cta="type today's words →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+  g.font=F(400,24);g.fillStyle=P.dim;g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
+  g.font=F(600,24);g.fillStyle=P.acc;const cta="type today's words →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+  if(fr.over)fr.over(g,W2,H2);
   return c;
 }
 let shareCanvas=null,shareNo=0;
@@ -2117,7 +2313,8 @@ function startTest(){
   el.home.hidden=true;el.result.hidden=true;el.test.hidden=false;
   el.word.classList.remove("shake","good");
   renderWord();
-  if(DUEL){$("#raceGhostName").textContent="👻 "+DUEL.ch.creator.name;raceTick();}
+  if(DUEL){const sk=skinOf(DUEL.ch.skin);$("#raceGhostName").textContent=sk.icon+" "+DUEL.ch.creator.name;
+    $("#race").style.setProperty("--ghost",sk.color);raceTick();}
   window.addEventListener("keydown",onKey);
   focusKb();
 }
@@ -3125,7 +3322,7 @@ window.addEventListener("resize",()=>{if(Guide.raf)Guide.size();});
 /* store wiring */
 $("#storeBtn").onclick=openStore;$("#storeBack").onclick=closeStore;
 document.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{storeTab=b.dataset.tab;$("#storeNote").textContent="";renderStore();});
-$("#storeGrid").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b)storeAction(b.dataset.act,b.dataset.id);});
+$("#storeGrid").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b)storeAction(b.dataset.act,b.dataset.id,b.dataset.kind);});
 document.querySelectorAll(".ck-slot").forEach(s=>s.innerHTML=CK);
 
 /* settings menu in the header: theme, sound, how it works */
@@ -3263,10 +3460,10 @@ function counters(){
   const keys={},data={};
   for(const [k,v] of Object.entries(STATS.keys))if(k.length===1)keys[k]={a:v.a||0,e:v.e||0};
   for(const [k,v] of Object.entries(DATA))if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(k)&&v)data[k]={words:v.words||0,time:v.time||0};
-  return {keys,data,clacks:STATS.clacks||0};
+  return {keys,data,clacks:STATS.clacks||0,freezes:STATS.freezes||0};
 }
 function minus(a,b){                    // counters a - b
-  const d={keys:{},data:{},clacks:a.clacks-(b.clacks||0)};
+  const d={keys:{},data:{},clacks:a.clacks-(b.clacks||0),freezes:(a.freezes||0)-(b.freezes||0)};
   for(const [k,v] of Object.entries(a.keys)){const o=(b.keys||{})[k]||{a:0,e:0};if(v.a-o.a||v.e-o.e)d.keys[k]={a:v.a-o.a,e:v.e-o.e};}
   for(const [k,v] of Object.entries(a.data)){const o=(b.data||{})[k]||{words:0,time:0};if(v.words-o.words||v.time-o.time)d.data[k]={words:v.words-o.words,time:v.time-o.time};}
   return d;
@@ -3288,9 +3485,11 @@ function mergeSets(into,from){
   for(const f of ["modes","puSeen"]){into[f]=into[f]||{};if(isObj(from[f]))for(const k of Object.keys(from[f]))into[f][k]=1;}
   into.daily=into.daily||{};
   if(isObj(from.daily))for(const [k,v] of Object.entries(from.daily))if(!into.daily[k])into.daily[k]=v;
-  into.owned=into.owned||{ship:{},trail:{}};
-  if(isObj(from.owned))for(const kind of ["ship","trail"]){into.owned[kind]=into.owned[kind]||{};
+  into.owned=into.owned||{};
+  if(isObj(from.owned))for(const kind of Object.keys(FREE)){into.owned[kind]=into.owned[kind]||{};
     if(isObj(from.owned[kind]))for(const id of Object.keys(from.owned[kind]))into.owned[kind][id]=1;}
+  into.frozen=into.frozen||{};
+  if(isObj(from.frozen))for(const k of Object.keys(from.frozen))into.frozen[k]=1;
   if(isObj(from.school)){into.school.stars=into.school.stars||{};
     if(isObj(from.school.stars))for(const [k,v] of Object.entries(from.school.stars))into.school.stars[k]=Math.max(into.school.stars[k]||0,v);
     into.school.asked=!!(into.school.asked||from.school.asked);}
@@ -3302,7 +3501,7 @@ async function syncNow(){
   syncing=true;
   const sent=counters(),delta=minus(sent,ON.base||{});
   const sets={history:STATS.history,pb:STATS.pb,pbDev:STATS.pbDev,badges:STATS.badges,modes:STATS.modes,daily:STATS.daily,
-    puSeen:STATS.puSeen,owned:STATS.owned,school:{stars:STATS.school.stars,asked:STATS.school.asked}};
+    puSeen:STATS.puSeen,owned:STATS.owned,frozen:STATS.frozen,school:{stars:STATS.school.stars,asked:STATS.school.asked}};
   try{
     const {blob}=await api("/api/sync",{method:"POST",body:{delta,sets}});
     const extra=minus(counters(),sent);                    // anything that changed while the request was out
@@ -3312,12 +3511,14 @@ async function syncNow(){
     for(const [k,v] of Object.entries(blob.data||{}))DATA[k]={words:v.words,time:v.time};
     for(const [k,v] of Object.entries(extra.data)){const r=DATA[k]||(DATA[k]={words:0,time:0});r.words+=v.words;r.time+=v.time;}
     STATS.clacks=(blob.clacks||0)+extra.clacks;
+    STATS.freezes=Math.max(0,(blob.freezes||0)+extra.freezes);
     mergeSets(STATS,blob);
-    ON.base={keys:blob.keys||{},data:blob.data||{},clacks:blob.clacks||0};ON.syncedAt=Date.now();
+    ON.base={keys:blob.keys||{},data:blob.data||{},clacks:blob.clacks||0,freezes:blob.freezes||0};ON.syncedAt=Date.now();
     try{localStorage.setItem(SKEY,JSON.stringify(STATS));localStorage.setItem(KEY,JSON.stringify(DATA));}catch(e){}
     saveOn();updateBalance();
     if(!el.home.hidden){renderMonths();}
     if(!$("#board").hidden)renderAccount();
+    applyFreezes();                                          // now that every device's days are in
   }catch(e){if(e.status===401)signedOut("this device's recovery code no longer works");}
   finally{syncing=false;}
 }
@@ -3630,7 +3831,7 @@ function renderCreate(){
     if(!joined()&&!(await claimInline(s.name.trim(),m)))return;
     m.className="lb-msg";m.textContent="creating…";$("#coMake").disabled=true;
     try{const r=s.run;
-      s.made=await api("/api/challenges",{method:"POST",body:{board:r.board,seed:r.seed,dev:r.dev,keys:r.keys,gaps:r.gaps,taunt:s.taunt,rematch_of:s.rematchOf||undefined}});
+      s.made=await api("/api/challenges",{method:"POST",body:{board:r.board,seed:r.seed,dev:r.dev,keys:r.keys,gaps:r.gaps,taunt:s.taunt,rematch_of:s.rematchOf||undefined,skin:STATS.equip.ghost}});
       seenDuel(s.made.id,s.made.entries.length);renderCreate();}
     catch(e){m.className="lb-msg bad";m.textContent=e.message;$("#coMake").disabled=false;}
   };
@@ -3695,17 +3896,18 @@ async function shareDuel(v,btn){
 async function drawDuelCard(v,you){
   try{await document.fonts.load("700 120px 'JetBrains Mono'");}catch(e){}
   const W2=1200,H2=630,cv=document.createElement("canvas");cv.width=W2;cv.height=H2;const g=cv.getContext("2d");
-  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`,c=v.creator,me=v.mine;
-  g.fillStyle="#0f1012";g.fillRect(0,0,W2,H2);g.strokeStyle="#26292e";g.lineWidth=2;g.strokeRect(1,1,W2-2,H2-2);
-  g.textBaseline="alphabetic";g.font=F(700,48);g.fillStyle="#5c6066";g.fillText("cl",72,100);g.fillStyle="#e2b425";g.fillText("ack",72+g.measureText("cl").width,100);
-  g.font=F(600,22);g.fillStyle="#b39024";g.fillText(`⚔ CLACK OFF  ·  ${secsOf(v.board)}s`,74,146);
-  const rows=[{n:you,w:me.wpm,a:me.acc},{n:c.name,w:c.wpm,a:c.acc}].sort((x,y)=>y.w-x.w||y.a-x.a);
+  const F=(w,s)=>`${w} ${s}px 'JetBrains Mono',ui-monospace,monospace`,c=v.creator,me=v.mine,fr=frameOf(STATS.equip.frame),P=fr.pal;
+  g.fillStyle=P.bg;g.fillRect(0,0,W2,H2);if(fr.under)fr.under(g,W2,H2);
+  g.textBaseline="alphabetic";g.font=F(700,48);g.fillStyle=P.dim;g.fillText("cl",72,100);g.fillStyle=P.acc;g.fillText("ack",72+g.measureText("cl").width,100);
+  g.font=F(600,22);g.fillStyle=P.acc2;g.fillText(`⚔ CLACK OFF  ·  ${secsOf(v.board)}s`,74,146);
+  const rows=[{n:you,w:me.wpm,a:me.acc},{n:c.name,w:c.wpm,a:c.acc,ghost:skinOf(v.skin).icon}].sort((x,y)=>y.w-x.w||y.a-x.a);
   rows.forEach((r,i)=>{const y=280+i*150,win=i===0&&rows[0].w!==rows[1].w;
-    g.font=F(700,44);g.fillStyle=win?"#e7e8ea":"#8b8f96";g.fillText((win?"👑 ":"")+r.n,74,y);
-    g.font=F(700,110);g.fillStyle=win?"#e2b425":"#5c6066";const t=String(r.w),tw=g.measureText(t).width;g.fillText(t,W2-200-tw,y+18);
-    g.font=F(600,30);g.fillStyle="#6b7078";g.fillText("wpm",W2-180,y+18);});
-  g.font=F(400,24);g.fillStyle="#5c6066";g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
-  g.font=F(600,24);g.fillStyle="#e2b425";const cta="race us →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+    g.font=F(700,44);g.fillStyle=win?P.fg:P.lose;g.fillText((win?"👑 ":"")+r.n+(r.ghost?" "+r.ghost:""),74,y);
+    g.font=F(700,110);g.fillStyle=win?P.acc:P.dim;const t=String(r.w),tw=g.measureText(t).width;g.fillText(t,W2-200-tw,y+18);
+    g.font=F(600,30);g.fillStyle=P.mute;g.fillText("wpm",W2-180,y+18);});
+  g.font=F(400,24);g.fillStyle=P.dim;g.fillText(SITE.replace("https://","").replace(/\/$/,""),74,570);
+  g.font=F(600,24);g.fillStyle=P.acc;const cta="race us →";g.fillText(cta,W2-72-g.measureText(cta).width,570);
+  if(fr.over)fr.over(g,W2,H2);
   return cv;
 }
 
@@ -3733,7 +3935,7 @@ function renderDuel(ch){
   const secs=secsOf(ch.board),c=ch.creator,me=ch.mine,n=ch.entries.length,body=$("#duelBody");
   $("#duelWhen").textContent=ch.open?closesIn(ch.closes):"closed";
   const rows=ch.entries.map(x=>`<div class="lb-row ${x.rank<=3?"p"+x.rank:""} ${x.me?"me":""}"><span class="r">${x.rank}</span>
-    <span class="n">${escHtml(x.name)}${x.creator?' <small class="ghost-tag" title="the ghost you race">👻</small>':""}${x.me?"<small>you</small>":""}<small>${devIcon(x.dev)}</small></span>
+    <span class="n">${escHtml(x.name)}${x.creator?` <small class="ghost-tag" title="the ghost you race">${skinOf(ch.skin).icon}</small>`:""}${x.me?"<small>you</small>":""}<small>${devIcon(x.dev)}</small></span>
     <span class="w">${x.wpm}<span>wpm</span></span><span class="a">${x.acc}%</span></div>`).join("");
   let act;
   if(c.me){
@@ -3811,8 +4013,8 @@ $("#duelBack").onclick=closeDuel;
 
 ONLINE_READY=true;
 if(API)$("#boardBtn").hidden=false;
-if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")queueSync(1000);});
+if(joined()){setTimeout(()=>{flushPending();syncNow();},1500);}else applyFreezes();   // signed in: after the sync
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){if(joined())queueSync(1000);else applyFreezes();}});
 
 /* ==================== PHONES: fit the screen around the keyboard ==================== */
 // Phone keyboards cover the bottom of the page without resizing it (iOS always; Android Chrome by

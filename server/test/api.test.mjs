@@ -131,12 +131,13 @@ test("clack off: create, race the ghost, one run each, standings and rivalry", o
   // a robot-timed run can't start a challenge
   const bot = typeWords(timeWords(seed), { gapMin: 80, gapMax: 80, maxMs: 30000 });
   assert.equal((await call("/api/challenges", { method: "POST", code: a.code, body: { board: "time30", seed, dev: "k", ...bot } })).status, 422);
-  const made = await call("/api/challenges", { method: "POST", code: a.code, body: { board: "time30", seed, dev: "k", taunt: 2, ...fast } });
+  const made = await call("/api/challenges", { method: "POST", code: a.code, body: { board: "time30", seed, dev: "k", taunt: 2, skin: "shark", ...fast } });
   assert.equal(made.status, 201, JSON.stringify(made.body));
   const id = made.body.id;
   assert.match(id, /^[a-z2-9]{6}$/); assert.equal(made.body.creator.me, true); assert.equal(made.body.taunt, 2);
   // anyone can look (no sign-in): seed + ghost to race
   const view = (await call("/api/challenges/" + id)).body;
+  assert.equal(view.skin, "shark", "racers see the creator's ghost skin");
   assert.equal(view.seed, seed); assert.equal(view.ghost.keys, fast.keys); assert.equal(view.entries.length, 1); assert.equal(view.open, true);
   // b plays slower, c plays the wrong words; b can't play twice
   const pb = await call(`/api/challenges/${id}/runs`, { method: "POST", code: b.code, body: { dev: "t", ...slow } });
@@ -180,5 +181,13 @@ test("sync: two devices add up instead of overwriting", opts, async () => {
   assert.equal(blob.clacks, 100);
   assert.equal(blob.history.length, 2);
   assert.deepEqual(blob.owned, { ship: { arrow: 1, dart: 1 }, trail: { laser: 1 } });
+  // store: sound packs etc. merge like ships; streak freezes add up as a counter; covered days union
+  const more = (await call("/api/sync", { method: "POST", code: u.code, body: {
+    delta: { freezes: 2 }, sets: { owned: { sound: { thock: 1 }, ghost: { robot: 1 }, frame: { kente: 1 }, bogus: { x: 1 } }, frozen: { "2026-10-1": 1 } } } })).body.blob;
+  const used = (await call("/api/sync", { method: "POST", code: u.code, body: {
+    delta: { freezes: -1 }, sets: { frozen: { "2026-10-2": 1, "nope": 1 } } } })).body.blob;
+  assert.equal(more.freezes, 2); assert.equal(used.freezes, 1);
+  assert.deepEqual(used.owned.sound, { thock: 1 }); assert.deepEqual(used.owned.frame, { kente: 1 }); assert.equal(used.owned.bogus, undefined);
+  assert.deepEqual(used.frozen, { "2026-10-1": 1, "2026-10-2": 1 });
   await call("/api/me", { method: "DELETE", code: u.code });
 });

@@ -248,6 +248,7 @@ async function sync(req, env, u) {
 // A challenge is a 30s / 60s word set (by seed). The creator's verified run becomes the ghost that
 // everyone else races; each player gets one verified run per challenge, for CHALLENGE_HOURS.
 const CHALLENGE_HOURS = 24, TAUNTS = 8;
+const SKINS = ["ghost", "robot", "shark", "alien", "fire", "crown"];   // ghost skins, as in the page's GHOSTS
 const CODE_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";   // no 0/o, 1/l/i lookalikes
 const newChallengeId = () => [...crypto.getRandomValues(new Uint8Array(6))].map(x => CODE_CHARS[x % CODE_CHARS.length]).join("");
 // Head-to-head between two players: challenges they both ran, won on wpm then accuracy.
@@ -271,8 +272,9 @@ async function createChallenge(req, env, u) {
   for (let tries = 0; tries < 5; tries++) {
     id = newChallengeId();
     try {
-      await env.DB.prepare("INSERT INTO challenges (id, creator_id, board, seed, taunt, created, closes, rematch_of) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-        .bind(id, u.id, b.board, b.seed, taunt, now, now + CHALLENGE_HOURS * 3600e3, typeof b.rematch_of === "string" ? b.rematch_of.slice(0, 12) : null).run();
+      await env.DB.prepare("INSERT INTO challenges (id, creator_id, board, seed, taunt, created, closes, rematch_of, skin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        .bind(id, u.id, b.board, b.seed, taunt, now, now + CHALLENGE_HOURS * 3600e3, typeof b.rematch_of === "string" ? b.rematch_of.slice(0, 12) : null,
+          SKINS.includes(b.skin) ? b.skin : "ghost").run();
       break;
     } catch (e) { if (!String(e).includes("UNIQUE") || tries === 4) throw e; }   // code already taken: draw another
   }
@@ -292,7 +294,7 @@ async function challengeView(env, id, u) {
   if (mine) await env.DB.prepare("UPDATE challenge_runs SET seen = ? WHERE challenge_id = ? AND user_id = ?").bind(now, id, u.id).run();
   return {
     id: ch.id, board: ch.board, seed: ch.seed, taunt: ch.taunt, created: ch.created, closes: ch.closes, open: now < ch.closes,
-    rematchOf: ch.rematch_of,
+    rematchOf: ch.rematch_of, skin: ch.skin || "ghost",
     creator: { name: ch.creator_name || "(no name)", wpm: ghost?.wpm, acc: ghost?.acc, dev: ghost?.dev, me: !!(u && u.id === ch.creator_id) },
     ghost: ghost ? { keys: ghost.keys, gaps: JSON.parse(ghost.gaps) } : null,
     entries: runs.map((r, i) => ({ rank: i + 1, name: r.name || "(no name)", wpm: r.wpm, acc: r.acc, dev: r.dev, at: r.created,

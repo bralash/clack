@@ -7,6 +7,7 @@
 const n = v => (Number.isFinite(+v) ? +v : 0);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(n(v))));
 const isObj = v => v && typeof v === "object" && !Array.isArray(v);
+const OWNED_KINDS = ["ship", "trail", "sound", "ghost", "frame"];   // store sections
 
 export function applyDeltas(blob, d) {
   if (!isObj(d)) return;
@@ -23,6 +24,7 @@ export function applyDeltas(blob, d) {
     r.words = Math.max(0, r.words + clamp(v.words, -1e5, 1e5)); r.time = Math.max(0, r.time + clamp(v.time, -864e2, 864e2));
   }
   blob.clacks = Math.max(0, n(blob.clacks) + clamp(d.clacks, -1e6, 1e5));
+  blob.freezes = Math.max(0, n(blob.freezes) + clamp(d.freezes, -10, 10));   // streak freezes held
 }
 
 export function mergeSets(into, from) {
@@ -55,10 +57,13 @@ export function mergeSets(into, from) {
   into.daily = isObj(into.daily) ? into.daily : {};         // the first result for a day is the official one
   if (isObj(from.daily)) for (const [k, v] of Object.entries(from.daily)) if (isObj(v) && !into.daily[k]) into.daily[k] = v;
   into.owned = isObj(into.owned) ? into.owned : {};
-  if (isObj(from.owned)) for (const kind of ["ship", "trail"]) {
+  if (isObj(from.owned)) for (const kind of OWNED_KINDS) {
+    if (!isObj(from.owned[kind])) continue;
     into.owned[kind] = isObj(into.owned[kind]) ? into.owned[kind] : {};
-    if (isObj(from.owned[kind])) for (const id of Object.keys(from.owned[kind])) into.owned[kind][id] = 1;
+    for (const id of Object.keys(from.owned[kind])) into.owned[kind][id] = 1;
   }
+  into.frozen = isObj(into.frozen) ? into.frozen : {};      // days a streak freeze covered
+  if (isObj(from.frozen)) for (const k of Object.keys(from.frozen)) if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(k)) into.frozen[k] = 1;
   into.school = isObj(into.school) ? into.school : {};
   if (isObj(from.school)) {
     into.school.stars = isObj(into.school.stars) ? into.school.stars : {};

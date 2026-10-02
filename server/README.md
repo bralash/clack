@@ -14,9 +14,9 @@ Cloudflare Worker with a D1 (SQLite) database.
   player per day.
 - **Boards:** `GET /api/board?b=daily|time30|time60&dev=k|t&range=today|week|all` (or `&day=N` for the daily):
   the best run per player, top 50, plus your own rank.
-- **Sync:** `POST /api/sync` adds counter deltas (key accuracy, activity, clacks) and merges everything else
+- **Sync:** `POST /api/sync` adds counter deltas (key accuracy, activity, clacks, streak freezes held) and merges everything else
   (`src/merge.js`), so devices add up instead of overwriting each other.
-- **Clack Off:** `POST /api/challenges {board: time30|time60, seed, dev, keys, gaps, taunt, rematch_of?}` verifies the
+- **Clack Off:** `POST /api/challenges {board: time30|time60, seed, dev, keys, gaps, taunt, rematch_of?, skin?}` verifies the
   creator's run and returns a challenge with a 6-character code, open for 24 hours. `GET /api/challenges/<code>`
   (public; personalised when signed in) returns the seed, the creator's keystrokes for the ghost, the standings and
   your win–loss record against the creator. `POST /api/challenges/<code>/runs` races it — one run per player,
