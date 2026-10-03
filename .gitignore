@@ -18,3 +18,6 @@ dist/
 .wrangler/
 .dev.vars
 server/src/words.js
+
+# /brag launch videos (brag-output/ and timestamped runs)
+brag-output*/
