@@ -12,7 +12,7 @@ A minimalist typing test — inspired by the Bemonkey iOS app and built as a sin
 - **Time** — 15 / 30 / 60 / 120 / 180 second runs.
 - **Words** — 10 / 25 / 50 / 100 word runs.
 - **Quote** — type real quotes (short / medium / long); the result screen credits the author.
-- **Shoot** — a ZType-style typing game: words drift toward your ship, type one to lock on and fire, destroy it before it reaches the base. Difficulties: `calm` / `normal` / `frenzy`.
+- **Shoot** — a ZType-style typing game: words drift toward your ship, type one to lock on and fire, destroy it before it reaches the base. Difficulties: `calm` / `normal` / `frenzy`. Pause with the ❚❚ button or <kbd>Esc</kbd> (<kbd>Esc</kbd> again quits).
   - **Power-ups** fall as glowing capsules — type the name to grab it:
     `freeze` slows everything to a quarter speed for 10s (easing back at the end) · `double` doubles points for 10s ·
     `chain` makes every kill zap the nearest word too, for 10s · `tiny` spawns only 3–4 letter words for 10s ·
@@ -69,6 +69,8 @@ as Macs) and desktops are told apart by the browser's own report, the OS in the 
 - **Verified scores:** runs are sent as keystroke logs and the server replays them to compute wpm and accuracy itself,
   rejecting runs that don't match the words, overrun the clock, exceed 250 wpm or have machine-regular timing.
 - Fully optional: nothing leaves the device until you pick a name, and you can delete your name and scores any time.
+  Until you have one, the results of every game (tests, the daily, the shooter) offer to claim one right there —
+  the run you just finished goes on the board, and you're shown your recovery code. "Not now" hides it for a day.
 - The stats page can split **keyboard vs phone** runs, so you can compare your speed on each.
 
 ### ⚔ Clack Off

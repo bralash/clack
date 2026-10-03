@@ -288,6 +288,23 @@
     -webkit-tap-highlight-color:transparent;}
   .s-pause b{font-size:20px;color:var(--gold);letter-spacing:1px;}
   .s-pause span{padding:10px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);}
+  .s-pause .sp-quit{background:none;border:0;color:var(--text-dim);font-family:var(--mono);font-size:12px;cursor:pointer;padding:6px;}
+  .s-pause .sp-quit:hover{color:var(--red);}
+  .s-hud .s-left{display:flex;align-items:center;gap:18px;}
+  .s-hud .s-pbtn{pointer-events:auto;color:var(--text-dim);cursor:pointer;background:none;border:0;font:inherit;padding:0;letter-spacing:-1px;}
+  .s-hud .s-pbtn:hover{color:var(--gold);}
+  /* results: claim a name after any game, for players without one */
+  .res-claim{width:min(460px,calc(100% - 32px));margin:16px auto 14px;padding:16px 18px;border:1px solid var(--gold-dim);border-radius:14px;
+    background:var(--surface);font-family:var(--mono);text-align:left;display:flex;flex-direction:column;gap:10px;}
+  .res-claim .rc-h{font-size:14px;font-weight:700;color:var(--gold);}
+  .res-claim p{margin:0;font-size:12px;line-height:1.55;color:var(--text-dim);}
+  .res-claim p b{color:var(--text);}
+  .res-claim .lb-form{display:flex;gap:8px;}
+  .res-claim .lb-input{flex:1;min-width:0;}
+  .res-claim .rc-code{font-size:13px;color:var(--text);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;word-break:break-all;user-select:all;}
+  .res-claim .rc-acts{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .res-claim .rc-acts .linkbtn{padding:0;font-size:12px;}
+  .res-claim .rc-acts .rc-copy{color:var(--gold);}
   .s-hint{position:absolute;bottom:100px;left:0;right:0;text-align:center;z-index:2;   /* above the ship, until the first key */
     font-family:var(--mono);font-size:11px;color:var(--text-dim);
     transition:opacity .4s;pointer-events:none;}
@@ -923,12 +940,13 @@
   <section id="shoot" class="view" hidden>
     <canvas id="cv"></canvas>
     <div class="s-hud">
-      <div class="quit" id="squit">✕ Quit</div>
+      <div class="s-left"><div class="quit" id="squit">✕ Quit</div><button class="s-pbtn" id="sPauseBtn" aria-label="pause" title="pause (esc)">❚❚</button></div>
       <div class="s-mid"><span id="sScore">0</span> <span class="s-x">pts</span></div>
       <div class="s-lives" id="sLives"></div>
     </div>
     <div class="s-hint" id="sHint">type a word to lock &amp; fire · type a power-up to grab it</div>
-    <div class="s-pause" id="sPause" role="button" tabindex="0" hidden><b>paused</b><span>tap to keep playing</span></div>
+    <div class="s-pause" id="sPause" role="button" tabindex="0" hidden><b>paused</b><span id="sPauseHow">tap to keep playing</span>
+      <button class="sp-quit" id="sPauseQuit">✕ quit game</button></div>
   </section>
 
   <!-- STATS -->
@@ -994,6 +1012,7 @@
       <span class="ck-slot"></span><span>+<b id="rClacksN">0</b> clacks</span><span class="ck-why" id="rClacksWhy"></span>
     </div>
     <div class="res-board" id="rBoard" aria-live="polite" hidden></div>
+    <div class="res-claim" id="rClaim" hidden></div>
     <div class="res-board res-school" id="rSchool" hidden>still hunting for keys? <button class="linkbtn" id="rSchoolBtn">clack school teaches touch typing from zero →</button></div>
     <div class="res-duel" id="rDuel" hidden></div>
     <div class="res-btns">
@@ -1208,7 +1227,7 @@
         <p>There are three boards: the <b>daily</b>, <b>30s</b> and <b>60s</b> (time runs without punctuation, numbers or
           weak keys). Each shows every player's best run, with separate <b>keyboard</b> and <b>phone</b> lists so thumbs
           never race ten fingers. The 30s and 60s boards can show today, this week or all time.</p>
-        <p>To join, pick a name — <b>no email, no password</b>. Clack gives you a <b>recovery code</b> instead: it's the key
+        <p>To join, pick a name — <b>no email, no password</b>. Until you have one, Clack offers it after each game. Clack gives you a <b>recovery code</b> instead: it's the key
           to your name, so save it somewhere safe. Enter it on another device to sign in there, and your stats, clacks,
           badges and store items sync between them. You can change your name once every 60 days, and a name that's
           unused for six months is freed for someone else.</p>
@@ -1254,6 +1273,8 @@
           Every word that reaches your base costs a life; lose them all and it's game over.
           Each word is worth <b>10 + its length</b> in points. <b>calm</b>, <b>normal</b> and <b>frenzy</b> change speed,
           spawn rate and lives, and everything speeds up the longer you survive.</p>
+        <p>Need a breather? Press <b>❚❚</b> at the top or <kbd>Esc</kbd> to <b>pause</b>. Everything stops, power-up timers too.
+          Press any key (or tap) to carry on, or <kbd>Esc</kbd> again to quit.</p>
         <p>On a phone, the game fits itself above the on-screen keyboard. Words fall at the same pace and arrive a
           little less often, so a smaller screen isn't harder. Close the keyboard or switch apps and it <b>pauses</b> —
           tap to keep playing.</p>
@@ -2378,6 +2399,7 @@ function endTest(){
   awardClacks(earned);
   if(isDaily||duel||coNext)restoreMode();
   el.test.hidden=true;el.result.hidden=false;
+  showClaim(!duel&&!coNext);                          // clack offs ask for a name their own way
   if(duel&&coRun)finishDuel(duel,coRun);
   if(coNext&&coRun)openCreate(coRun,coNext);
 }
@@ -2625,11 +2647,15 @@ const fallScale=()=>Math.min(1,Math.max(0.3,(H-52-TOP)/FALL_REF));
 // pile up on top of each other: spawn gaps stretch with the square root of the area, relative to a laptop.
 const FIELD_REF=1000*640;
 const densScale=()=>Math.max(0.35,Math.sqrt(Math.min(1,W*(H-52-TOP)/FIELD_REF)));
-// Pausing (mobile): when the keyboard is dismissed or the app goes to the background mid-game.
+// Pausing: the ❚❚ button or Esc, and by itself when a phone keyboard is dismissed or the app goes to the
+// background. Everything stops, power-up timers included. Any key (or a tap) carries on; Esc again quits.
 let sPaused=false,kbMinH=0,kbStartH=0;
 function pauseShooter(){
   if(!sRun||sPaused)return;
-  sPaused=true;cancelAnimationFrame(raf);raf=0;$("#sPause").hidden=false;
+  sPaused=true;cancelAnimationFrame(raf);raf=0;
+  $("#sPauseHow").textContent=touchOnly()?"tap to keep playing":"press any key to keep playing";
+  $("#sPauseQuit").textContent=touchOnly()?"✕ quit game":"esc · quit game";
+  $("#sPause").hidden=false;
 }
 function resumeShooter(){
   if(!sPaused)return;
@@ -2638,6 +2664,8 @@ function resumeShooter(){
 }
 $("#sPause").onclick=resumeShooter;
 $("#sPause").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();resumeShooter();}};
+$("#sPauseQuit").onclick=e=>{e.stopPropagation();quit();};
+$("#sPauseBtn").onclick=e=>{e.currentTarget.blur();pauseShooter();};
 // The keyboard counts as open once the playfield has shrunk by 120px; growing back by that much closes it.
 function kbWatch(h){
   if(!sRun||sPaused||!touchOnly())return;
@@ -2742,11 +2770,13 @@ function endShoot(){
   if(newBadges.length)earned.push(["badges",newBadges.reduce((s,b)=>s+(BADGE_REWARD[b.id]||40),0)]);
   awardClacks(earned);
   $("#shoot").hidden=true;el.result.hidden=false;
+  showClaim(true);
 }
 function onShoot(e){
   if(!sRun)return;
-  if(e.key==="Escape"){quit();return;}
+  if(e.key==="Escape"){e.preventDefault();sPaused?quit():pauseShooter();return;}   // Esc pauses; Esc again quits
   if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(sPaused&&!["Shift","CapsLock","Tab"].includes(e.key)){claimKey(e);resumeShooter();return;}   // any key carries on
   if(e.key===" "){claimKey(e);useBomb();return;}      // Space sets off a stored bomb
   if(e.key.length!==1||!/[a-zA-Z']/.test(e.key))return;
   claimKey(e);
@@ -3409,6 +3439,7 @@ window.addEventListener("keydown",e=>{
     e.preventDefault();$("#startBtn").click();
   }else if(!el.result.hidden&&(e.key==="Enter"||e.key==="Tab"||e.key==="Escape")){
     if(e.key==="Enter"&&onControl)return;
+    if(a&&a.tagName==="INPUT"&&e.key!=="Escape")return;   // typing a name: Tab and Enter belong to the field
     e.preventDefault();
     if(e.key==="Escape"||$("#again").hidden)$("#done").click();else $("#again").click();
   }else if(running&&e.key==="Tab"&&mode!=="daily"&&!DUEL&&!CO_NEXT){   // the daily and clack offs are one attempt: no restarts
@@ -3496,7 +3527,7 @@ function postRun(run){
     // keep it for a day: if they pick a name now, this run still counts
     ON.pending=ON.pending.filter(p=>Date.now()-p.at<20*3600e3&&!(run.board==="daily"&&p.board==="daily")).slice(-4);
     ON.pending.push(run);saveOn();
-    showResBoard(`<button class="linkbtn" id="rJoin" data-b="${run.board}">post this run to the leaderboard →</button>`);
+    showResBoard(claimable()?"":`<button class="linkbtn" id="rJoin" data-b="${run.board}">post this run to the leaderboard →</button>`);   // the claim card says it
     return;
   }
   showResBoard("posting to the leaderboard…");
@@ -3506,6 +3537,40 @@ function postRun(run){
     if(!e.status){ON.pending.push(run);saveOn();showResBoard("offline — this run will be posted next time");}
     else showResBoard(`<span class="bad">not posted: ${escHtml(e.message)}</span>`);
   });
+}
+/* ---------- claim a name: offered on the results of any game until you have one ---------- */
+const CLAIM_SNOOZE="clack_claim_snooze";               // "not now" hides it for a day
+function claimable(){
+  if(!ONLINE_READY||!API||joined()||ON.code)return false;     // a code without a name: the board's own "pick a name" handles it
+  try{return Date.now()>(+localStorage.getItem(CLAIM_SNOOZE)||0);}catch(e){return true;}
+}
+function showClaim(on){
+  const box=$("#rClaim");
+  if(!on||!claimable()){box.hidden=true;box.innerHTML="";return;}
+  const run=ON.pending.filter(p=>Date.now()-p.at<60e3).pop();   // the leaderboard run you just finished, if it was one
+  box.hidden=false;
+  box.innerHTML=`<div class="rc-h">✦ claim your name</div>
+    <p>${run?"Put this run on the leaderboard and keep":"Keep"} your stats, clacks and badges on every device. <b>No email, no password.</b></p>
+    <div class="lb-form"><input class="lb-input" id="rcName" maxlength="16" placeholder="pick a name" autocomplete="off" spellcheck="false" aria-label="pick a name">
+      <button class="btn primary" id="rcGo">claim</button></div>
+    <div class="lb-msg co-msg" id="rcMsg"></div>
+    <div class="rc-acts"><button class="linkbtn" id="rcLater">not now</button></div>`;
+  const go=async()=>{
+    $("#rcGo").disabled=true;
+    if(await claimInline($("#rcName").value.trim(),$("#rcMsg")))claimed(run);else $("#rcGo").disabled=false;
+  };
+  $("#rcGo").onclick=go;
+  $("#rcName").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go();}};
+  $("#rcLater").onclick=()=>{try{localStorage.setItem(CLAIM_SNOOZE,Date.now()+24*3600e3);}catch(e){}box.hidden=true;};
+}
+function claimed(run){                                    // signed in (and any waiting run posted): hand over the code
+  const box=$("#rClaim");showResBoard("");
+  box.innerHTML=`<div class="rc-h">✓ you're ${escHtml(ON.name)}</div>
+    <p>This is your <b>recovery code</b>, the key to your name. Save it somewhere safe, and enter it on another device to sign in there.</p>
+    <div class="rc-code">${escHtml(ON.code)}</div>
+    <div class="rc-acts"><button class="linkbtn rc-copy" id="rcCopy">copy code</button>${run?`<button class="linkbtn" id="rcBoard">your run is on the board →</button>`:""}</div>`;
+  $("#rcCopy").onclick=e=>copyText(ON.code,e.currentTarget);
+  const b=$("#rcBoard");if(b)b.onclick=()=>{LB.dev=run.dev==="t"?"t":"k";openBoard(run.board);};
 }
 async function flushPending(){
   if(!joined()||!ON.pending.length)return;
